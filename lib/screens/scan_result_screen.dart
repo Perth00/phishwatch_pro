@@ -4,7 +4,6 @@ import '../constants/app_theme.dart';
 import '../widgets/confidence_meter.dart';
 import '../widgets/explanation_card.dart';
 import '../widgets/animated_card.dart';
-import '../widgets/progress_indicator_widget.dart';
 import '../services/sound_service.dart';
 
 class ScanResultScreen extends StatefulWidget {
@@ -147,7 +146,7 @@ This is an urgent matter. Your account security is at risk.
                 const SizedBox(height: AppConstants.spacingXL),
 
                 // Action buttons
-                _buildActionButtons(),
+                _buildActionButtons(theme),
               ],
             ),
           ),
@@ -262,7 +261,7 @@ This is an urgent matter. Your account security is at risk.
     );
   }
 
-  Widget _buildActionButtons() {
+  Widget _buildActionButtons(ThemeData theme) {
     return Column(
       children: [
         // Test Your Knowledge Section
@@ -320,14 +319,21 @@ This is an urgent matter. Your account security is at risk.
                           _showQuizDialog();
                         },
                         icon: const Icon(Icons.psychology_outlined),
-                        label: const Text('Take Quiz'),
+                        label: const Text(
+                          'Take Quiz',
+                          style: TextStyle(fontSize: 13),
+                        ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.primaryColor,
                           foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 10,
+                          ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: AppConstants.spacingS),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: OutlinedButton.icon(
                         onPressed: () {
@@ -335,9 +341,16 @@ This is an urgent matter. Your account security is at risk.
                           _showScenarioDialog();
                         },
                         icon: const Icon(Icons.play_circle_outline),
-                        label: const Text('Try Scenario'),
+                        label: const Text(
+                          'Scenario',
+                          style: TextStyle(fontSize: 13),
+                        ),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppTheme.primaryColor,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 10,
+                          ),
                         ),
                       ),
                     ),
@@ -387,10 +400,17 @@ This is an urgent matter. Your account security is at risk.
                         _showScanDialog();
                       },
                       icon: const Icon(Icons.refresh),
-                      label: const Text('Scan Again'),
+                      label: const Text(
+                        'Scan Again',
+                        style: TextStyle(fontSize: 14),
+                      ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.successColor,
                         foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 12,
+                        ),
                       ),
                     ),
                   ),
@@ -404,6 +424,7 @@ This is an urgent matter. Your account security is at risk.
   }
 
   void _showQuizDialog() {
+    final theme = Theme.of(context);
     showDialog(
       context: context,
       builder:
@@ -431,12 +452,14 @@ This is an urgent matter. Your account security is at risk.
                   'Quick Quiz (5 questions)',
                   '~3 minutes',
                   Icons.flash_on,
+                  theme,
                 ),
                 const SizedBox(height: AppConstants.spacingS),
                 _buildQuizOption(
                   'Comprehensive Quiz (15 questions)',
                   '~8 minutes',
                   Icons.assignment,
+                  theme,
                 ),
               ],
             ),
@@ -462,6 +485,7 @@ This is an urgent matter. Your account security is at risk.
   }
 
   void _showScenarioDialog() {
+    final theme = Theme.of(context);
     showDialog(
       context: context,
       builder:
@@ -489,12 +513,14 @@ This is an urgent matter. Your account security is at risk.
                   'Similar Email Scenario',
                   'Based on this result',
                   Icons.email,
+                  theme,
                 ),
                 const SizedBox(height: AppConstants.spacingS),
                 _buildScenarioOption(
                   'Random Scenario',
                   'Mixed difficulty',
                   Icons.shuffle,
+                  theme,
                 ),
               ],
             ),
@@ -520,6 +546,7 @@ This is an urgent matter. Your account security is at risk.
   }
 
   void _showScanDialog() {
+    final theme = Theme.of(context);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -587,7 +614,12 @@ This is an urgent matter. Your account security is at risk.
     );
   }
 
-  Widget _buildQuizOption(String title, String duration, IconData icon) {
+  Widget _buildQuizOption(
+    String title,
+    String duration,
+    IconData icon,
+    ThemeData theme,
+  ) {
     return Container(
       padding: const EdgeInsets.all(AppConstants.spacingM),
       decoration: BoxDecoration(
@@ -622,7 +654,12 @@ This is an urgent matter. Your account security is at risk.
     );
   }
 
-  Widget _buildScenarioOption(String title, String description, IconData icon) {
+  Widget _buildScenarioOption(
+    String title,
+    String description,
+    IconData icon,
+    ThemeData theme,
+  ) {
     return Container(
       padding: const EdgeInsets.all(AppConstants.spacingM),
       decoration: BoxDecoration(

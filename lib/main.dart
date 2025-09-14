@@ -9,11 +9,15 @@ import 'screens/scan_result_screen.dart';
 import 'screens/scan_history_screen.dart';
 import 'screens/learn_screen.dart';
 import 'services/theme_service.dart';
+import 'services/onboarding_service.dart';
 
 void main() {
   runApp(
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => ThemeService())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeService()),
+        ChangeNotifierProvider(create: (_) => OnboardingService()),
+      ],
       child: const PhishWatchApp(),
     ),
   );
@@ -41,7 +45,24 @@ class PhishWatchApp extends StatelessWidget {
 
 final GoRouter _router = GoRouter(
   routes: [
-    GoRoute(path: '/', builder: (context, state) => const WelcomeScreen()),
+    GoRoute(
+      path: '/',
+      builder: (context, state) {
+        return Consumer<OnboardingService>(
+          builder: (context, onboardingService, child) {
+            if (onboardingService.isOnboardingCompleted) {
+              return const HomeScreen();
+            } else {
+              return const WelcomeScreen();
+            }
+          },
+        );
+      },
+    ),
+    GoRoute(
+      path: '/welcome',
+      builder: (context, state) => const WelcomeScreen(),
+    ),
     GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
     GoRoute(path: '/learn', builder: (context, state) => const LearnScreen()),
     GoRoute(
