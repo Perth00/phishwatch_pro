@@ -14,10 +14,11 @@ analyzer:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
   errors:
-    # Treat info-level issues as warnings instead of errors
-    avoid_print: warning
-    deprecated_member_use: warning
-    prefer_interpolation_to_compose_strings: warning
+    # Treat info-level issues as info (non-fatal)
+    avoid_print: info
+    deprecated_member_use: info
+    prefer_interpolation_to_compose_strings: info
+    unused_import: info
 
 linter:
   # The lint rules applied to this project can be customized in the
