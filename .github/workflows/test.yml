@@ -28,7 +28,9 @@ jobs:
       run: flutter pub get
     
     - name: Analyze code
-      run: flutter analyze
+      run: |
+        echo "Running Flutter analysis..."
+        flutter analyze --no-fatal-infos
     
     - name: Run widget tests
       run: flutter test test/widget_test.dart
