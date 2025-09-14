@@ -21,39 +21,31 @@ jobs:
     
     - name: Get dependencies
       run: flutter pub get
-      working-directory: ./phishwatch_pro
     
     - name: Analyze code
       run: flutter analyze
-      working-directory: ./phishwatch_pro
     
     - name: Run widget tests
       run: flutter test test/widget_test.dart
-      working-directory: ./phishwatch_pro
     
     - name: Run widget component tests
       run: flutter test test/widgets/widget_tests.dart
-      working-directory: ./phishwatch_pro
     
     - name: Run welcome screen tests
       run: flutter test test/screens/welcome_screen_test.dart
-      working-directory: ./phishwatch_pro
     
     - name: Run home screen tests
       run: flutter test test/screens/home_screen_test.dart
-      working-directory: ./phishwatch_pro
     
     - name: Run integration tests
       run: flutter test integration_test/app_test.dart
-      working-directory: ./phishwatch_pro
     
     - name: Generate test report
       run: dart run test_runner.dart
-      working-directory: ./phishwatch_pro
     
     - name: Upload test results
       uses: actions/upload-artifact@v4
       if: always()
       with:
         name: test-results
-        path: phishwatch_pro/test_report.md
+        path: test_report.md
