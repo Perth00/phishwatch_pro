@@ -426,46 +426,6 @@ class _ScanHistoryScreenState extends State<ScanHistoryScreen>
       },
     );
   }
-
-  void _showFilterDialog() {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Filter Results'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CheckboxListTile(
-                  title: const Text('Phishing'),
-                  value: true,
-                  onChanged: (value) {},
-                ),
-                CheckboxListTile(
-                  title: const Text('Safe'),
-                  value: true,
-                  onChanged: (value) {},
-                ),
-                CheckboxListTile(
-                  title: const Text('Suspicious'),
-                  value: true,
-                  onChanged: (value) {},
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Apply'),
-              ),
-            ],
-          ),
-    );
-  }
 }
 
 class HistoryItem {

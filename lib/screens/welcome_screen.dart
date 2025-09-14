@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:animations/animations.dart';
+import 'package:provider/provider.dart';
 
 import '../constants/app_theme.dart';
 import '../widgets/animated_page_indicator.dart';
 import '../widgets/feature_showcase.dart';
+import '../services/onboarding_service.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -99,10 +100,20 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   }
 
   void _getStarted() {
+    final onboardingService = Provider.of<OnboardingService>(
+      context,
+      listen: false,
+    );
+    onboardingService.completeOnboarding();
     context.go('/home');
   }
 
   void _skipTutorial() {
+    final onboardingService = Provider.of<OnboardingService>(
+      context,
+      listen: false,
+    );
+    onboardingService.completeOnboarding();
     context.go('/home');
   }
 

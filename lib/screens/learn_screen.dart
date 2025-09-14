@@ -386,7 +386,7 @@ class _LearnScreenState extends State<LearnScreen>
         ),
         const SizedBox(height: AppConstants.spacingM),
         SizedBox(
-          height: 120,
+          height: 140,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: _categories.length,
@@ -445,22 +445,24 @@ class _LearnScreenState extends State<LearnScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(category.icon, color: category.color, size: 32),
-            const SizedBox(height: AppConstants.spacingS),
+            Icon(category.icon, color: category.color, size: 28),
+            const SizedBox(height: 6),
             Text(
               category.title,
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w600,
                 color: theme.colorScheme.onSurface,
+                fontSize: 13,
               ),
             ),
             const Spacer(),
             ProgressIndicatorWidget(progress: progress, color: category.color),
-            const SizedBox(height: AppConstants.spacingXS),
+            const SizedBox(height: 4),
             Text(
               '${category.completedLessons}/${category.totalLessons} lessons',
               style: theme.textTheme.labelSmall?.copyWith(
                 color: theme.colorScheme.onSurface.withOpacity(0.6),
+                fontSize: 11,
               ),
             ),
           ],
@@ -521,14 +523,21 @@ class _LearnScreenState extends State<LearnScreen>
                       _showQuickQuizDialog();
                     },
                     icon: const Icon(Icons.quiz_outlined),
-                    label: const Text('Take a Quiz'),
+                    label: const Text(
+                      'Take Quiz',
+                      style: TextStyle(fontSize: 13),
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primaryColor,
                       foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 10,
+                      ),
                     ),
                   ),
                 ),
-                const SizedBox(width: AppConstants.spacingM),
+                const SizedBox(width: 8),
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: () {
@@ -536,10 +545,17 @@ class _LearnScreenState extends State<LearnScreen>
                       _showScenarioDialog();
                     },
                     icon: const Icon(Icons.visibility_outlined),
-                    label: const Text('Real-World Scenarios'),
+                    label: const Text(
+                      'Scenarios',
+                      style: TextStyle(fontSize: 13),
+                    ),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppTheme.primaryColor,
                       side: BorderSide(color: AppTheme.primaryColor),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 10,
+                      ),
                     ),
                   ),
                 ),
