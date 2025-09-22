@@ -249,3 +249,4 @@ class _AnimatedCounterWidgetState extends State<AnimatedCounterWidget>
     );
   }
 }
+

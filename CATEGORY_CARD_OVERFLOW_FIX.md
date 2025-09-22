@@ -117,3 +117,4 @@ The fix maintains the visual appeal while ensuring all content fits properly wit
 ---
 
 **Status: ✅ FIXED - Learning Categories overflow resolved**
+
