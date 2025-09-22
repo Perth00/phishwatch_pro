@@ -214,3 +214,4 @@ class _FloatingCardState extends State<FloatingCard>
     );
   }
 }
+

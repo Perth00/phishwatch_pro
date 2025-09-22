@@ -203,3 +203,4 @@ When adding new features:
 3. Add screen tests for new screens
 4. Update this documentation
 5. Run full test suite to ensure no regressions
+

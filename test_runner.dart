@@ -198,3 +198,4 @@ void generateDetailedReport(
     print('⚠️  Could not save detailed report: $e');
   }
 }
+
