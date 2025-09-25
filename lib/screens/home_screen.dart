@@ -8,6 +8,8 @@ import '../widgets/recent_result_card.dart';
 import '../widgets/bottom_nav_bar.dart';
 import '../services/theme_service.dart';
 import '../services/sound_service.dart';
+import '../services/hugging_face_service.dart';
+import '../models/scan_result_data.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -24,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late Animation<double> _contentFadeAnimation;
 
   int _currentNavIndex = 0;
+  final HuggingFaceService _hf = HuggingFaceService();
 
   @override
   void initState() {
@@ -109,7 +112,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   void _scanMessage() {
     SoundService.playButtonSound();
-    context.go('/scan-result');
+    _promptAndScanMessage();
   }
 
   void _scanUrl() {
@@ -120,6 +123,99 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void _viewHistory() {
     SoundService.playButtonSound();
     context.go('/scan-history');
+  }
+
+  Future<void> _promptAndScanMessage() async {
+    final theme = Theme.of(context);
+    final TextEditingController controller = TextEditingController();
+    final String? text = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+          ),
+          title: const Text('Enter message to scan'),
+          content: TextField(
+            controller: controller,
+            maxLines: 5,
+            decoration: const InputDecoration(
+              hintText: 'Paste email/SMS content here...',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, controller.text.trim()),
+              child: const Text('Scan'),
+            ),
+          ],
+        );
+      },
+    );
+    if (text == null || text.isEmpty) return;
+
+    // Show progress
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return Center(
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surface,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+                SizedBox(width: 12),
+                Text('Analyzing...'),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    try {
+      final Map<String, dynamic> result = await _hf.classifyText(text: text);
+      Navigator.of(context).pop();
+
+      final String rawLabel = (result['label'] as String).toUpperCase();
+      final double score = (result['score'] as num).toDouble();
+      final bool isPhishing =
+          rawLabel.contains('PHISH') || rawLabel == 'LABEL_1';
+
+      final ScanResultData data = ScanResultData(
+        isPhishing: isPhishing,
+        confidence: score,
+        classification: isPhishing ? 'Phishing' : 'Legitimate',
+        riskLevel: ScanResultData.riskFromConfidence(
+          score,
+          isPhishing: isPhishing,
+        ),
+        source: 'User input',
+        message: text,
+      );
+
+      context.go('/scan-result', extra: data);
+    } catch (e) {
+      Navigator.of(context).pop();
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Scan failed: ' + e.toString())));
+    }
   }
 
   void _viewSecurityTips() {
