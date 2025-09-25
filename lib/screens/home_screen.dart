@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 
 import '../constants/app_theme.dart';
 import '../widgets/scan_button.dart';
@@ -10,6 +10,8 @@ import '../services/theme_service.dart';
 import '../services/sound_service.dart';
 import '../services/hugging_face_service.dart';
 import '../models/scan_result_data.dart';
+import '../services/history_service.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -27,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   int _currentNavIndex = 0;
   final HuggingFaceService _hf = HuggingFaceService();
+  static const int _minWordCount = 15; // Require at least 15 words for scanning
 
   @override
   void initState() {
@@ -131,65 +134,120 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     final String? text = await showDialog<String>(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-          ),
-          title: const Text('Enter message to scan'),
-          content: TextField(
-            controller: controller,
-            maxLines: 5,
-            decoration: const InputDecoration(
-              hintText: 'Paste email/SMS content here...',
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context, controller.text.trim()),
-              child: const Text('Scan'),
-            ),
-          ],
+        return StatefulBuilder(
+          builder: (context, setState) {
+            String trimmed = controller.text.trim();
+            final List<String> words =
+                trimmed
+                    .split(RegExp(r'\s+'))
+                    .where((w) => w.isNotEmpty)
+                    .toList();
+            final int wordCount = words.length;
+            final bool meetsRequirement = wordCount >= _minWordCount;
+
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+              ),
+              title: const Text('Enter message to scan'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextField(
+                    controller: controller,
+                    minLines: 5,
+                    maxLines: 10,
+                    onChanged: (_) => setState(() {}),
+                    decoration: InputDecoration(
+                      hintText: 'Paste email/SMS content here...',
+                      helperText:
+                          'Provide at least ' +
+                          _minWordCount.toString() +
+                          ' words for better accuracy',
+                      errorText:
+                          trimmed.isEmpty
+                              ? null
+                              : (meetsRequirement
+                                  ? null
+                                  : 'Please add more details (min ' +
+                                      _minWordCount.toString() +
+                                      ' words).'),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(
+                        meetsRequirement
+                            ? Icons.check_circle
+                            : Icons.error_outline,
+                        size: 16,
+                        color:
+                            meetsRequirement
+                                ? Colors.green
+                                : theme.colorScheme.error,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Words: ' +
+                            wordCount.toString() +
+                            '/' +
+                            _minWordCount.toString(),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color:
+                              meetsRequirement
+                                  ? Colors.green
+                                  : theme.colorScheme.error,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    final String value = controller.text.trim();
+                    final int wc =
+                        value
+                            .split(RegExp(r'\s+'))
+                            .where((w) => w.isNotEmpty)
+                            .length;
+                    if (wc < _minWordCount) {
+                      SoundService.playErrorSound();
+                      setState(() {});
+                      return;
+                    }
+                    Navigator.pop(context, value);
+                  },
+                  child: const Text('Scan'),
+                ),
+              ],
+            );
+          },
         );
       },
     );
     if (text == null || text.isEmpty) return;
 
-    // Show progress
+    // Show nicer analyzing dialog with animation and sound
+    SoundService.playNotificationSound();
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) {
-        return Center(
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surface,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: const [
-                SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-                SizedBox(width: 12),
-                Text('Analyzing...'),
-              ],
-            ),
-          ),
-        );
-      },
+      builder:
+          (context) => const _AnalyzingDialog(message: 'Analyzing message...'),
     );
 
     try {
       final Map<String, dynamic> result = await _hf.classifyText(text: text);
       Navigator.of(context).pop();
+      SoundService.playSuccessSound();
 
       final String rawLabel = (result['label'] as String).toUpperCase();
       final double score = (result['score'] as num).toDouble();
@@ -208,9 +266,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         message: text,
       );
 
-      context.go('/scan-result', extra: data);
+      // Save to history then navigate
+      if (mounted) {
+        await context.read<HistoryService>().addFromScanResult(data);
+        context.go('/scan-result', extra: data);
+      }
     } catch (e) {
       Navigator.of(context).pop();
+      SoundService.playErrorSound();
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
@@ -462,6 +525,67 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
 
             const SizedBox(height: AppConstants.spacingL),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AnalyzingDialog extends StatefulWidget {
+  const _AnalyzingDialog({required this.message});
+
+  final String message;
+
+  @override
+  State<_AnalyzingDialog> createState() => _AnalyzingDialogState();
+}
+
+class _AnalyzingDialogState extends State<_AnalyzingDialog>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppConstants.borderRadius * 1.5),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            RotationTransition(
+              turns: Tween<double>(begin: 0, end: 0.5).animate(
+                CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+              ),
+              child: Icon(
+                Icons.hourglass_top_rounded,
+                size: 56,
+                color: AppTheme.primaryColor,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(widget.message, style: theme.textTheme.titleMedium),
+            const SizedBox(height: 12),
+            LinearProgressIndicator(minHeight: 4, color: AppTheme.primaryColor),
           ],
         ),
       ),
