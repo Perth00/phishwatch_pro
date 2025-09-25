@@ -62,6 +62,18 @@ lib/
    flutter run
    ```
 
+### Hugging Face Integration
+
+The app can analyze message text using a Hugging Face Hosted Inference API. Provide your personal token at runtime without hardcoding it:
+
+```bash
+flutter run --dart-define=HF_API_TOKEN=hf_your_token_here
+```
+
+Notes:
+- Default model id: `Perth0603/phishing-email-mobilebert` (configured in `lib/services/hugging_face_service.dart`).
+- If the model is public and Hosted Inference is enabled, the token is optional.
+
 ## Design System
 
 ### 🎨 Color Palette

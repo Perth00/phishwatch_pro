@@ -5,9 +5,12 @@ import '../widgets/confidence_meter.dart';
 import '../widgets/explanation_card.dart';
 import '../widgets/animated_card.dart';
 import '../services/sound_service.dart';
+import '../models/scan_result_data.dart';
 
 class ScanResultScreen extends StatefulWidget {
-  const ScanResultScreen({super.key});
+  const ScanResultScreen({super.key, this.data});
+
+  final ScanResultData? data;
 
   @override
   State<ScanResultScreen> createState() => _ScanResultScreenState();
@@ -20,21 +23,38 @@ class _ScanResultScreenState extends State<ScanResultScreen>
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
-  // Sample result data
-  final bool _isPhishing = true;
-  final double _confidence = 0.924;
-  final String _classification = 'Phishing';
-  final String _riskLevel = 'High';
-  final String _source = 'unknown@securebank-verify.com';
-  final String _message = '''
-Your account will be suspended unless you verify your information within 24 hours. Click here to verify: https://securebank-verify.com/verify-account
-
-This is an urgent matter. Your account security is at risk.
-''';
+  // Result data (dynamic)
+  late final bool _isPhishing;
+  late final double _confidence;
+  late final String _classification;
+  late final String _riskLevel;
+  late final String _source;
+  late final String _message;
 
   @override
   void initState() {
     super.initState();
+
+    final ScanResultData? data = widget.data;
+    if (data != null) {
+      _isPhishing = data.isPhishing;
+      _confidence = data.confidence;
+      _classification = data.classification;
+      _riskLevel = data.riskLevel;
+      _source = data.source;
+      _message = data.message;
+    } else {
+      // Fallback sample data when navigated directly
+      _isPhishing = true;
+      _confidence = 0.924;
+      _classification = 'Phishing';
+      _riskLevel = 'High';
+      _source = 'unknown@securebank-verify.com';
+      _message =
+          'Your account will be suspended unless you verify your information within 24 hours. '
+          'Click here to verify: https://securebank-verify.com/verify-account\n\n'
+          'This is an urgent matter. Your account security is at risk.';
+    }
 
     _fadeController = AnimationController(
       duration: AppAnimations.normalAnimation,

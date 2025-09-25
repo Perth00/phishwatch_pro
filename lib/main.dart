@@ -6,6 +6,7 @@ import 'constants/app_theme.dart';
 import 'screens/welcome_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/scan_result_screen.dart';
+import 'models/scan_result_data.dart';
 import 'screens/scan_history_screen.dart';
 import 'screens/learn_screen.dart';
 import 'services/theme_service.dart';
@@ -67,7 +68,13 @@ final GoRouter _router = GoRouter(
     GoRoute(path: '/learn', builder: (context, state) => const LearnScreen()),
     GoRoute(
       path: '/scan-result',
-      builder: (context, state) => const ScanResultScreen(),
+      builder: (context, state) {
+        final ScanResultData? data =
+            state.extra is ScanResultData
+                ? state.extra as ScanResultData
+                : null;
+        return ScanResultScreen(data: data);
+      },
     ),
     GoRoute(
       path: '/scan-history',
