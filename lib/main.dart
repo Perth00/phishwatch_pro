@@ -11,6 +11,7 @@ import 'screens/scan_history_screen.dart';
 import 'screens/learn_screen.dart';
 import 'services/theme_service.dart';
 import 'services/onboarding_service.dart';
+import 'services/history_service.dart';
 
 void main() {
   runApp(
@@ -18,6 +19,7 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeService()),
         ChangeNotifierProvider(create: (_) => OnboardingService()),
+        ChangeNotifierProvider(create: (_) => HistoryService()),
       ],
       child: const PhishWatchApp(),
     ),

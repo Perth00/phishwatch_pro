@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../constants/app_theme.dart';
 import '../widgets/history_item_card.dart';
+import 'package:provider/provider.dart';
+import '../services/history_service.dart';
+import '../models/history_item.dart';
 import '../widgets/bottom_nav_bar.dart';
 import '../widgets/animated_card.dart';
 import '../services/sound_service.dart';
@@ -27,42 +30,12 @@ class _ScanHistoryScreenState extends State<ScanHistoryScreen>
   final List<String> _filterOptions = ['All', 'Phishing', 'Safe', 'Suspicious'];
   final List<String> _sortOptions = ['Date', 'Risk Level', 'Confidence'];
 
-  // Sample history data
-  List<HistoryItem> _allHistoryItems = [
-    HistoryItem(
-      id: '1',
-      timestamp: DateTime.now().subtract(const Duration(hours: 2)),
-      classification: 'Phishing',
-      confidence: 0.94,
-      riskLevel: 'High',
-      source: 'unknown@securebank-verify.com',
-      preview: 'Your account will be suspended unless...',
-      isPhishing: true,
-    ),
-    HistoryItem(
-      id: '2',
-      timestamp: DateTime.now().subtract(const Duration(days: 1)),
-      classification: 'Safe',
-      confidence: 0.12,
-      riskLevel: 'Low',
-      source: 'notifications@paypal.com',
-      preview: 'Your payment has been processed...',
-      isPhishing: false,
-    ),
-    HistoryItem(
-      id: '3',
-      timestamp: DateTime.now().subtract(const Duration(days: 2)),
-      classification: 'Suspicious',
-      confidence: 0.67,
-      riskLevel: 'Medium',
-      source: 'deals@amaz0n-offers.com',
-      preview: 'Limited time offer! 90% off...',
-      isPhishing: true,
-    ),
-  ];
+  // Data now comes from HistoryService
+  List<HistoryItem> _allHistoryItems = [];
 
   List<HistoryItem> get _filteredHistoryItems {
-    List<HistoryItem> filtered = _allHistoryItems;
+    // Always work on a modifiable copy
+    List<HistoryItem> filtered = List<HistoryItem>.from(_allHistoryItems);
 
     // Apply classification filter
     if (_selectedFilter != 'All') {
@@ -148,7 +121,7 @@ class _ScanHistoryScreenState extends State<ScanHistoryScreen>
 
   void _onHistoryItemTap(HistoryItem item) {
     SoundService.playButtonSound();
-    context.go('/scan-result');
+    context.go('/scan-result', extra: item.toScanResultData());
   }
 
   void _toggleFilterExpansion() {
@@ -181,6 +154,7 @@ class _ScanHistoryScreenState extends State<ScanHistoryScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    _allHistoryItems = context.watch<HistoryService>().items;
     final colorScheme = theme.colorScheme;
     final filteredItems = _filteredHistoryItems;
 
@@ -428,24 +402,4 @@ class _ScanHistoryScreenState extends State<ScanHistoryScreen>
   }
 }
 
-class HistoryItem {
-  final String id;
-  final DateTime timestamp;
-  final String classification;
-  final double confidence;
-  final String riskLevel;
-  final String source;
-  final String preview;
-  final bool isPhishing;
-
-  HistoryItem({
-    required this.id,
-    required this.timestamp,
-    required this.classification,
-    required this.confidence,
-    required this.riskLevel,
-    required this.source,
-    required this.preview,
-    required this.isPhishing,
-  });
-}
+// HistoryItem model moved to lib/models/history_item.dart
