@@ -120,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   void _scanUrl() {
     SoundService.playButtonSound();
-    context.go('/scan-result');
+    _promptAndScanUrl();
   }
 
   void _viewHistory() {
@@ -279,6 +279,140 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         context,
       ).showSnackBar(SnackBar(content: Text('Scan failed: ' + e.toString())));
     }
+  }
+
+  Future<void> _promptAndScanUrl() async {
+    final theme = Theme.of(context);
+    final TextEditingController controller = TextEditingController();
+
+    String? url = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            final String input = controller.text.trim();
+            final bool looksLikeUrl = _isValidUrl(input);
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+              ),
+              title: const Text('Enter URL to scan'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextField(
+                    controller: controller,
+                    minLines: 1,
+                    maxLines: 3,
+                    onChanged: (_) => setState(() {}),
+                    decoration: const InputDecoration(
+                      hintText: 'https://example.com/login',
+                    ),
+                    keyboardType: TextInputType.url,
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(
+                        looksLikeUrl ? Icons.check_circle : Icons.error_outline,
+                        size: 16,
+                        color:
+                            looksLikeUrl
+                                ? Colors.green
+                                : theme.colorScheme.error,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        looksLikeUrl
+                            ? 'Valid URL'
+                            : 'Enter a valid URL (http/https)'.toString(),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color:
+                              looksLikeUrl
+                                  ? Colors.green
+                                  : theme.colorScheme.error,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    final String value = controller.text.trim();
+                    if (!_isValidUrl(value)) {
+                      SoundService.playErrorSound();
+                      setState(() {});
+                      return;
+                    }
+                    Navigator.pop(context, value);
+                  },
+                  child: const Text('Scan'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    if (url == null || url.isEmpty) return;
+
+    SoundService.playNotificationSound();
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const _AnalyzingDialog(message: 'Analyzing URL...'),
+    );
+
+    try {
+      final Map<String, dynamic> result = await _hf.classifyUrl(url: url);
+      Navigator.of(context).pop();
+      SoundService.playSuccessSound();
+
+      final String rawLabel = (result['label'] as String).toUpperCase();
+      final double score = (result['score'] as num).toDouble();
+      final bool isPhishing =
+          rawLabel.contains('PHISH') || rawLabel == 'LABEL_1';
+
+      final ScanResultData data = ScanResultData(
+        isPhishing: isPhishing,
+        confidence: score,
+        classification: isPhishing ? 'Phishing' : 'Legitimate',
+        riskLevel: ScanResultData.riskFromConfidence(
+          score,
+          isPhishing: isPhishing,
+        ),
+        source: 'URL',
+        message: url,
+      );
+
+      if (mounted) {
+        await context.read<HistoryService>().addFromScanResult(data);
+        context.go('/scan-result', extra: data);
+      }
+    } catch (e) {
+      Navigator.of(context).pop();
+      SoundService.playErrorSound();
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Scan failed: ' + e.toString())));
+    }
+  }
+
+  bool _isValidUrl(String value) {
+    if (value.isEmpty) return false;
+    final Uri? uri = Uri.tryParse(value);
+    if (uri == null) return false;
+    if (!(uri.isScheme('http') || uri.isScheme('https'))) return false;
+    return uri.host.isNotEmpty;
   }
 
   void _viewSecurityTips() {

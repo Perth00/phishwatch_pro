@@ -50,15 +50,22 @@ class _ConfidenceMeterState extends State<ConfidenceMeter>
           ? AppTheme.errorColor
           : AppTheme.warningColor;
     } else {
-      return widget.confidence < 0.3
+      // For safe results, higher confidence indicates higher safety
+      return widget.confidence > 0.7
           ? AppTheme.successColor
           : AppTheme.warningColor;
     }
   }
 
   String get _confidenceText {
-    final percentage = (widget.confidence * 100).round();
-    return '$percentage%';
+    final double pct = (widget.confidence * 100);
+    final String text =
+        (pct >= 100.0)
+            ? '100%'
+            : (pct <= 0.0)
+            ? '0%'
+            : pct.toStringAsFixed(1) + '%';
+    return text;
   }
 
   String get _confidenceLabel {
@@ -110,7 +117,7 @@ class _ConfidenceMeterState extends State<ConfidenceMeter>
                     fit: StackFit.expand,
                     children: [
                       CircularProgressIndicator(
-                        value: _animation.value,
+                        value: _animation.value.clamp(0.0, 1.0),
                         strokeWidth: 8,
                         backgroundColor: theme.colorScheme.outline.withOpacity(
                           0.2,
@@ -158,9 +165,9 @@ class _ConfidenceMeterState extends State<ConfidenceMeter>
         return 'Low confidence, but still suspicious. Verify before proceeding.';
       }
     } else {
-      if (widget.confidence < 0.2) {
+      if (widget.confidence > 0.8) {
         return 'High confidence this message is safe.';
-      } else if (widget.confidence < 0.4) {
+      } else if (widget.confidence > 0.6) {
         return 'Appears to be safe, but always stay vigilant.';
       } else {
         return 'Uncertain classification. Review carefully.';

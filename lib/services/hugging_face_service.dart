@@ -16,8 +16,14 @@ class HuggingFaceService {
     String? modelId,
     String? apiToken,
   }) async {
-    // Optional Space override
-    final String spaceUrl = const String.fromEnvironment('HF_SPACE_URL');
+    // Optional Space override: prefer text-specific Space, then fallback to generic
+    final String textSpaceUrl = const String.fromEnvironment(
+      'HF_TEXT_SPACE_URL',
+    );
+    final String spaceUrl =
+        textSpaceUrl.trim().isNotEmpty
+            ? textSpaceUrl
+            : const String.fromEnvironment('HF_SPACE_URL');
     if (spaceUrl.trim().isNotEmpty) {
       final Uri predictUrl = Uri.parse(
         spaceUrl.endsWith('/predict')
@@ -168,5 +174,120 @@ class HuggingFaceService {
     if (upper == 'HAM') return 'LEGIT';
     if (upper == 'SPAM') return 'PHISH';
     return upper;
+  }
+
+  /// Classify a URL using either a Space proxy endpoint or the Inference API
+  /// for a URL-specific model. Returns a normalized `{ label, score }`.
+  Future<Map<String, dynamic>> classifyUrl({
+    required String url,
+    String? modelId,
+    String? apiToken,
+  }) async {
+    // Optional Space override: prefer URL-specific Space, then fallback to generic
+    final String urlSpaceUrl = const String.fromEnvironment('HF_URL_SPACE_URL');
+    final String spaceUrl =
+        urlSpaceUrl.trim().isNotEmpty
+            ? urlSpaceUrl
+            : const String.fromEnvironment('HF_SPACE_URL');
+    // If Space is provided, prefer dedicated /predict-url if available; fallback to /predict
+    if (spaceUrl.trim().isNotEmpty) {
+      final String base =
+          spaceUrl.endsWith('/')
+              ? spaceUrl.substring(0, spaceUrl.length - 1)
+              : spaceUrl;
+      final Uri predictUrl = Uri.parse(base + '/predict-url');
+      final Map<String, String> headers = <String, String>{
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      };
+      final Map<String, dynamic> body = <String, dynamic>{'url': url};
+
+      http.Response res = await _client.post(
+        predictUrl,
+        headers: headers,
+        body: jsonEncode(body),
+      );
+      // Fallback to /predict with {inputs: url} if /predict-url is not implemented
+      if (res.statusCode == 404) {
+        final Uri fallback = Uri.parse(base + '/predict');
+        res = await _client.post(
+          fallback,
+          headers: headers,
+          body: jsonEncode(<String, dynamic>{'inputs': url}),
+        );
+      }
+      if (res.statusCode < 200 || res.statusCode >= 300) {
+        throw Exception(
+          'Space API error: ' + res.statusCode.toString() + ' - ' + res.body,
+        );
+      }
+      final dynamic j = jsonDecode(res.body);
+      if (j is Map<String, dynamic> &&
+          j.containsKey('label') &&
+          j.containsKey('score')) {
+        return <String, dynamic>{
+          'label': _normalizeLabel((j['label'] as String?) ?? 'UNKNOWN'),
+          'score': (j['score'] as num).toDouble(),
+        };
+      }
+      if (j is List) {
+        return _parseBest(j);
+      }
+      throw Exception('Unexpected response from Space API');
+    }
+
+    // Hosted Inference API path (expects a text-classification model trained for URLs)
+    final String envUrlModelId = const String.fromEnvironment(
+      'HF_URL_MODEL_ID',
+    );
+    final String resolvedModelId =
+        ((modelId ?? '').trim().isNotEmpty)
+            ? (modelId ?? '').trim()
+            : envUrlModelId.trim();
+    if (resolvedModelId.isEmpty) {
+      throw Exception(
+        'URL model not configured. Provide HF_SPACE_URL or HF_URL_MODEL_ID, or pass modelId.',
+      );
+    }
+    final String? token =
+        apiToken ?? const String.fromEnvironment('HF_API_TOKEN');
+
+    final Map<String, String> headers = <String, String>{
+      'Content-Type': 'application/json',
+      if (token != null && token.isNotEmpty) 'Authorization': 'Bearer ' + token,
+    };
+    final Map<String, dynamic> body = <String, dynamic>{'inputs': url};
+
+    final Uri apiUrl = Uri.parse(
+      'https://api-inference.huggingface.co/models/' +
+          resolvedModelId +
+          '?wait_for_model=true',
+    );
+    final http.Response response = await _client.post(
+      apiUrl,
+      headers: headers,
+      body: jsonEncode(body),
+    );
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception(
+        'HuggingFace API error: ' +
+            response.statusCode.toString() +
+            ' - ' +
+            response.body,
+      );
+    }
+    final dynamic json = jsonDecode(response.body);
+    if (json is List) {
+      return _parseBest(json);
+    }
+    if (json is Map<String, dynamic> &&
+        json.containsKey('label') &&
+        json.containsKey('score')) {
+      return <String, dynamic>{
+        'label': _normalizeLabel((json['label'] as String?) ?? 'UNKNOWN'),
+        'score': (json['score'] as num).toDouble(),
+      };
+    }
+    throw Exception('Unexpected response format from HuggingFace API');
   }
 }
