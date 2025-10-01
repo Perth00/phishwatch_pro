@@ -63,6 +63,13 @@ class _HistoryItemCardState extends State<HistoryItemCard>
     }
   }
 
+  String _formatConfidence(double confidence) {
+    final double pct = confidence * 100;
+    if (pct >= 100.0) return '100%';
+    if (pct <= 0.0) return '0%';
+    return pct.toStringAsFixed(1) + '%';
+  }
+
   String _formatTimestamp(DateTime timestamp) {
     final now = DateTime.now();
     final difference = now.difference(timestamp);
@@ -150,7 +157,8 @@ class _HistoryItemCardState extends State<HistoryItemCard>
                     Row(
                       children: [
                         Text(
-                          'Confidence: ${(widget.item.confidence * 100).round()}%',
+                          'Confidence: ' +
+                              _formatConfidence(widget.item.confidence),
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: _classificationColor,
                             fontWeight: FontWeight.w600,
