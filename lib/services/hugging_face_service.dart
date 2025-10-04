@@ -222,13 +222,25 @@ class HuggingFaceService {
         );
       }
       final dynamic j = jsonDecode(res.body);
-      if (j is Map<String, dynamic> &&
-          j.containsKey('label') &&
-          j.containsKey('score')) {
-        return <String, dynamic>{
-          'label': _normalizeLabel((j['label'] as String?) ?? 'UNKNOWN'),
-          'score': (j['score'] as num).toDouble(),
-        };
+      if (j is Map<String, dynamic>) {
+        // Prefer numeric predicted_label if provided by Space
+        if (j.containsKey('predicted_label')) {
+          final int pl = (j['predicted_label'] as num).toInt();
+          final String mapped = (pl == 1) ? 'PHISH' : 'LEGIT';
+          final double score =
+              (j['score'] as num?)?.toDouble() ??
+              ((j['phishing_probability'] as num?)?.toDouble() ?? 0.0);
+          return <String, dynamic>{'label': mapped, 'score': score};
+        }
+        if (j.containsKey('label')) {
+          final double score =
+              (j['score'] as num?)?.toDouble() ??
+              ((j['phishing_probability'] as num?)?.toDouble() ?? 0.0);
+          return <String, dynamic>{
+            'label': _normalizeLabel((j['label'] as String?) ?? 'UNKNOWN'),
+            'score': score,
+          };
+        }
       }
       if (j is List) {
         return _parseBest(j);
