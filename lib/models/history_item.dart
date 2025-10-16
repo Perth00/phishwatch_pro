@@ -1,4 +1,5 @@
 import 'scan_result_data.dart';
+import '../services/gemini_service.dart';
 
 class HistoryItem {
   final String id;
@@ -10,6 +11,7 @@ class HistoryItem {
   final String preview;
   final bool isPhishing;
   final String message;
+  final GeminiAnalysis? geminiAnalysis;
 
   HistoryItem({
     required this.id,
@@ -21,12 +23,28 @@ class HistoryItem {
     required this.preview,
     required this.isPhishing,
     required this.message,
+    this.geminiAnalysis,
   });
+
+  HistoryItem copyWith({GeminiAnalysis? geminiAnalysis}) {
+    return HistoryItem(
+      id: id,
+      timestamp: timestamp,
+      classification: classification,
+      confidence: confidence,
+      riskLevel: riskLevel,
+      source: source,
+      preview: preview,
+      isPhishing: isPhishing,
+      message: message,
+      geminiAnalysis: geminiAnalysis ?? this.geminiAnalysis,
+    );
+  }
 
   factory HistoryItem.fromScanResult(ScanResultData data) {
     final String msg = data.message;
     final String preview =
-        msg.length > 120 ? msg.substring(0, 120) + '...' : msg;
+        msg.length > 120 ? '${msg.substring(0, 120)}...' : msg;
     return HistoryItem(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       timestamp: DateTime.now(),
@@ -37,6 +55,7 @@ class HistoryItem {
       preview: preview,
       isPhishing: data.isPhishing,
       message: msg,
+      geminiAnalysis: data.geminiAnalysis,
     );
   }
 
@@ -51,6 +70,7 @@ class HistoryItem {
       'preview': preview,
       'isPhishing': isPhishing,
       'message': message,
+      if (geminiAnalysis != null) 'geminiAnalysis': geminiAnalysis!.toJson(),
     };
   }
 
@@ -65,6 +85,12 @@ class HistoryItem {
       preview: json['preview'] as String,
       isPhishing: json['isPhishing'] as bool,
       message: json['message'] as String,
+      geminiAnalysis:
+          json['geminiAnalysis'] != null
+              ? GeminiAnalysis.fromJson(
+                json['geminiAnalysis'] as Map<String, dynamic>,
+              )
+              : null,
     );
   }
 
@@ -76,10 +102,7 @@ class HistoryItem {
       riskLevel: riskLevel,
       source: source,
       message: message,
+      geminiAnalysis: geminiAnalysis,
     );
   }
 }
-
-
-
-

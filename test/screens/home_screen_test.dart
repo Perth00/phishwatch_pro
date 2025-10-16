@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 
 import 'package:phishwatch_pro/screens/home_screen.dart';
 import 'package:phishwatch_pro/services/theme_service.dart';
-import 'package:phishwatch_pro/widgets/scan_button.dart';
 import 'package:phishwatch_pro/widgets/bottom_nav_bar.dart';
 
 void main() {
@@ -229,4 +228,3 @@ void main() {
     });
   });
 }
-

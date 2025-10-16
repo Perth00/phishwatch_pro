@@ -44,7 +44,7 @@ class FeatureShowcase extends StatelessWidget {
             feature.title,
             style: theme.textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.bold,
-              color: theme.colorScheme.onBackground,
+              color: theme.colorScheme.onSurface,
             ),
             textAlign: TextAlign.center,
           ),
@@ -56,7 +56,7 @@ class FeatureShowcase extends StatelessWidget {
             child: Text(
               feature.description,
               style: theme.textTheme.bodyLarge?.copyWith(
-                color: theme.colorScheme.onBackground.withOpacity(0.7),
+                color: theme.colorScheme.onSurface.withOpacity(0.7),
                 height: 1.5,
               ),
               textAlign: TextAlign.center,

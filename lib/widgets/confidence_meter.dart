@@ -64,7 +64,7 @@ class _ConfidenceMeterState extends State<ConfidenceMeter>
             ? '100%'
             : (pct <= 0.0)
             ? '0%'
-            : pct.toStringAsFixed(1) + '%';
+            : '${pct.toStringAsFixed(1)}%';
     return text;
   }
 

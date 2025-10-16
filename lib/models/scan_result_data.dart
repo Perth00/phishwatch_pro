@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../services/gemini_service.dart';
 
 class ScanResultData {
   final bool isPhishing;
@@ -7,6 +8,8 @@ class ScanResultData {
   final String riskLevel; // High, Medium, Low
   final String source; // sender, domain, etc.
   final String message; // original analyzed text
+  final GeminiAnalysis? geminiAnalysis; // Educational feedback from Gemini
+  final Future<GeminiAnalysis?>? geminiAnalysisFuture; // Async loading
 
   const ScanResultData({
     required this.isPhishing,
@@ -15,21 +18,13 @@ class ScanResultData {
     required this.riskLevel,
     required this.source,
     required this.message,
+    this.geminiAnalysis,
+    this.geminiAnalysisFuture,
   });
 
   @override
   String toString() {
-    return 'ScanResultData(isPhishing: ' +
-        isPhishing.toString() +
-        ', confidence: ' +
-        confidence.toString() +
-        ', classification: ' +
-        classification +
-        ', riskLevel: ' +
-        riskLevel +
-        ', source: ' +
-        source +
-        ')';
+    return 'ScanResultData(isPhishing: $isPhishing, confidence: $confidence, classification: $classification, riskLevel: $riskLevel, source: $source)';
   }
 
   static String riskFromConfidence(

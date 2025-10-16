@@ -135,7 +135,8 @@ class ExplanationCard extends StatelessWidget {
                     width: double.infinity,
                     padding: const EdgeInsets.all(AppConstants.spacingM),
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.surfaceVariant.withOpacity(0.5),
+                      color: theme.colorScheme.surfaceContainerHighest
+                          .withOpacity(0.5),
                       borderRadius: BorderRadius.circular(
                         AppConstants.spacingS,
                       ),

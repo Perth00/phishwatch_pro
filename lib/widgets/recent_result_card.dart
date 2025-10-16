@@ -99,7 +99,7 @@ class _RecentResultCardState extends State<RecentResultCard> {
                 ),
                 const Spacer(),
                 Text(
-                  ((item.confidence * 100).toStringAsFixed(1)) + '% Confidence',
+                  '${(item.confidence * 100).toStringAsFixed(1)}% Confidence',
                   style: theme.textTheme.labelMedium?.copyWith(
                     color:
                         item.isPhishing
@@ -115,7 +115,7 @@ class _RecentResultCardState extends State<RecentResultCard> {
 
             // Message source
             Text(
-              'Source: ' + item.source,
+              'Source: ${item.source}',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: colorScheme.onSurface.withOpacity(0.7),
               ),

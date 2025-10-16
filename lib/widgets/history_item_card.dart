@@ -67,7 +67,7 @@ class _HistoryItemCardState extends State<HistoryItemCard>
     final double pct = confidence * 100;
     if (pct >= 100.0) return '100%';
     if (pct <= 0.0) return '0%';
-    return pct.toStringAsFixed(1) + '%';
+    return '${pct.toStringAsFixed(1)}%';
   }
 
   String _formatTimestamp(DateTime timestamp) {
@@ -157,8 +157,7 @@ class _HistoryItemCardState extends State<HistoryItemCard>
                     Row(
                       children: [
                         Text(
-                          'Confidence: ' +
-                              _formatConfidence(widget.item.confidence),
+                          'Confidence: ${_formatConfidence(widget.item.confidence)}',
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: _classificationColor,
                             fontWeight: FontWeight.w600,
@@ -203,7 +202,9 @@ class _HistoryItemCardState extends State<HistoryItemCard>
                       width: double.infinity,
                       padding: const EdgeInsets.all(AppConstants.spacingS),
                       decoration: BoxDecoration(
-                        color: colorScheme.surfaceVariant.withOpacity(0.5),
+                        color: colorScheme.surfaceContainerHighest.withOpacity(
+                          0.5,
+                        ),
                         borderRadius: BorderRadius.circular(
                           AppConstants.spacingXS,
                         ),

@@ -147,7 +147,8 @@ class ScenarioCard extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.all(AppConstants.spacingM),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+                    color: theme.colorScheme.surfaceContainerHighest
+                        .withOpacity(0.3),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
                       color: _difficultyColor.withOpacity(0.2),
@@ -258,7 +259,7 @@ class ScenarioCard extends StatelessWidget {
         vertical: AppConstants.spacingXS,
       ),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceVariant.withOpacity(0.5),
+        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -294,4 +295,3 @@ class ScenarioCard extends StatelessWidget {
     }
   }
 }
-

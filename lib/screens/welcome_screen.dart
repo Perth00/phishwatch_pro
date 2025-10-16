@@ -123,7 +123,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: colorScheme.surface,
       body: SafeArea(
         child: FadeTransition(
           opacity: _fadeAnimation,
@@ -162,7 +162,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           'Welcome to PhishWatch Pro',
           style: theme.textTheme.headlineLarge?.copyWith(
             fontWeight: FontWeight.bold,
-            color: theme.colorScheme.onBackground,
+            color: theme.colorScheme.onSurface,
           ),
           textAlign: TextAlign.center,
         ),
@@ -170,7 +170,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         Text(
           'Your personal security assistant',
           style: theme.textTheme.bodyLarge?.copyWith(
-            color: theme.colorScheme.onBackground.withOpacity(0.7),
+            color: theme.colorScheme.onSurface.withOpacity(0.7),
           ),
           textAlign: TextAlign.center,
         ),

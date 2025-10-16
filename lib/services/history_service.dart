@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/gemini_service.dart';
 import '../models/history_item.dart';
 import '../models/scan_result_data.dart';
 
@@ -48,13 +49,27 @@ class HistoryService extends ChangeNotifier {
     await add(HistoryItem.fromScanResult(data));
   }
 
+  Future<void> updateLatest(HistoryItem updatedItem) async {
+    if (_items.isNotEmpty) {
+      _items[_items.length - 1] = updatedItem;
+      await _save();
+      notifyListeners();
+    }
+  }
+
+  /// Update the Gemini analysis for a specific history item by id
+  Future<void> updateGeminiById(String id, GeminiAnalysis analysis) async {
+    final int index = _items.indexWhere((item) => item.id == id);
+    if (index != -1) {
+      _items[index] = _items[index].copyWith(geminiAnalysis: analysis);
+      await _save();
+      notifyListeners();
+    }
+  }
+
   Future<void> clear() async {
     _items.clear();
     await _save();
     notifyListeners();
   }
 }
-
-
-
-
