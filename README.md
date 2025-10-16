@@ -9,6 +9,7 @@ A Flutter-based mobile application for detecting phishing attempts and educating
 - **URL Analysis**: Check links against known phishing databases
 - **Real-time Results**: Get instant feedback with confidence scores
 - **Educational Content**: Learn about phishing tactics with LIME explanations
+- **AI-Powered Insights**: Gemini AI provides personalized educational feedback
 
 ### 🎨 Design & UX
 - **Material Design 3**: Modern, accessible interface
@@ -62,17 +63,35 @@ lib/
    flutter run
    ```
 
-### Hugging Face Integration
+### API Configuration
 
-The app can analyze message text using a Hugging Face Hosted Inference API. Provide your personal token at runtime without hardcoding it:
+The app integrates with both Hugging Face and Gemini AI. Configure both APIs using a single `env.json` file:
 
-```bash
-flutter run --dart-define=HF_API_TOKEN=hf_your_token_here
-```
+**Setup:**
 
-Notes:
-- Default model id: `Perth0603/phishing-email-mobilebert` (configured in `lib/services/hugging_face_service.dart`).
-- If the model is public and Hosted Inference is enabled, the token is optional.
+1. Copy the example file:
+   ```bash
+   cp env.example.json env.json
+   ```
+
+2. Add your API keys:
+   - **Hugging Face Token**: Get from [Hugging Face Settings](https://huggingface.co/settings/tokens)
+   - **Gemini API Key**: Get from [Google AI Studio](https://makersuite.google.com/app/apikey)
+
+3. Run the app:
+   ```bash
+   flutter run --dart-define-from-file=env.json
+   ```
+
+**Features:**
+- **Phishing Detection**: HuggingFace models analyze messages and URLs
+- **AI Educational Feedback**: Gemini explains why content is phishing/legitimate
+- **Specific Indicators**: AI identifies suspicious elements
+- **Safety Tips**: Actionable security recommendations
+
+**Note:** The app works without API keys configured, but with limited functionality.
+
+For detailed setup instructions, see [GEMINI_INTEGRATION.md](GEMINI_INTEGRATION.md).
 
 ## Design System
 
@@ -104,12 +123,14 @@ Notes:
 
 ## Future Enhancements
 
+- [x] Gemini AI educational feedback integration
 - [ ] Firebase Authentication integration
 - [ ] Real-time phishing database API
-- [ ] Machine learning model integration
+- [ ] Enhanced machine learning model integration
 - [ ] Push notifications for security alerts
 - [ ] Multi-language support
 - [ ] Offline mode capabilities
+- [ ] Gemini response caching for improved performance
 
 ## Contributing
 

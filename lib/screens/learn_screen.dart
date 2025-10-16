@@ -246,7 +246,7 @@ class _LearnScreenState extends State<LearnScreen>
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: colorScheme.surface,
       body: SafeArea(
         child: Column(
           children: [
@@ -381,7 +381,7 @@ class _LearnScreenState extends State<LearnScreen>
           'Learning Categories',
           style: theme.textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
-            color: theme.colorScheme.onBackground,
+            color: theme.colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: AppConstants.spacingM),
@@ -500,7 +500,7 @@ class _LearnScreenState extends State<LearnScreen>
                   'Sharpen Your Skills',
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.onBackground,
+                    color: theme.colorScheme.onSurface,
                   ),
                 ),
               ],
@@ -509,7 +509,7 @@ class _LearnScreenState extends State<LearnScreen>
             Text(
               'Practice makes perfect. Improve your ability to spot phishing with these interactive exercises.',
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onBackground.withOpacity(0.8),
+                color: theme.colorScheme.onSurface.withOpacity(0.8),
                 height: 1.5,
               ),
             ),
@@ -578,7 +578,7 @@ class _LearnScreenState extends State<LearnScreen>
               'Interactive Quizzes',
               style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: theme.colorScheme.onBackground,
+                color: theme.colorScheme.onSurface,
               ),
             ),
             TextButton(
@@ -618,7 +618,7 @@ class _LearnScreenState extends State<LearnScreen>
               'Real-World Scenarios',
               style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: theme.colorScheme.onBackground,
+                color: theme.colorScheme.onSurface,
               ),
             ),
             TextButton(

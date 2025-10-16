@@ -3,8 +3,10 @@ import 'package:go_router/go_router.dart';
 import '../constants/app_theme.dart';
 import '../widgets/confidence_meter.dart';
 import '../widgets/explanation_card.dart';
+import '../widgets/educational_feedback_card.dart';
 import '../widgets/animated_card.dart';
 import '../services/sound_service.dart';
+import '../services/gemini_service.dart';
 import '../models/scan_result_data.dart';
 
 class ScanResultScreen extends StatefulWidget {
@@ -30,6 +32,7 @@ class _ScanResultScreenState extends State<ScanResultScreen>
   late final String _riskLevel;
   late final String _source;
   late final String _message;
+  late final bool _hasGeminiAnalysis;
 
   @override
   void initState() {
@@ -43,6 +46,7 @@ class _ScanResultScreenState extends State<ScanResultScreen>
       _riskLevel = data.riskLevel;
       _source = data.source;
       _message = data.message;
+      _hasGeminiAnalysis = data.geminiAnalysis != null;
     } else {
       // Fallback sample data when navigated directly
       _isPhishing = true;
@@ -54,6 +58,7 @@ class _ScanResultScreenState extends State<ScanResultScreen>
           'Your account will be suspended unless you verify your information within 24 hours. '
           'Click here to verify: https://securebank-verify.com/verify-account\n\n'
           'This is an urgent matter. Your account security is at risk.';
+      _hasGeminiAnalysis = false;
     }
 
     _fadeController = AnimationController(
@@ -111,7 +116,7 @@ class _ScanResultScreenState extends State<ScanResultScreen>
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         title: const Text('Scan Result'),
         leading: IconButton(
@@ -151,19 +156,79 @@ class _ScanResultScreenState extends State<ScanResultScreen>
 
                 const SizedBox(height: AppConstants.spacingXL),
 
-                // Explanation
-                ExplanationCard(
-                  isPhishing: _isPhishing,
-                  confidence: _confidence,
-                  suspiciousElements: const [
-                    'Urgency tactics',
-                    'Suspicious domain',
-                    'Request for credentials',
-                    'Impersonation attempt',
-                  ],
-                ),
-
-                const SizedBox(height: AppConstants.spacingXL),
+                // Educational Feedback from Gemini (async loading)
+                if (widget.data?.geminiAnalysisFuture != null)
+                  FutureBuilder<GeminiAnalysis?>(
+                    future: widget.data!.geminiAnalysisFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        // Show loading animation
+                        return Column(
+                          children: const [
+                            EducationalFeedbackLoading(),
+                            SizedBox(height: AppConstants.spacingXL),
+                          ],
+                        );
+                      } else if (snapshot.hasData && snapshot.data != null) {
+                        // Show Gemini analysis
+                        return Column(
+                          children: [
+                            EducationalFeedbackCard(
+                              analysis: snapshot.data!,
+                              isPhishing: _isPhishing,
+                            ),
+                            const SizedBox(height: AppConstants.spacingXL),
+                          ],
+                        );
+                      } else {
+                        // Show fallback if failed
+                        return Column(
+                          children: [
+                            ExplanationCard(
+                              isPhishing: _isPhishing,
+                              confidence: _confidence,
+                              suspiciousElements: const [
+                                'Urgency tactics',
+                                'Suspicious domain',
+                                'Request for credentials',
+                                'Impersonation attempt',
+                              ],
+                            ),
+                            const SizedBox(height: AppConstants.spacingXL),
+                          ],
+                        );
+                      }
+                    },
+                  )
+                else if (_hasGeminiAnalysis &&
+                    widget.data?.geminiAnalysis != null)
+                  // Direct analysis (for backwards compatibility)
+                  Column(
+                    children: [
+                      EducationalFeedbackCard(
+                        analysis: widget.data!.geminiAnalysis!,
+                        isPhishing: _isPhishing,
+                      ),
+                      const SizedBox(height: AppConstants.spacingXL),
+                    ],
+                  )
+                else
+                  // Fallback to basic explanation
+                  Column(
+                    children: [
+                      ExplanationCard(
+                        isPhishing: _isPhishing,
+                        confidence: _confidence,
+                        suspiciousElements: const [
+                          'Urgency tactics',
+                          'Suspicious domain',
+                          'Request for credentials',
+                          'Impersonation attempt',
+                        ],
+                      ),
+                      const SizedBox(height: AppConstants.spacingXL),
+                    ],
+                  ),
 
                 // Action buttons
                 _buildActionButtons(theme),
@@ -264,7 +329,9 @@ class _ScanResultScreenState extends State<ScanResultScreen>
               width: double.infinity,
               padding: const EdgeInsets.all(AppConstants.spacingM),
               decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceVariant.withOpacity(0.5),
+                color: theme.colorScheme.surfaceContainerHighest.withOpacity(
+                  0.5,
+                ),
                 borderRadius: BorderRadius.circular(AppConstants.spacingS),
               ),
               child: Text(
@@ -317,7 +384,7 @@ class _ScanResultScreenState extends State<ScanResultScreen>
                       'Test Your Knowledge',
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.onBackground,
+                        color: theme.colorScheme.onSurface,
                       ),
                     ),
                   ],
@@ -326,7 +393,7 @@ class _ScanResultScreenState extends State<ScanResultScreen>
                 Text(
                   'Practice identifying similar threats with interactive scenarios',
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onBackground.withOpacity(0.7),
+                    color: theme.colorScheme.onSurface.withOpacity(0.7),
                   ),
                 ),
                 const SizedBox(height: AppConstants.spacingM),
@@ -643,7 +710,7 @@ class _ScanResultScreenState extends State<ScanResultScreen>
     return Container(
       padding: const EdgeInsets.all(AppConstants.spacingM),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -683,7 +750,7 @@ class _ScanResultScreenState extends State<ScanResultScreen>
     return Container(
       padding: const EdgeInsets.all(AppConstants.spacingM),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(

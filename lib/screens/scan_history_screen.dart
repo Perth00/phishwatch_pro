@@ -159,7 +159,7 @@ class _ScanHistoryScreenState extends State<ScanHistoryScreen>
     final filteredItems = _filteredHistoryItems;
 
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         title: const Text('Scan History'),
         leading: IconButton(
@@ -222,20 +222,20 @@ class _ScanHistoryScreenState extends State<ScanHistoryScreen>
           Icon(
             Icons.history_outlined,
             size: 64,
-            color: theme.colorScheme.onBackground.withOpacity(0.3),
+            color: theme.colorScheme.onSurface.withOpacity(0.3),
           ),
           const SizedBox(height: AppConstants.spacingL),
           Text(
             'No scan history yet',
             style: theme.textTheme.titleLarge?.copyWith(
-              color: theme.colorScheme.onBackground.withOpacity(0.7),
+              color: theme.colorScheme.onSurface.withOpacity(0.7),
             ),
           ),
           const SizedBox(height: AppConstants.spacingS),
           Text(
             'Your scan results will appear here',
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onBackground.withOpacity(0.5),
+              color: theme.colorScheme.onSurface.withOpacity(0.5),
             ),
           ),
           const SizedBox(height: AppConstants.spacingXL),
@@ -346,16 +346,12 @@ class _ScanHistoryScreenState extends State<ScanHistoryScreen>
           if (_selectedFilter == 'All') ...[
             const Spacer(),
             _buildSummaryChip(
-              '${phishingCount} Phishing',
+              '$phishingCount Phishing',
               AppTheme.errorColor,
               theme,
             ),
             const SizedBox(width: AppConstants.spacingS),
-            _buildSummaryChip(
-              '${safeCount} Safe',
-              AppTheme.successColor,
-              theme,
-            ),
+            _buildSummaryChip('$safeCount Safe', AppTheme.successColor, theme),
           ],
         ],
       ),

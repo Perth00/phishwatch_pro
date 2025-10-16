@@ -69,7 +69,7 @@ void main() async {
     }
   }
 
-  print('\n' + '=' * 40);
+  print('\n${'=' * 40}');
   if (allFilesExist) {
     print('🎉 All required files are present!');
     print('✨ Your PhishWatch Pro app has comprehensive test coverage.');
@@ -91,4 +91,3 @@ void main() async {
   }
   print('=' * 40);
 }
-

@@ -9,7 +9,9 @@ import '../widgets/bottom_nav_bar.dart';
 import '../services/theme_service.dart';
 import '../services/sound_service.dart';
 import '../services/hugging_face_service.dart';
+import '../services/gemini_service.dart';
 import '../models/scan_result_data.dart';
+import '../models/history_item.dart';
 import '../services/history_service.dart';
 import 'package:provider/provider.dart';
 
@@ -29,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   int _currentNavIndex = 0;
   final HuggingFaceService _hf = HuggingFaceService();
+  final GeminiService _gemini = GeminiService();
   static const int _minWordCount = 15; // Require at least 15 words for scanning
 
   @override
@@ -162,17 +165,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     decoration: InputDecoration(
                       hintText: 'Paste email/SMS content here...',
                       helperText:
-                          'Provide at least ' +
-                          _minWordCount.toString() +
-                          ' words for better accuracy',
+                          'Provide at least $_minWordCount words for better accuracy',
                       errorText:
                           trimmed.isEmpty
                               ? null
                               : (meetsRequirement
                                   ? null
-                                  : 'Please add more details (min ' +
-                                      _minWordCount.toString() +
-                                      ' words).'),
+                                  : 'Please add more details (min $_minWordCount words).'),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -190,10 +189,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        'Words: ' +
-                            wordCount.toString() +
-                            '/' +
-                            _minWordCount.toString(),
+                        'Words: $wordCount/$_minWordCount',
                         style: theme.textTheme.bodySmall?.copyWith(
                           color:
                               meetsRequirement
@@ -266,10 +262,58 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         message: text,
       );
 
-      // Save to history then navigate
+      // Save to history immediately (without Gemini analysis)
+      final historyService = context.read<HistoryService>();
+      await historyService.addFromScanResult(data);
+      final String? savedId = historyService.latest?.id;
+      debugPrint('💾 Initial scan saved to history (id: $savedId)');
+
+      // Start Gemini analysis in background (non-blocking)
+      debugPrint('🤖 Starting Gemini analysis in background...');
+      final Future<GeminiAnalysis?> geminiAnalysisFuture = _gemini
+          .analyzeContent(
+            content: text,
+            isPhishing: isPhishing,
+            confidence: score,
+            isUrl: false,
+          )
+          .then<GeminiAnalysis?>((analysis) {
+            debugPrint('✅ Gemini analysis successful!');
+
+            // Update the SAME history entry by id with Gemini analysis
+            if (savedId != null) {
+              historyService.updateGeminiById(savedId, analysis);
+              debugPrint(
+                '📝 History updated with Gemini analysis (id: $savedId)',
+              );
+            }
+
+            return analysis;
+          })
+          .catchError((e) {
+            debugPrint('❌ Gemini analysis failed: $e');
+            debugPrint(
+              '💡 Make sure you ran: flutter run --dart-define-from-file=env.json',
+            );
+            return null as GeminiAnalysis?;
+          });
+
+      final dataWithFuture = ScanResultData(
+        isPhishing: isPhishing,
+        confidence: score,
+        classification: isPhishing ? 'Phishing' : 'Legitimate',
+        riskLevel: ScanResultData.riskFromConfidence(
+          score,
+          isPhishing: isPhishing,
+        ),
+        source: 'User input',
+        message: text,
+        geminiAnalysisFuture: geminiAnalysisFuture,
+      );
+
+      // Navigate immediately
       if (mounted) {
-        await context.read<HistoryService>().addFromScanResult(data);
-        context.go('/scan-result', extra: data);
+        context.go('/scan-result', extra: dataWithFuture);
       }
     } catch (e) {
       Navigator.of(context).pop();
@@ -277,7 +321,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Scan failed: ' + e.toString())));
+      ).showSnackBar(SnackBar(content: Text('Scan failed: $e')));
     }
   }
 
@@ -393,9 +437,57 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         message: url,
       );
 
+      // Save to history immediately (without Gemini analysis)
+      final historyService = context.read<HistoryService>();
+      await historyService.addFromScanResult(data);
+      final String? savedId = historyService.latest?.id;
+      debugPrint('💾 Initial scan saved to history (id: $savedId)');
+
+      // Start Gemini analysis in background (non-blocking)
+      debugPrint('🤖 Starting Gemini analysis for URL in background...');
+      final Future<GeminiAnalysis?> geminiAnalysisFuture = _gemini
+          .analyzeContent(
+            content: url,
+            isPhishing: isPhishing,
+            confidence: score,
+            isUrl: true,
+          )
+          .then<GeminiAnalysis?>((analysis) {
+            debugPrint('✅ Gemini analysis successful!');
+
+            // Update the SAME history entry by id with Gemini analysis
+            if (savedId != null) {
+              historyService.updateGeminiById(savedId, analysis);
+              debugPrint(
+                '📝 History updated with Gemini analysis (id: $savedId)',
+              );
+            }
+
+            return analysis;
+          })
+          .catchError((e) {
+            debugPrint('❌ Gemini analysis failed: $e');
+            debugPrint(
+              '💡 Make sure you ran: flutter run --dart-define-from-file=env.json',
+            );
+            return null as GeminiAnalysis?;
+          });
+
+      final dataWithFuture = ScanResultData(
+        isPhishing: isPhishing,
+        confidence: score,
+        classification: isPhishing ? 'Phishing' : 'Legitimate',
+        riskLevel: ScanResultData.riskFromConfidence(
+          score,
+          isPhishing: isPhishing,
+        ),
+        source: 'URL',
+        message: url,
+        geminiAnalysisFuture: geminiAnalysisFuture,
+      );
+
       if (mounted) {
-        await context.read<HistoryService>().addFromScanResult(data);
-        context.go('/scan-result', extra: data);
+        context.go('/scan-result', extra: dataWithFuture);
       }
     } catch (e) {
       Navigator.of(context).pop();
@@ -403,7 +495,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Scan failed: ' + e.toString())));
+      ).showSnackBar(SnackBar(content: Text('Scan failed: $e')));
     }
   }
 
@@ -426,7 +518,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: colorScheme.surface,
       body: SafeArea(
         child: Column(
           children: [
@@ -532,14 +624,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           'Detect Phishing Attempts',
           style: theme.textTheme.headlineMedium?.copyWith(
             fontWeight: FontWeight.bold,
-            color: theme.colorScheme.onBackground,
+            color: theme.colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: AppConstants.spacingS),
         Text(
           'Scan messages or URLs to check if they\'re legitimate or potentially harmful.',
           style: theme.textTheme.bodyLarge?.copyWith(
-            color: theme.colorScheme.onBackground.withOpacity(0.7),
+            color: theme.colorScheme.onSurface.withOpacity(0.7),
             height: 1.5,
           ),
         ),
@@ -573,7 +665,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           'Recent Result',
           style: theme.textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
-            color: theme.colorScheme.onBackground,
+            color: theme.colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: AppConstants.spacingM),

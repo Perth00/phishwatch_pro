@@ -129,7 +129,7 @@ Future<bool> runScreenTests() async {
 }
 
 void generateTestReport(Map<String, bool> testResults, bool allTestsPassed) {
-  print('\n' + '=' * 50);
+  print('\n${'=' * 50}');
   print('📊 TEST REPORT');
   print('=' * 50);
 
@@ -138,7 +138,7 @@ void generateTestReport(Map<String, bool> testResults, bool allTestsPassed) {
     print('${entry.key.padRight(20)} : $status');
   }
 
-  print('\n' + '-' * 50);
+  print('\n${'-' * 50}');
 
   if (allTestsPassed) {
     print('🎉 ALL TESTS PASSED! Your UI/UX is working correctly.');
@@ -198,4 +198,3 @@ void generateDetailedReport(
     print('⚠️  Could not save detailed report: $e');
   }
 }
-

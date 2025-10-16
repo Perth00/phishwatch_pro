@@ -80,7 +80,7 @@ class _ProgressIndicatorWidgetState extends State<ProgressIndicatorWidget>
       height: widget.height,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(widget.height / 2),
-        color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
       ),
       child: AnimatedBuilder(
         animation: _progressAnimation,
@@ -185,9 +185,8 @@ class _CircularProgressWidgetState extends State<CircularProgressWidget>
               CircularProgressIndicator(
                 value: _progressAnimation.value,
                 strokeWidth: widget.strokeWidth,
-                backgroundColor: theme.colorScheme.surfaceVariant.withOpacity(
-                  0.3,
-                ),
+                backgroundColor: theme.colorScheme.surfaceContainerHighest
+                    .withOpacity(0.3),
                 valueColor: AlwaysStoppedAnimation(widget.color),
               ),
               if (widget.child != null) Center(child: widget.child!),
@@ -249,4 +248,3 @@ class _AnimatedCounterWidgetState extends State<AnimatedCounterWidget>
     );
   }
 }
-

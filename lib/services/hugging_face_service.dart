@@ -29,8 +29,8 @@ class HuggingFaceService {
         spaceUrl.endsWith('/predict')
             ? spaceUrl
             : (spaceUrl.endsWith('/')
-                ? (spaceUrl + 'predict')
-                : (spaceUrl + '/predict')),
+                ? ('${spaceUrl}predict')
+                : ('$spaceUrl/predict')),
       );
       final Map<String, String> headers = <String, String>{
         'Content-Type': 'application/json',
@@ -43,9 +43,7 @@ class HuggingFaceService {
         body: jsonEncode(body),
       );
       if (res.statusCode < 200 || res.statusCode >= 300) {
-        throw Exception(
-          'Space API error: ' + res.statusCode.toString() + ' - ' + res.body,
-        );
+        throw Exception('Space API error: ${res.statusCode} - ${res.body}');
       }
       final dynamic j = jsonDecode(res.body);
       if (j is Map<String, dynamic> &&
@@ -69,26 +67,24 @@ class HuggingFaceService {
             : (envModelId.trim().isNotEmpty
                 ? envModelId.trim()
                 : defaultModelId);
-    final String? token =
+    final String token =
         apiToken ?? const String.fromEnvironment('HF_API_TOKEN');
 
     final Map<String, String> headers = <String, String>{
       'Content-Type': 'application/json',
-      if (token != null && token.isNotEmpty) 'Authorization': 'Bearer ' + token,
+      if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
     };
 
     final Map<String, dynamic> body = <String, dynamic>{'inputs': text};
 
-    Future<http.Response> _postToModel(String model) {
+    Future<http.Response> postToModel(String model) {
       final Uri url = Uri.parse(
-        'https://api-inference.huggingface.co/models/' +
-            model +
-            '?wait_for_model=true',
+        'https://api-inference.huggingface.co/models/$model?wait_for_model=true',
       );
       return _client.post(url, headers: headers, body: jsonEncode(body));
     }
 
-    http.Response response = await _postToModel(resolvedModelId);
+    http.Response response = await postToModel(resolvedModelId);
 
     // Fallbacks for potential slug case-sensitivity issues
     if (response.statusCode == 404 && resolvedModelId.contains('/')) {
@@ -96,13 +92,13 @@ class HuggingFaceService {
       final String owner = resolvedModelId.substring(0, idx);
       final String repo = resolvedModelId.substring(idx + 1);
       final String alt1 =
-          owner.toLowerCase() + '/' + repo; // lowercase owner only
+          '${owner.toLowerCase()}/$repo'; // lowercase owner only
       final String alt2 =
-          (owner + '/' + repo).toLowerCase(); // lowercase entire slug
+          ('$owner/$repo').toLowerCase(); // lowercase entire slug
 
       final List<String> attempts = <String>[resolvedModelId, alt1, alt2];
       for (int i = 1; i < attempts.length; i++) {
-        response = await _postToModel(attempts[i]);
+        response = await postToModel(attempts[i]);
         if (response.statusCode >= 200 && response.statusCode < 300) {
           break; // success
         }
@@ -110,28 +106,12 @@ class HuggingFaceService {
 
       if (response.statusCode < 200 || response.statusCode >= 300) {
         throw Exception(
-          'HuggingFace API error: ' +
-              response.statusCode.toString() +
-              ' - ' +
-              response.body +
-              ' (tried: ' +
-              resolvedModelId +
-              ', ' +
-              alt1 +
-              ' and ' +
-              alt2 +
-              ')',
+          'HuggingFace API error: ${response.statusCode} - ${response.body} (tried: $resolvedModelId, $alt1 and $alt2)',
         );
       }
     } else if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception(
-        'HuggingFace API error: ' +
-            response.statusCode.toString() +
-            ' - ' +
-            response.body +
-            ' (model: ' +
-            resolvedModelId +
-            ')',
+        'HuggingFace API error: ${response.statusCode} - ${response.body} (model: $resolvedModelId)',
       );
     }
 
@@ -195,7 +175,7 @@ class HuggingFaceService {
           spaceUrl.endsWith('/')
               ? spaceUrl.substring(0, spaceUrl.length - 1)
               : spaceUrl;
-      final Uri predictUrl = Uri.parse(base + '/predict-url');
+      final Uri predictUrl = Uri.parse('$base/predict-url');
       final Map<String, String> headers = <String, String>{
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -209,7 +189,7 @@ class HuggingFaceService {
       );
       // Fallback to /predict with {inputs: url} if /predict-url is not implemented
       if (res.statusCode == 404) {
-        final Uri fallback = Uri.parse(base + '/predict');
+        final Uri fallback = Uri.parse('$base/predict');
         res = await _client.post(
           fallback,
           headers: headers,
@@ -217,9 +197,7 @@ class HuggingFaceService {
         );
       }
       if (res.statusCode < 200 || res.statusCode >= 300) {
-        throw Exception(
-          'Space API error: ' + res.statusCode.toString() + ' - ' + res.body,
-        );
+        throw Exception('Space API error: ${res.statusCode} - ${res.body}');
       }
       final dynamic j = jsonDecode(res.body);
       if (j is Map<String, dynamic>) {
@@ -261,19 +239,17 @@ class HuggingFaceService {
         'URL model not configured. Provide HF_SPACE_URL or HF_URL_MODEL_ID, or pass modelId.',
       );
     }
-    final String? token =
+    final String token =
         apiToken ?? const String.fromEnvironment('HF_API_TOKEN');
 
     final Map<String, String> headers = <String, String>{
       'Content-Type': 'application/json',
-      if (token != null && token.isNotEmpty) 'Authorization': 'Bearer ' + token,
+      if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
     };
     final Map<String, dynamic> body = <String, dynamic>{'inputs': url};
 
     final Uri apiUrl = Uri.parse(
-      'https://api-inference.huggingface.co/models/' +
-          resolvedModelId +
-          '?wait_for_model=true',
+      'https://api-inference.huggingface.co/models/$resolvedModelId?wait_for_model=true',
     );
     final http.Response response = await _client.post(
       apiUrl,
@@ -282,10 +258,7 @@ class HuggingFaceService {
     );
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception(
-        'HuggingFace API error: ' +
-            response.statusCode.toString() +
-            ' - ' +
-            response.body,
+        'HuggingFace API error: ${response.statusCode} - ${response.body}',
       );
     }
     final dynamic json = jsonDecode(response.body);
