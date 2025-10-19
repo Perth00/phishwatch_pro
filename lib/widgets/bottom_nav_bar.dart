@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import '../constants/app_theme.dart';
+import 'package:provider/provider.dart';
+import '../services/auth_service.dart';
 
 class BottomNavBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
+  final VoidCallback? onProfileTap;
 
   const BottomNavBar({
     super.key,
     required this.currentIndex,
     required this.onTap,
+    this.onProfileTap,
   });
 
   @override
@@ -28,7 +32,13 @@ class BottomNavBar extends StatelessWidget {
       ),
       child: BottomNavigationBar(
         currentIndex: currentIndex,
-        onTap: onTap,
+        onTap: (i) async {
+          // Refresh auth state so emailVerified and other badges are up to date
+          try {
+            await context.read<AuthService>().reloadCurrentUser();
+          } catch (_) {}
+          onTap(i);
+        },
         backgroundColor: Colors.transparent,
         elevation: 0,
         type: BottomNavigationBarType.fixed,
@@ -38,7 +48,7 @@ class BottomNavBar extends StatelessWidget {
           fontWeight: FontWeight.w600,
         ),
         unselectedLabelStyle: theme.textTheme.labelSmall,
-        items: const [
+        items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),
             activeIcon: Icon(Icons.home),
@@ -53,6 +63,14 @@ class BottomNavBar extends StatelessWidget {
             icon: Icon(Icons.menu_book_outlined),
             activeIcon: Icon(Icons.menu_book),
             label: 'Learn',
+          ),
+          BottomNavigationBarItem(
+            icon: GestureDetector(
+              onTap: onProfileTap,
+              child: const Icon(Icons.person_outline),
+            ),
+            activeIcon: const Icon(Icons.person),
+            label: 'Profile',
           ),
         ],
       ),

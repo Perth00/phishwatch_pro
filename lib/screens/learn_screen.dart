@@ -3,12 +3,16 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../constants/app_theme.dart';
 import '../services/theme_service.dart';
+import '../services/auth_service.dart';
+import '../services/progress_service.dart';
 import '../services/sound_service.dart';
 import '../widgets/bottom_nav_bar.dart';
 import '../widgets/animated_card.dart';
 import '../widgets/quiz_card.dart';
 import '../widgets/scenario_card.dart';
 import '../widgets/progress_indicator_widget.dart';
+import '../models/learning_content.dart';
+import '../widgets/bouncy_button.dart';
 
 class LearnScreen extends StatefulWidget {
   const LearnScreen({super.key});
@@ -210,6 +214,9 @@ class _LearnScreenState extends State<LearnScreen>
       case 2:
         // Already on learn
         break;
+      case 3:
+        context.go('/profile');
+        break;
     }
   }
 
@@ -228,16 +235,196 @@ class _LearnScreenState extends State<LearnScreen>
     setState(() {
       _selectedCategoryIndex = index;
     });
+    _showLevelPicker(_categories[index].title);
   }
 
   void _startQuiz(QuizData quiz) {
     SoundService.playButtonSound();
-    context.go('/quiz/${quiz.id}');
+    _guardedNavigateToQuiz();
   }
 
   void _startScenario(ScenarioData scenario) {
     SoundService.playButtonSound();
-    context.go('/scenario/${scenario.id}');
+    _guardedNavigateToScenario();
+  }
+
+  Future<void> _guardedNavigateToQuiz() async {
+    final auth = context.read<AuthService>();
+    if (!auth.isAuthenticated) {
+      _showAuthRequiredDialog();
+      return;
+    }
+    if (!(auth.currentUser?.emailVerified ?? false)) {
+      _showVerifyDialog();
+      return;
+    }
+    final String targetQuizId =
+        _selectedCategoryIndex == 1 ? 'quiz_2' : 'quiz_1';
+    context.go('/quiz/$targetQuizId');
+  }
+
+  Future<void> _guardedNavigateToScenario() async {
+    final auth = context.read<AuthService>();
+    if (!auth.isAuthenticated) {
+      _showAuthRequiredDialog();
+      return;
+    }
+    if (!(auth.currentUser?.emailVerified ?? false)) {
+      _showVerifyDialog();
+      return;
+    }
+    final String targetScenarioId =
+        _selectedCategoryIndex == 0 ? 'scenario_1' : 'scenario_2';
+    context.go('/scenario/$targetScenarioId');
+  }
+
+  void _showAuthRequiredDialog() {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Sign in required'),
+            content: const Text(
+              'Please sign in or create an account to start learning and save your progress.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  context.go('/login');
+                },
+                child: const Text('Sign in'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  context.go('/register');
+                },
+                child: const Text('Create account'),
+              ),
+            ],
+          ),
+    );
+  }
+
+  void _showVerifyDialog() {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Verify your email'),
+            content: const Text(
+              'We sent a verification link to your email. Please verify to continue.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Close'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  try {
+                    await context.read<AuthService>().sendEmailVerification();
+                    if (!mounted) return;
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Verification email sent')),
+                    );
+                  } catch (e) {
+                    if (!mounted) return;
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Failed to send: $e')),
+                    );
+                  }
+                },
+                child: const Text('Resend link'),
+              ),
+            ],
+          ),
+    );
+  }
+
+  void _showLevelPicker(String category) async {
+    final theme = Theme.of(context);
+    final auth = context.read<AuthService>();
+    String? current =
+        auth.isAuthenticated
+            ? await context.read<ProgressService>().getCategoryLevel(category)
+            : null;
+    if (!mounted) return;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: false,
+      builder: (_) {
+        return Container(
+          margin: const EdgeInsets.all(AppConstants.spacingM),
+          padding: const EdgeInsets.all(AppConstants.spacingL),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+            borderRadius: BorderRadius.circular(AppConstants.borderRadius * 2),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Choose level for $category',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 12),
+              _levelButton('Beginner', current == 'Beginner', () async {
+                await _setCategoryLevel(category, 'Beginner');
+                if (mounted) Navigator.pop(context);
+              }),
+              const SizedBox(height: 8),
+              _levelButton('Intermediate', current == 'Intermediate', () async {
+                await _setCategoryLevel(category, 'Intermediate');
+                if (mounted) Navigator.pop(context);
+              }),
+              const SizedBox(height: 8),
+              _levelButton('Advanced', current == 'Advanced', () async {
+                await _setCategoryLevel(category, 'Advanced');
+                if (mounted) Navigator.pop(context);
+              }),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _levelButton(String label, bool selected, VoidCallback onPressed) {
+    return BouncyButton(
+      onPressed: onPressed,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label),
+          if (selected) const Icon(Icons.check, color: AppTheme.successColor),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _setCategoryLevel(String category, String level) async {
+    final auth = context.read<AuthService>();
+    if (!auth.isAuthenticated) {
+      _showAuthRequiredDialog();
+      return;
+    }
+    await context.read<ProgressService>().setCategoryLevel(
+      category: category,
+      level: level,
+    );
   }
 
   @override
@@ -272,6 +459,7 @@ class _LearnScreenState extends State<LearnScreen>
       bottomNavigationBar: BottomNavBar(
         currentIndex: _currentNavIndex,
         onTap: _onNavTap,
+        onProfileTap: () => context.go('/profile'),
       ),
       floatingActionButton: ScaleTransition(
         scale: _fabAnimation,
@@ -313,21 +501,26 @@ class _LearnScreenState extends State<LearnScreen>
                   color: AppTheme.primaryColor,
                 ),
               ),
-              Consumer<ThemeService>(
-                builder: (context, themeService, child) {
-                  return IconButton(
-                    onPressed: () {
-                      SoundService.playButtonSound();
-                      themeService.toggleTheme();
+              Row(
+                children: [
+                  _buildLevelBadge(theme),
+                  Consumer<ThemeService>(
+                    builder: (context, themeService, child) {
+                      return IconButton(
+                        onPressed: () {
+                          SoundService.playButtonSound();
+                          themeService.toggleTheme();
+                        },
+                        icon: Icon(
+                          themeService.isDarkMode
+                              ? Icons.light_mode_outlined
+                              : Icons.dark_mode_outlined,
+                        ),
+                        tooltip: 'Toggle theme',
+                      );
                     },
-                    icon: Icon(
-                      themeService.isDarkMode
-                          ? Icons.light_mode_outlined
-                          : Icons.dark_mode_outlined,
-                    ),
-                    tooltip: 'Toggle theme',
-                  );
-                },
+                  ),
+                ],
               ),
             ],
           ),
@@ -340,6 +533,53 @@ class _LearnScreenState extends State<LearnScreen>
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildLevelBadge(ThemeData theme) {
+    final auth = context.watch<AuthService>();
+    if (!auth.isAuthenticated) {
+      return Container(
+        margin: const EdgeInsets.only(right: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceVariant,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: const Text('Guest'),
+      );
+    }
+    return FutureBuilder<Map<String, dynamic>>(
+      future: context.read<ProgressService>().getUserSummary(),
+      builder: (context, snap) {
+        final String level = (snap.data?['level'] ?? 'Beginner') as String;
+        return Container(
+          margin: const EdgeInsets.only(right: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: AppTheme.primaryColor.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppTheme.primaryColor.withOpacity(0.4)),
+          ),
+          child: Row(
+            children: [
+              const Icon(
+                Icons.emoji_events_outlined,
+                size: 16,
+                color: AppTheme.primaryColor,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                'Level: $level',
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: AppTheme.primaryColor,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -568,6 +808,22 @@ class _LearnScreenState extends State<LearnScreen>
   }
 
   Widget _buildQuizzesSection(ThemeData theme) {
+    final filtered =
+        _quizzes.where((q) {
+          switch (_selectedCategoryIndex) {
+            case 0:
+              return q.difficulty == 'Beginner' || q.title.contains('Basics');
+            case 1:
+              return q.title.contains('Email');
+            case 2:
+              return q.title.contains('Web') || q.difficulty == 'Intermediate';
+            case 3:
+              return q.difficulty == 'Advanced';
+            default:
+              return true;
+          }
+        }).toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -584,21 +840,21 @@ class _LearnScreenState extends State<LearnScreen>
             TextButton(
               onPressed: () {
                 SoundService.playButtonSound();
-                // Navigate to all quizzes
+                context.go('/quiz/${LearningRepository.quizzes.first.id}');
               },
               child: const Text('View All'),
             ),
           ],
         ),
         const SizedBox(height: AppConstants.spacingM),
-        ...List.generate(_quizzes.length, (index) {
+        ...List.generate(filtered.length, (index) {
           return AnimatedCard(
             delay: Duration(milliseconds: 400 + (index * 100)),
             child: Padding(
               padding: const EdgeInsets.only(bottom: AppConstants.spacingM),
               child: QuizCard(
-                quiz: _quizzes[index],
-                onTap: () => _startQuiz(_quizzes[index]),
+                quiz: filtered[index],
+                onTap: () => _startQuiz(filtered[index]),
               ),
             ),
           );
@@ -624,7 +880,9 @@ class _LearnScreenState extends State<LearnScreen>
             TextButton(
               onPressed: () {
                 SoundService.playButtonSound();
-                // Navigate to all scenarios
+                context.go(
+                  '/scenario/${LearningRepository.scenarios.first.id}',
+                );
               },
               child: const Text('View All'),
             ),

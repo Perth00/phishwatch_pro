@@ -103,6 +103,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       case 2:
         context.go('/learn');
         break;
+      case 3:
+        context.go('/profile');
+        break;
     }
   }
 
@@ -544,6 +547,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       bottomNavigationBar: BottomNavBar(
         currentIndex: _currentNavIndex,
         onTap: _onNavTap,
+        onProfileTap: () => context.go('/profile'),
       ),
     );
   }

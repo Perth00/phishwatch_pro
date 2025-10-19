@@ -8,6 +8,8 @@ import '../widgets/animated_card.dart';
 import '../services/sound_service.dart';
 import '../services/gemini_service.dart';
 import '../models/scan_result_data.dart';
+import '../widgets/confirm_dialog.dart';
+import '../widgets/loading_overlay.dart';
 
 class ScanResultScreen extends StatefulWidget {
   const ScanResultScreen({super.key, this.data});
@@ -120,7 +122,23 @@ class _ScanResultScreenState extends State<ScanResultScreen>
       appBar: AppBar(
         title: const Text('Scan Result'),
         leading: IconButton(
-          onPressed: () => context.go('/home'),
+          onPressed: () async {
+            final confirmed = await showDialog<bool>(
+              context: context,
+              builder:
+                  (_) => ConfirmDialog(
+                    title: 'Leave result?',
+                    message: 'You will return to Home.',
+                    confirmText: 'Leave',
+                    cancelText: 'Stay',
+                    onConfirm: () {},
+                  ),
+            );
+            if (confirmed == true) {
+              if (!mounted) return;
+              context.go('/home');
+            }
+          },
           icon: const Icon(Icons.arrow_back),
         ),
       ),

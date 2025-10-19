@@ -105,7 +105,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       listen: false,
     );
     onboardingService.completeOnboarding();
-    context.go('/home');
+    context.go('/login');
   }
 
   void _skipTutorial() {
@@ -114,7 +114,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       listen: false,
     );
     onboardingService.completeOnboarding();
-    context.go('/home');
+    context.go('/login');
   }
 
   @override
