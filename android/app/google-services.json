@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "84128569045",
+    "project_id": "degreefyp-d6811",
+    "storage_bucket": "degreefyp-d6811.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:84128569045:android:6cc09310693ba2a052b45c",
+        "android_client_info": {
+          "package_name": "com.degreefyp.phishingwatch"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDER0MFC74vQZAwK29Rhb81R30p9aYeoW8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
+

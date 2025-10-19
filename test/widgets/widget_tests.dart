@@ -7,6 +7,7 @@ import 'package:phishwatch_pro/widgets/bottom_nav_bar.dart';
 import 'package:phishwatch_pro/widgets/recent_result_card.dart';
 import 'package:phishwatch_pro/widgets/history_item_card.dart';
 import 'package:phishwatch_pro/screens/scan_history_screen.dart';
+import 'package:phishwatch_pro/models/history_item.dart';
 
 void main() {
   group('Widget Tests', () {
@@ -208,6 +209,7 @@ void main() {
         source: 'test@phishing.com',
         preview: 'Urgent: Your account will be suspended...',
         isPhishing: true,
+        message: 'Urgent: Your account will be suspended...',
       );
 
       bool tapped = false;
@@ -255,6 +257,7 @@ void main() {
         source: 'legitimate@bank.com',
         preview: 'Your statement is ready...',
         isPhishing: false,
+        message: 'Your statement is ready...',
       );
 
       await tester.pumpWidget(
@@ -284,6 +287,7 @@ void main() {
         source: 'suspicious@site.com',
         preview: 'Click here for amazing deals...',
         isPhishing: true,
+        message: 'Click here for amazing deals...',
       );
 
       await tester.pumpWidget(
@@ -324,6 +328,7 @@ void main() {
         source: 'recent@test.com',
         preview: 'Recent message...',
         isPhishing: true,
+        message: 'Recent message...',
       );
 
       await tester.pumpWidget(
@@ -339,4 +344,3 @@ void main() {
     });
   });
 }
-
