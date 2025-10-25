@@ -28,6 +28,7 @@ import 'services/onboarding_service.dart';
 import 'services/history_service.dart';
 import 'services/auth_service.dart';
 import 'services/progress_service.dart';
+import 'services/settings_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,6 +43,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => OnboardingService()),
         ChangeNotifierProvider(create: (_) => HistoryService()),
         ChangeNotifierProvider(create: (_) => AuthService()),
+        ChangeNotifierProvider(create: (_) => SettingsService()),
         ChangeNotifierProxyProvider<AuthService, ProgressService>(
           create: (_) => ProgressService(null),
           update: (_, auth, previous) {
