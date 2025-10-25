@@ -32,12 +32,14 @@ class BottomNavBar extends StatelessWidget {
       ),
       child: BottomNavigationBar(
         currentIndex: currentIndex,
-        onTap: (i) async {
-          // Refresh auth state so emailVerified and other badges are up to date
-          try {
-            await context.read<AuthService>().reloadCurrentUser();
-          } catch (_) {}
+        onTap: (i) {
+          // Navigate immediately for snappy UX; refresh auth in background
           onTap(i);
+          try {
+            // Fire-and-forget; no await
+            // ignore: discarded_futures
+            context.read<AuthService>().reloadCurrentUser();
+          } catch (_) {}
         },
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -65,10 +67,7 @@ class BottomNavBar extends StatelessWidget {
             label: 'Learn',
           ),
           BottomNavigationBarItem(
-            icon: GestureDetector(
-              onTap: onProfileTap,
-              child: const Icon(Icons.person_outline),
-            ),
+            icon: const Icon(Icons.person_outline),
             activeIcon: const Icon(Icons.person),
             label: 'Profile',
           ),

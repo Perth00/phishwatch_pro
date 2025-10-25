@@ -2,7 +2,7 @@
   "project_info": {
     "project_number": "84128569045",
     "project_id": "degreefyp-d6811",
-    "storage_bucket": "degreefyp-d6811.firebasestorage.app"
+    "storage_bucket": "degreefyp-d6811.appspot.com"
   },
   "client": [
     {
@@ -27,4 +27,5 @@
   ],
   "configuration_version": "1"
 }
+
 

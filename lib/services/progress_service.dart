@@ -21,25 +21,31 @@ class ProgressService extends ChangeNotifier {
     final uid = _uid;
     if (uid == null) return;
     final doc = _db.collection('users').doc(uid);
-    await _db.runTransaction((tx) async {
-      final snap = await tx.get(doc);
-      if (!snap.exists) {
-        tx.set(doc, {
-          'level': 'Beginner',
-          'goal': goal,
-          'name': '',
-          'age': null,
-          'levels': <String, String>{},
-          'createdAt': FieldValue.serverTimestamp(),
-          'stats': {
-            'quizzesCompleted': 0,
-            'scenariosCompleted': 0,
-            'lessonsCompleted': 0,
-            'accuracy': 0,
-          },
-        });
-      }
-    });
+    try {
+      await _db.runTransaction((tx) async {
+        final snap = await tx.get(doc);
+        if (!snap.exists) {
+          tx.set(doc, {
+            'level': 'Beginner',
+            'goal': goal,
+            'name': '',
+            'age': null,
+            'photoUrl': '',
+            'levels': <String, String>{},
+            'createdAt': FieldValue.serverTimestamp(),
+            'stats': {
+              'quizzesCompleted': 0,
+              'scenariosCompleted': 0,
+              'lessonsCompleted': 0,
+              'accuracy': 0,
+            },
+          });
+        }
+      });
+    } catch (e) {
+      // Do not block registration if Firestore rules temporarily deny writes
+      debugPrint('ensureUserProfile skipped: $e');
+    }
   }
 
   Future<void> completeLesson(String lessonId) async {
@@ -67,21 +73,34 @@ class ProgressService extends ChangeNotifier {
   Future<Map<String, dynamic>> getUserSummary() async {
     final uid = _uid;
     if (uid == null) return {};
-    final snap = await _db.collection('users').doc(uid).get();
-    return snap.data() ?? {};
+    try {
+      final snap = await _db.collection('users').doc(uid).get();
+      return snap.data() ?? {};
+    } catch (_) {
+      return {};
+    }
   }
 
   Future<Map<String, dynamic>> getUserProfile() async {
     final uid = _uid;
     if (uid == null) return {};
-    final snap = await _db.collection('users').doc(uid).get();
-    return snap.data() ?? {};
+    try {
+      final snap = await _db.collection('users').doc(uid).get();
+      return snap.data() ?? {};
+    } catch (_) {
+      return {};
+    }
   }
 
   Future<void> updateUserProfile({
     String? name,
     int? age,
     String? level,
+    String? photoUrl,
+    String? photoBase64,
+    String? bio,
+    String? phone,
+    String? location,
   }) async {
     final uid = _uid;
     if (uid == null) return;
@@ -89,6 +108,11 @@ class ProgressService extends ChangeNotifier {
     if (name != null) data['name'] = name;
     if (age != null) data['age'] = age;
     if (level != null) data['level'] = level;
+    if (photoUrl != null) data['photoUrl'] = photoUrl;
+    if (photoBase64 != null) data['photoBase64'] = photoBase64;
+    if (bio != null) data['bio'] = bio;
+    if (phone != null) data['phone'] = phone;
+    if (location != null) data['location'] = location;
     if (data.isEmpty) return;
     await _db.collection('users').doc(uid).set(data, SetOptions(merge: true));
     notifyListeners();

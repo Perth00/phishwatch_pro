@@ -83,6 +83,12 @@ class AuthService extends ChangeNotifier {
     await fba.FirebaseAuth.instance.sendPasswordResetEmail(email: email);
   }
 
+  Future<fba.User?> signInAnonymously() async {
+    await _ensureInitialized();
+    final cred = await fba.FirebaseAuth.instance.signInAnonymously();
+    return cred.user;
+  }
+
   Future<void> signOut() async {
     await _ensureInitialized();
     await fba.FirebaseAuth.instance.signOut();

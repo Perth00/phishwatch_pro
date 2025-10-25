@@ -22,6 +22,6 @@ class DefaultFirebaseOptions {
     appId: '1:84128569045:android:6cc09310693ba2a052b45c',
     messagingSenderId: '84128569045',
     projectId: 'degreefyp-d6811',
-    storageBucket: 'degreefyp-d6811.firebasestorage.app',
+    storageBucket: 'degreefyp-d6811.appspot.com',
   );
 }
