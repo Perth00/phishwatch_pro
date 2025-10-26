@@ -41,6 +41,10 @@ class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
+      splashFactory: NoSplash.splashFactory,
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      hoverColor: Colors.transparent,
       colorScheme: ColorScheme.fromSeed(
         seedColor: primaryColor,
         brightness: Brightness.light,
@@ -75,6 +79,7 @@ class AppTheme {
       // Elevated Button Theme
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
+          splashFactory: NoSplash.splashFactory,
           backgroundColor: primaryColor,
           foregroundColor: Colors.white,
           elevation: 2,
@@ -93,6 +98,7 @@ class AppTheme {
       // Text Button Theme
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
+          splashFactory: NoSplash.splashFactory,
           foregroundColor: primaryColor,
           textStyle: GoogleFonts.roboto(
             fontSize: 16,
@@ -150,6 +156,10 @@ class AppTheme {
   static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,
+      splashFactory: NoSplash.splashFactory,
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      hoverColor: Colors.transparent,
       colorScheme: ColorScheme.fromSeed(
         seedColor: primaryColor,
         brightness: Brightness.dark,
@@ -187,6 +197,7 @@ class AppTheme {
       // Elevated Button Theme
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
+          splashFactory: NoSplash.splashFactory,
           backgroundColor: primaryColor,
           foregroundColor: Colors.white,
           elevation: 3,
@@ -205,6 +216,7 @@ class AppTheme {
       // Text Button Theme
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
+          splashFactory: NoSplash.splashFactory,
           foregroundColor: primaryColor,
           textStyle: GoogleFonts.roboto(
             fontSize: 16,

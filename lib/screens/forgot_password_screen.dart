@@ -14,7 +14,7 @@ class ForgotPasswordScreen extends StatefulWidget {
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final TextEditingController _email = TextEditingController();
-  bool _sent = false;
+  final bool _sent = false;
   bool _busy = false;
   String? _error;
 

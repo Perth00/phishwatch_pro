@@ -72,7 +72,7 @@ class HuggingFaceService {
 
     final Map<String, String> headers = <String, String>{
       'Content-Type': 'application/json',
-      if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+      if (token.isNotEmpty) 'Authorization': 'Bearer $token',
     };
 
     final Map<String, dynamic> body = <String, dynamic>{'inputs': text};
@@ -244,7 +244,7 @@ class HuggingFaceService {
 
     final Map<String, String> headers = <String, String>{
       'Content-Type': 'application/json',
-      if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+      if (token.isNotEmpty) 'Authorization': 'Bearer $token',
     };
     final Map<String, dynamic> body = <String, dynamic>{'inputs': url};
 

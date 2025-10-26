@@ -9,7 +9,6 @@ import '../services/sound_service.dart';
 import '../services/gemini_service.dart';
 import '../models/scan_result_data.dart';
 import '../widgets/confirm_dialog.dart';
-import '../widgets/loading_overlay.dart';
 
 class ScanResultScreen extends StatefulWidget {
   const ScanResultScreen({super.key, this.data});

@@ -211,7 +211,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    ImageProvider<Object>? _avatarProvider() {
+    ImageProvider<Object>? avatarProvider() {
       if (_localPhoto != null) return FileImage(_localPhoto!);
       if ((_photoUrl ?? '').isNotEmpty) return NetworkImage(_photoUrl!);
       if ((_photoBase64 ?? '').isNotEmpty) {
@@ -223,7 +223,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       return null;
     }
 
-    Widget? _avatarFallback() {
+    Widget? avatarFallback() {
       if (_localPhoto == null &&
           (_photoUrl == null || _photoUrl!.isEmpty) &&
           (_photoBase64 == null || _photoBase64!.isEmpty)) {
@@ -274,8 +274,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                         children: [
                           CircleAvatar(
                             radius: 40,
-                            backgroundImage: _avatarProvider(),
-                            child: _avatarFallback(),
+                            backgroundImage: avatarProvider(),
+                            child: avatarFallback(),
                           ),
                           Positioned(
                             bottom: 0,

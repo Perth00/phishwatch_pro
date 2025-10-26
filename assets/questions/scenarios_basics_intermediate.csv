@@ -1,0 +1,23 @@
+id,title,description,isPhishing,rationale
+sbi01,Social Media Alert,"Your account will be disabled. Verify at http://soc1al-verify.net",true,Lookalike domain and urgency.
+sbi02,Bank SMS,"Use app to verify recent transaction.",false,No links; directs to official app.
+sbi03,Crypto Giveaway,"Send 0.1 ETH and receive 1 ETH back!",true,Classic giveaway scam pattern.
+sbi04,HR Update,"Policy update attached: policy.pdf",false,PDF attachment from internal HR.
+sbi05,App Store Receipt,"Receipt from store; review at https://store.example.com/receipts",false,Official store domain.
+sbi06,Browser Warning,"Your phone is infected! Tap to fix.",true,Scareware pop‑up tactic.
+sbi07,Charity Drive,"Donate via http://help-now-donate.site",true,Untrusted domain soliciting funds.
+sbi08,School Notice,"Meeting details on portal: https://portal.example.edu/meet",false,Official .edu domain.
+sbi09,Remote Job Offer,"High salary; apply via attached .xlsm",true,Macro-enabled sheet risk.
+sbi10,Streaming Login,"Reauthenticate at https://account.stream.example/login",false,Legitimate subdomain path.
+sbi11,Invoice Link,"View invoice at http://invoic3-pay.link",true,Punycode/typo domain.
+sbi12,Delivery Text,"Track in the official app store link",false,Directs to official app store.
+sbi13,WhatsApp Message,"Friend sent you video, open at http://wa-media.host",true,Random hosting domain.
+sbi14,Parking Ticket,"Pay fine at https://city.example.gov/pay",false,Official .gov domain.
+sbi15,QR Code Poster,"Scan to login to Wi‑Fi: http://free-wifi-login.me",true,Untrusted URL via QR.
+sbi16,Conference Invite,"Join via internal SSO",false,Internal SSO flow.
+sbi17,Amazon Order,"Check order at https://amazon.example/order",false,Legit vendor domain (example here).
+sbi18,Password Expiry,"Reset now at http://reset-password-365.top",true,Suspicious TLD and wording.
+sbi19,VPN Notice,"Connect using official VPN app",false,No links; operational instruction.
+sbi20,Helpdesk Call,"Caller demands OTP over phone",true,Never share OTP over calls.
+
+

@@ -258,6 +258,7 @@ class _LearnScreenState extends State<LearnScreen>
       _showVerifyDialog();
       return;
     }
+    // Choose quiz based on selected category
     final String targetQuizId =
         _selectedCategoryIndex == 1 ? 'quiz_2' : 'quiz_1';
     context.go('/quiz/$targetQuizId');
@@ -356,6 +357,14 @@ class _LearnScreenState extends State<LearnScreen>
         auth.isAuthenticated
             ? await context.read<ProgressService>().getCategoryLevel(category)
             : null;
+    // Preload unlock states
+    final canIntermediate = await context
+        .read<ProgressService>()
+        .canSelectLevel(category: category, targetLevel: 'Intermediate');
+    final canAdvanced = await context.read<ProgressService>().canSelectLevel(
+      category: category,
+      targetLevel: 'Advanced',
+    );
     if (!mounted) return;
     showModalBottomSheet(
       context: context,
@@ -373,27 +382,51 @@ class _LearnScreenState extends State<LearnScreen>
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                'Choose level for $category',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Choose level for $category',
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  Tooltip(
+                    message:
+                        'To move up, pass the category quiz. Long-press the card to see this hint again.',
+                    triggerMode: TooltipTriggerMode.tap,
+                    child: const Icon(Icons.info_outline, size: 18),
+                  ),
+                ],
               ),
               const SizedBox(height: 12),
-              _levelButton('Beginner', current == 'Beginner', () async {
+              _levelButton('Beginner', current == 'Beginner', true, () async {
                 await _setCategoryLevel(category, 'Beginner');
                 if (mounted) Navigator.pop(context);
               }),
               const SizedBox(height: 8),
-              _levelButton('Intermediate', current == 'Intermediate', () async {
-                await _setCategoryLevel(category, 'Intermediate');
-                if (mounted) Navigator.pop(context);
-              }),
+              _levelButton(
+                'Intermediate',
+                current == 'Intermediate',
+                canIntermediate,
+                () async {
+                  if (!canIntermediate) return;
+                  await _setCategoryLevel(category, 'Intermediate');
+                  if (mounted) Navigator.pop(context);
+                },
+              ),
               const SizedBox(height: 8),
-              _levelButton('Advanced', current == 'Advanced', () async {
-                await _setCategoryLevel(category, 'Advanced');
-                if (mounted) Navigator.pop(context);
-              }),
+              _levelButton(
+                'Advanced',
+                current == 'Advanced',
+                canAdvanced,
+                () async {
+                  if (!canAdvanced) return;
+                  await _setCategoryLevel(category, 'Advanced');
+                  if (mounted) Navigator.pop(context);
+                },
+              ),
               const SizedBox(height: 8),
             ],
           ),
@@ -402,13 +435,43 @@ class _LearnScreenState extends State<LearnScreen>
     );
   }
 
-  Widget _levelButton(String label, bool selected, VoidCallback onPressed) {
+  Widget _levelButton(
+    String label,
+    bool selected,
+    bool enabled,
+    VoidCallback onPressed,
+  ) {
     return BouncyButton(
-      onPressed: onPressed,
+      onPressed: enabled ? onPressed : () {},
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label),
+          Row(
+            children: [
+              if (!enabled)
+                Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: Icon(
+                    Icons.lock_outline,
+                    size: 16,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withOpacity(0.5),
+                  ),
+                ),
+              Text(
+                label,
+                style: TextStyle(
+                  color:
+                      enabled
+                          ? Theme.of(context).colorScheme.onSurface
+                          : Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withOpacity(0.5),
+                ),
+              ),
+            ],
+          ),
           if (selected) const Icon(Icons.check, color: AppTheme.successColor),
         ],
       ),
@@ -466,7 +529,7 @@ class _LearnScreenState extends State<LearnScreen>
         child: FloatingActionButton.extended(
           onPressed: () {
             SoundService.playButtonSound();
-            _showProgressDialog();
+            context.go('/progress');
           },
           icon: const Icon(Icons.analytics_outlined),
           label: const Text('My Progress'),
@@ -543,40 +606,45 @@ class _LearnScreenState extends State<LearnScreen>
         margin: const EdgeInsets.only(right: 6),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceVariant,
+          color: theme.colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(20),
         ),
         child: const Text('Guest'),
       );
     }
-    return FutureBuilder<Map<String, dynamic>>(
-      future: context.read<ProgressService>().getUserSummary(),
+    return StreamBuilder<String>(
+      stream: context.read<ProgressService>().watchOverallLevel(),
       builder: (context, snap) {
-        final String level = (snap.data?['level'] ?? 'Beginner') as String;
-        return Container(
-          margin: const EdgeInsets.only(right: 6),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: AppTheme.primaryColor.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppTheme.primaryColor.withOpacity(0.4)),
-          ),
-          child: Row(
-            children: [
-              const Icon(
-                Icons.emoji_events_outlined,
-                size: 16,
-                color: AppTheme.primaryColor,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                'Level: $level',
-                style: theme.textTheme.labelSmall?.copyWith(
+        final String level = snap.data ?? 'Beginner';
+        return Tooltip(
+          message:
+              'Overall level reflects your unlocked levels across categories. Increase it by passing category quizzes.',
+          triggerMode: TooltipTriggerMode.tap,
+          child: Container(
+            margin: const EdgeInsets.only(right: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: AppTheme.primaryColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: AppTheme.primaryColor.withOpacity(0.4)),
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.emoji_events_outlined,
+                  size: 16,
                   color: AppTheme.primaryColor,
-                  fontWeight: FontWeight.w600,
                 ),
-              ),
-            ],
+                const SizedBox(width: 6),
+                Text(
+                  'Level: $level',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: AppTheme.primaryColor,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -626,7 +694,7 @@ class _LearnScreenState extends State<LearnScreen>
         ),
         const SizedBox(height: AppConstants.spacingM),
         SizedBox(
-          height: 140,
+          height: 156,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: _categories.length,
@@ -648,13 +716,20 @@ class _LearnScreenState extends State<LearnScreen>
     ThemeData theme,
   ) {
     final isSelected = index == _selectedCategoryIndex;
-    final progress = category.completedLessons / category.totalLessons;
+    // final progress = category.completedLessons / category.totalLessons; // replaced by realtime progress widget
 
     return GestureDetector(
       onTap: () => _onCategorySelected(index),
+      onLongPress: () {
+        final levelHint =
+            'To increase your level, complete the quiz for this category.';
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(levelHint)));
+      },
       child: AnimatedContainer(
         duration: AppAnimations.fastAnimation,
-        width: 140,
+        width: 150,
         margin: const EdgeInsets.only(right: AppConstants.spacingM),
         padding: const EdgeInsets.all(AppConstants.spacingM),
         decoration: BoxDecoration(
@@ -685,7 +760,30 @@ class _LearnScreenState extends State<LearnScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(category.icon, color: category.color, size: 28),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(category.icon, color: category.color, size: 24),
+                const Spacer(),
+                // Level dropdown icon at top-right
+                InkWell(
+                  onTap: () => _showLevelPicker(category.title),
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: category.color.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.expand_more,
+                      color: category.color,
+                      size: 18,
+                    ),
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 6),
             Text(
               category.title,
@@ -695,19 +793,128 @@ class _LearnScreenState extends State<LearnScreen>
                 fontSize: 13,
               ),
             ),
-            const Spacer(),
-            ProgressIndicatorWidget(progress: progress, color: category.color),
-            const SizedBox(height: 4),
-            Text(
-              '${category.completedLessons}/${category.totalLessons} lessons',
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: theme.colorScheme.onSurface.withOpacity(0.6),
-                fontSize: 11,
-              ),
+            const SizedBox(height: 6),
+            // Per-category saved level badge
+            _CategoryLevelBadge(
+              category: category.title,
+              color: category.color,
+            ),
+            const SizedBox(height: 6),
+            // Realtime progress based on completed quizzes in Firestore
+            _CategoryProgressBar(
+              category: category.title,
+              totalLessons: category.totalLessons,
+              color: category.color,
+            ),
+            const SizedBox(height: 2),
+            _CategoryProgressText(
+              category: category.title,
+              totalLessons: category.totalLessons,
             ),
           ],
         ),
       ),
+    );
+  }
+
+  // Widgets for per-category level and realtime progress
+  // Shows 'Level: X' using ProgressService stored levels
+  Widget _levelChip(String label, Color color, ThemeData theme) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: color.withOpacity(0.25)),
+      ),
+      child: Text(
+        label,
+        style: theme.textTheme.labelSmall?.copyWith(
+          color: color,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  // Level badge as a separate widget to allow FutureBuilder
+  // ignore: unused_element
+  Widget _buildLevelForCategory(String category, Color color, ThemeData theme) {
+    return FutureBuilder<String?>(
+      future: context.read<ProgressService>().getCategoryLevel(category),
+      builder: (context, snap) {
+        final level = snap.data ?? 'Beginner';
+        return _levelChip('Level: $level', color, theme);
+      },
+    );
+  }
+
+  // Small composable to show the saved level badge inline in the card
+  // Using a StatelessBuilder with FutureBuilder to keep code local
+  Widget _CategoryLevelBadge({required String category, required Color color}) {
+    final theme = Theme.of(context);
+    return FutureBuilder<String?>(
+      future: context.read<ProgressService>().getCategoryLevel(category),
+      builder: (context, snap) {
+        final level = snap.data ?? 'Beginner';
+        return _levelChip('Level: $level', color, theme);
+      },
+    );
+  }
+
+  // Realtime progress bar for a given category based on quizzes completion
+  Widget _CategoryProgressBar({
+    required String category,
+    required int totalLessons,
+    required Color color,
+  }) {
+    final auth = context.watch<AuthService>();
+    if (!auth.isAuthenticated) {
+      // Fallback to static progress when unauthenticated
+      return ProgressIndicatorWidget(progress: 0, color: color);
+    }
+    return StreamBuilder<int>(
+      stream: context.read<ProgressService>().watchCompletedQuizzesCount(
+        category: category,
+      ),
+      builder: (context, snap) {
+        final completed = (snap.data ?? 0).clamp(0, totalLessons);
+        final progress = totalLessons == 0 ? 0.0 : completed / totalLessons;
+        return ProgressIndicatorWidget(progress: progress, color: color);
+      },
+    );
+  }
+
+  // Text under the bar like "3/5 lessons"
+  Widget _CategoryProgressText({
+    required String category,
+    required int totalLessons,
+  }) {
+    final theme = Theme.of(context);
+    final auth = context.watch<AuthService>();
+    if (!auth.isAuthenticated) {
+      return Text(
+        '0/$totalLessons lessons',
+        style: theme.textTheme.labelSmall?.copyWith(
+          color: theme.colorScheme.onSurface.withOpacity(0.6),
+          fontSize: 11,
+        ),
+      );
+    }
+    return StreamBuilder<int>(
+      stream: context.read<ProgressService>().watchCompletedQuizzesCount(
+        category: category,
+      ),
+      builder: (context, snap) {
+        final completed = (snap.data ?? 0).clamp(0, totalLessons);
+        return Text(
+          '$completed/$totalLessons lessons',
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: theme.colorScheme.onSurface.withOpacity(0.6),
+            fontSize: 11,
+          ),
+        );
+      },
     );
   }
 
@@ -808,21 +1015,22 @@ class _LearnScreenState extends State<LearnScreen>
   }
 
   Widget _buildQuizzesSection(ThemeData theme) {
+    final String category = _categories[_selectedCategoryIndex].title;
     final filtered =
-        _quizzes.where((q) {
-          switch (_selectedCategoryIndex) {
-            case 0:
-              return q.difficulty == 'Beginner' || q.title.contains('Basics');
-            case 1:
-              return q.title.contains('Email');
-            case 2:
-              return q.title.contains('Web') || q.difficulty == 'Intermediate';
-            case 3:
-              return q.difficulty == 'Advanced';
-            default:
-              return true;
-          }
-        }).toList();
+        _quizzes
+            .where(
+              (q) =>
+                  q.title.contains(category) ||
+                  q.difficulty ==
+                      (_selectedCategoryIndex == 0
+                          ? 'Beginner'
+                          : _selectedCategoryIndex == 1
+                          ? 'Intermediate'
+                          : _selectedCategoryIndex == 2
+                          ? 'Intermediate'
+                          : 'Advanced'),
+            )
+            .toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -989,7 +1197,10 @@ class _LearnScreenState extends State<LearnScreen>
                 onPressed: () {
                   SoundService.playButtonSound();
                   Navigator.pop(context);
-                  context.go('/quiz/quick');
+                  // Route to a concrete quiz id to avoid null errors
+                  final String targetQuizId =
+                      _selectedCategoryIndex == 1 ? 'quiz_2' : 'quiz_1';
+                  context.go('/quiz/$targetQuizId');
                 },
                 child: const Text('Start Quiz'),
               ),
@@ -1017,7 +1228,9 @@ class _LearnScreenState extends State<LearnScreen>
                 onPressed: () {
                   SoundService.playButtonSound();
                   Navigator.pop(context);
-                  context.go('/scenario/random');
+                  final String targetScenarioId =
+                      _selectedCategoryIndex == 0 ? 'scenario_1' : 'scenario_2';
+                  context.go('/scenario/$targetScenarioId');
                 },
                 child: const Text('Start Scenario'),
               ),
@@ -1026,62 +1239,7 @@ class _LearnScreenState extends State<LearnScreen>
     );
   }
 
-  void _showProgressDialog() {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Your Progress'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildProgressItem('Quizzes Completed', '3/10', 0.3),
-                const SizedBox(height: AppConstants.spacingM),
-                _buildProgressItem('Scenarios Completed', '2/8', 0.25),
-                const SizedBox(height: AppConstants.spacingM),
-                _buildProgressItem('Overall Progress', '15/50', 0.3),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  SoundService.playButtonSound();
-                  Navigator.pop(context);
-                },
-                child: const Text('Close'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  SoundService.playButtonSound();
-                  Navigator.pop(context);
-                  // Navigate to detailed progress screen
-                },
-                child: const Text('View Details'),
-              ),
-            ],
-          ),
-    );
-  }
-
-  Widget _buildProgressItem(String title, String value, double progress) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(title),
-            Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
-          ],
-        ),
-        const SizedBox(height: AppConstants.spacingS),
-        ProgressIndicatorWidget(
-          progress: progress,
-          color: AppTheme.primaryColor,
-        ),
-      ],
-    );
-  }
+  // removed old inline progress dialog util
 }
 
 // Data Models

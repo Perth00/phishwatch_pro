@@ -1,0 +1,23 @@
+id,title,description,isPhishing,rationale
+seb01,Banking Alert,"Subject: URGENT: Account Locked\n\nVerify now: http://secure-bank-help.com",true,Generic urgency and non-official domain.
+seb02,Package Delivery,"Your package is held. Pay customs at http://ship-fast-fee.com",true,Requests payment via suspicious domain.
+seb03,Security Notice,"We detected a login. Review at https://accounts.example.com/security",false,Official domain with standard notice.
+seb04,Password Reset,"Click here to reset: http://examp1e.com-reset.net",true,Lookalike domain and odd subdomain.
+seb05,Invoice Attached,"See attached invoice.exe for details",true,Executable attachment is malicious.
+seb06,Mailbox Full,"Increase quota by logging in at https://mail.example.com/settings",false,Legitimate path on official domain.
+seb07,Gift Card Request,"From: CEO\nBuy 5 gift cards and send codes now",true,Classic BEC/gift card fraud.
+seb08,Subscription Renewal,"Renew via app or https://service.example.com/billing",false,Legitimate branded domain and flow.
+seb09,Delivery Reschedule,"Reschedule at http://delivery-fix.info",true,Suspicious TLD and domain.
+seb10,Account Verification,"Confirm details via attached HTML form",true,HTML form attachments harvest credentials.
+seb11,Shared Drive,"John shared a file: https://drive.example.com/open?id=123",false,Official drive domain link.
+seb12,Tax Refund,"Claim refund at http://gov-refund-fast.biz",true,Government rarely uses non-official domains.
+seb13,Helpdesk Upgrade,"Login required at http://it-helpdesk-update.net",true,Non-corporate domain asking for login.
+seb14,Two-Factor Code,"Your code is 394112. Do not share.",false,Legitimate 2FA message without links.
+seb15,Payment Update,"Update bank details via https://billing.example.com/update",false,Official billing subdomain.
+seb16,Prize Winner,"You won! Click http://super-prize-now.co",true,Too-good-to-be-true with odd domain.
+seb17,DocuSign,"Sign at https://secure.docusign.com/c/123",false,Trusted e-sign provider domain.
+seb18,Payroll Change,"Confirm new account via attachment .scr",true,Executable attachment, high risk.
+seb19,Meeting Invite,"Calendar invite from colleague with internal link",false,Internal systems and context.
+seb20,Support Ticket,"Resolve ticket at http://support-fix-now.xyz",true,Random domain requesting credentials.
+
+

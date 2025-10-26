@@ -6,7 +6,6 @@ import 'package:phishwatch_pro/widgets/scan_button.dart';
 import 'package:phishwatch_pro/widgets/bottom_nav_bar.dart';
 import 'package:phishwatch_pro/widgets/recent_result_card.dart';
 import 'package:phishwatch_pro/widgets/history_item_card.dart';
-import 'package:phishwatch_pro/screens/scan_history_screen.dart';
 import 'package:phishwatch_pro/models/history_item.dart';
 
 void main() {

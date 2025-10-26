@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 // Core learning content models and a simple in-memory repository of defaults
 
 class MultipleChoiceQuestion {
@@ -37,6 +35,7 @@ class Lesson {
 class Quiz {
   final String id;
   final String title;
+  final String category; // Basics, Email Security, Web Safety, Advanced
   final String difficulty; // Beginner, Intermediate, Advanced
   final List<MultipleChoiceQuestion> questions;
   final int passPercent; // e.g. 70
@@ -44,6 +43,7 @@ class Quiz {
   const Quiz({
     required this.id,
     required this.title,
+    required this.category,
     required this.difficulty,
     required this.questions,
     this.passPercent = 70,
@@ -56,6 +56,8 @@ class Scenario {
   final String description; // scenario text like an email/message
   final bool isPhishing;
   final String rationale; // why
+  final String category; // Basics, Email Security, Web Safety, Advanced
+  final String difficulty; // Beginner, Intermediate, Advanced
 
   const Scenario({
     required this.id,
@@ -63,6 +65,8 @@ class Scenario {
     required this.description,
     required this.isPhishing,
     required this.rationale,
+    this.category = 'Basics',
+    this.difficulty = 'Beginner',
   });
 }
 
@@ -97,6 +101,7 @@ class LearningRepository {
     Quiz(
       id: 'quiz_1',
       title: 'Phishing Basics',
+      category: 'Basics',
       difficulty: 'Beginner',
       questions: const [
         MultipleChoiceQuestion(
@@ -121,6 +126,7 @@ class LearningRepository {
     Quiz(
       id: 'quiz_2',
       title: 'Email Security',
+      category: 'Email Security',
       difficulty: 'Intermediate',
       questions: const [
         MultipleChoiceQuestion(
@@ -149,6 +155,8 @@ class LearningRepository {
       isPhishing: true,
       rationale:
           'Urgent threat, generic greeting, and suspicious URL that is not the official bank domain.',
+      category: 'Email Security',
+      difficulty: 'Beginner',
     ),
     Scenario(
       id: 'scenario_2',
@@ -158,6 +166,8 @@ class LearningRepository {
       isPhishing: false,
       rationale:
           'Legitimate services send notifications with official domains and without asking for passwords via email.',
+      category: 'Basics',
+      difficulty: 'Intermediate',
     ),
   ];
 
@@ -180,6 +190,7 @@ class LearningRepository {
         () => const Quiz(
           id: 'missing',
           title: 'Quiz not found',
+          category: 'Basics',
           difficulty: 'Beginner',
           questions: <MultipleChoiceQuestion>[],
         ),
@@ -194,8 +205,8 @@ class LearningRepository {
           description: 'This is a placeholder scenario.',
           isPhishing: true,
           rationale: 'No rationale available.',
+          category: 'Basics',
+          difficulty: 'Beginner',
         ),
   );
 }
-
-

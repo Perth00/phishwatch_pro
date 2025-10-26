@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
 import 'package:go_router/go_router.dart';
 
 import '../constants/app_theme.dart';
@@ -11,7 +10,6 @@ import '../services/sound_service.dart';
 import '../services/hugging_face_service.dart';
 import '../services/gemini_service.dart';
 import '../models/scan_result_data.dart';
-import '../models/history_item.dart';
 import '../services/history_service.dart';
 import 'package:provider/provider.dart';
 

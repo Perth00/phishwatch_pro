@@ -477,7 +477,7 @@ class _AnimatedListButtonState extends State<_AnimatedListButton>
                   decoration: ShapeDecoration(
                     color:
                         disabled
-                            ? theme.colorScheme.surfaceVariant
+                            ? theme.colorScheme.surfaceContainerHighest
                             : theme.colorScheme.surface,
                     shape: ContinuousRectangleBorder(
                       borderRadius: BorderRadius.circular(28),

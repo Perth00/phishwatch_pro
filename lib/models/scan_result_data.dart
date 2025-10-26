@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import '../services/gemini_service.dart';
 
 class ScanResultData {

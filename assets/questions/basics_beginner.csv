@@ -1,0 +1,51 @@
+id,prompt,option1,option2,option3,option4,correct,explanation
+bb01,Which is a common sign of phishing?,Urgent demand,Spoofed sender,Generic greeting,All of the above,4,Phishing often uses urgency, spoofed senders and generic greetings.
+bb02,Is it safe to click links from unknown senders?,Yes,No,Only on work Wi‑Fi,Only on mobile,2,Avoid clicking unknown links; verify first.
+bb03,What should you check in a URL?,Padlock only,Full domain and spelling,Background color,Font size,2,Check the full domain for misspellings or lookalikes.
+bb04,What is typosquatting?,Using CAPTCHA,Misspelled domain to trick users,Two‑factor login,Encrypted email,2,Attackers register lookalike domains to deceive.
+bb05,Best action for unexpected attachment?,Open quickly,Upload to social media,Scan/verify with security tools,Forward to friends,3,Always scan and verify before opening.
+bb06,Phishing mainly targets what?,Hardware only,Human behavior,ISP routers,CD‑ROMs,2,It exploits human trust and urgency.
+bb07,An email says your account will be deleted in 1 hour. You should?,Click link,Reply with password,Verify via official site/app,Ignore policies,3,Use official channels; don’t trust email links.
+bb08,From field says HR@company.com but Reply‑To is hr@companny.com. This is?,Normal,Red flag,Encryption,Two‑factor,2,Mismatched sender and reply‑to is suspicious.
+bb09,What is spear phishing?,Random mass emails,Targeted emails to specific person,Physical theft,Phone malware,2,It’s highly targeted phishing.
+bb10,Shortened URLs (bit.ly) are risky because?,Always malware,Hide destination,Block HTTPS,Break Wi‑Fi,2,They obscure the true destination.
+bb11,If unsure about a link you should?,Hover to preview,Click fast,Forward to all,Disable AV,1,Hovering shows the real destination.
+bb12,Legit companies will ask for passwords via email?,Yes,No,Sometimes on weekends,Only for giveaways,2,Legitimate companies do not request credentials via email.
+bb13,What is a giveaway scam sign?,No deadline,Unsolicited prize request for fees,Physical mail only,Clean spelling,2,Asking for fees/upfront info is a scam sign.
+bb14,Phishing pages often have?,Exact brand domain,Subtle typos and odd subdomains,Strong EV certs only,No CSS,2,Lookalike subdomains and typos are common.
+bb15,What should you do with suspicious SMS links?,Tap to check,Open on desktop,Ignore/report and verify independently,Share on socials,3,Do not tap; verify using official apps.
+bb16,Good password practice includes?,Reuse everywhere,Share with friends,Use unique long passwords,Write on monitor,3,Use unique and long passwords.
+bb17,Multi‑factor authentication helps by?,Replacing passwords,Adding extra verification,Disabling encryption,Sharing codes,2,It adds an extra verification layer.
+bb18,A sender pressures you to act now. This is?,Benign,Social engineering tactic,Server upgrade,Accessibility feature,2,Urgency is a classic social engineering tactic.
+bb19,If a domain uses HTTPS it is always safe?,Yes,No,Only on Chrome,Only on mobile,2,HTTPS can secure malicious sites too.
+bb20,You received an invoice you didn’t expect. Next step?,Open attachment,Pay immediately,Verify with the vendor via official contact,Ignore security,3,Verify through official channels first.
+bb21,CEO asks for gift cards urgently via email. You should?,Buy now,Reply with numbers,Verify via phone/official channel,Forward to team,3,Confirm via a separate known channel.
+bb22,Spelling/grammar errors in a bank email suggest?,A/B testing,Normal style,Possible phishing,Localization,3,Such errors are common in phishing emails.
+bb23,What data should never be emailed in plain text?,Memes,Public docs,Passwords and OTPs,Holiday pics,3,Credentials and OTPs should never be emailed.
+bb24,QR code in a flyer links to login page. You should?,Scan and login,Trust the flyer,Verify the URL and use official app/site,Share with friends,3,Verify URL; prefer official apps/sites.
+bb25,Which is safer for banking?,Link in email,Bookmark/typed official URL,Random search ad,Public kiosk,2,Use known official URLs.
+bb26,Attachment .zip from unknown sender. Action?,Open to see,Extract all,Scan in sandbox/verify,Print it,3,Safely analyze before opening.
+bb27,Lookalike domain example?,bank.com,bank-support.com,bãnḱ.com (punycode),support.bank.com,3,Punycode/lookalike characters deceive.
+bb28,Pop‑up says “You won a prize!” Next?,Enter card details,Close and ignore/report,Share on social,Install toolbar,2,Close and report; do not enter info.
+bb29,Two‑factor codes should be shared with?,Manager,No one,Friends,Helpdesk via email,2,2FA codes are private.
+bb30,Public Wi‑Fi and login links in email?,Always safe,Use VPN and avoid email links,Use Tor only,Disable Wi‑Fi,2,Avoid links; prefer VPN and direct app.
+bb31,Why verify the sender’s domain?,To view emojis,To confirm legitimacy,To change theme,To speed internet,2,It helps confirm the source’s legitimacy.
+bb32,Unsubscribe link in obvious spam?,Always click,Do not click; report as spam,Forward to self,Print email,2,Unsubscribe links may confirm your address.
+bb33,Bank calls asking OTP. You should?,Share OTP,Hang up and call bank’s official number,Text OTP,Email OTP,2,Verify via official channel; never share OTP.
+bb34,File type most risky?,.txt,.png,.exe,.md,3,Executables are dangerous.
+bb35,Cloud doc share you didn’t expect. Next?,Open fast,Verify with sender via another channel,Ignore forever,Reshare widely,2,Verify authenticity first.
+bb36,Hovering over links helps to?,Install tools,Preview destination,Change font,Delete cookies,2,It reveals the actual URL.
+bb37,What is phishing?,Fishing at sea,Tricking users into revealing info,Firewall update,Hardware upgrade,2,It’s a social engineering attack.
+bb38,Safe way to report phishing at work?,Reply to attacker,Use official report button or security email,Post on chat,Ignore,2,Use official reporting channels.
+bb39,If unsure about an email, you should?,Respond quickly,Take your time to verify,Delete all emails,Change wallpaper,2,Slow down; verify before acting.
+bb40,The padlock means?,Encrypted connection only,Guaranteed safe site,Government site,High speed,1,Padlock only indicates encryption, not trust.
+bb41,Payment request via gift cards is?,Normal,Sometimes ok,Common scam,Employee benefit,3,Gift card payment requests are a scam sign.
+bb42,Sender address slightly misspelled is?,Fine,Common phishing indicator,Required by policy,Email alias,2,Small misspellings indicate fraud.
+bb43,Social media DM with link to “verify account”?,Click it,Ignore/report and verify via app help,Share it,Ask friends,2,Use official support not random links.
+bb44,Drive‑by download means?,Downloading while browsing without consent,Scheduled patch,Manual update,Cloud backup,1,Malicious sites can trigger unwanted downloads.
+bb45,Vishing refers to?,Video phishing,Voice call phishing,VPN phishing,Visual phishing,2,It’s phone‑based phishing.
+bb46,Smishing refers to?,Social phishing,SMS phishing,Smart phishing,Small phishing,2,It’s SMS‑based phishing.
+bb47,Best first response to suspected phishing?,Delete the OS,Click link to confirm,Report and verify through official channels,Forward to friends,3,Report and verify using trusted channels.
+bb48,Attachment labeled “invoice.exe” is?,Invoice,Safe,Malicious high‑risk,Lint file,3,Executable disguised as invoice is risky.
+bb49,Free Wi‑Fi portal asking credentials via odd URL?,Always trust,Verify network and URL; avoid logging in,Use any password,Share hotspot,2,Verify legitimacy before entering creds.
+bb50,If a message feels too good to be true?,It’s likely a scam,Always true,Company gift,Ignore critical thinking,1,Too‑good‑to‑be‑true offers are scams.
