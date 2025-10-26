@@ -168,14 +168,14 @@ class GeminiService {
     final String confidencePercent = (confidence * 100).toStringAsFixed(1);
 
     return '''
-You are a cybersecurity education assistant. A ${contentType} has been scanned and detected as ${verdict} with ${confidencePercent}% confidence.
+You are a cybersecurity education assistant. A $contentType has been scanned and detected as $verdict with $confidencePercent% confidence.
 
 ${isUrl ? 'URL' : 'Message Content'}:
 $content
 
 Please provide educational feedback to help the user understand this result. Your response should be structured as follows:
 
-1. EXPLANATION: A brief, clear explanation (2-3 sentences) of why this ${contentType} is ${verdict}.
+1. EXPLANATION: A brief, clear explanation (2-3 sentences) of why this $contentType is $verdict.
 
 2. KEY INDICATORS: List 3-5 specific suspicious elements found (if phishing) or positive signs (if legitimate). Be specific to the content provided.
 

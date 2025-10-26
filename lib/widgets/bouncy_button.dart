@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/sound_service.dart';
 
 class BouncyButton extends StatefulWidget {
   final VoidCallback? onPressed;
@@ -67,7 +68,11 @@ class _BouncyButtonState extends State<BouncyButton>
         onTapDown: _down,
         onTapUp: _up,
         onTapCancel: () => _controller.forward(),
-        onTap: widget.onPressed,
+        onTap: () {
+          // Play lightweight click sound for generic button taps
+          SoundService.playButtonSound();
+          widget.onPressed?.call();
+        },
         child: AnimatedBuilder(
           animation: _controller,
           builder: (context, child) {
@@ -111,5 +116,3 @@ class _BouncyButtonState extends State<BouncyButton>
     );
   }
 }
-
-

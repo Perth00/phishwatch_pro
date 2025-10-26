@@ -1,0 +1,53 @@
+id,prompt,option1,option2,option3,option4,correct,explanation
+ei01,Which protocols help authenticate sender domains?,TLS,DMARC/SPF/DKIM,POP3,IMAP,2,DMARC/SPF/DKIM authenticate sending domains.
+ei02,SPF primarily validates what?,Mail content,Envelope sender IP,User password,Attachment hash,2,SPF checks if sending IP is authorized for the domain.
+ei03,DKIM provides what?,DomainKeys signatures,Password reset,Cookies,Attachment scanning,1,DKIM signs emails to prove domain ownership.
+ei04,DMARC adds policy for what?,How recipients handle alignment failures,VPN use,Mailbox quotas,Spam folder size,1,DMARC tells receivers how to handle alignment failures.
+ei05,Best place to view raw headers?,View Source/Show Original,Forward to self,Print,Mobile screenshot,1,Use raw headers to inspect routing and auth.
+ei06,What indicates header spoofing?,Consistent Received lines,SPF pass but DKIM fail with mismatch,Matching From and Return‑Path,Valid DMARC alignment,2,Mismatched authentication is suspicious.
+ei07,Which header shows original sending IP?,Subject,To,Received,Date,3,Received headers show the path and IPs.
+ei08,Display name spoofing means?,Fake domain,Forged name with legit email,Different subject,Missing attachments,2,Attackers set a misleading display name.
+ei09,Common BEC red flag?,Unusual payment request,Regular newsletter,Holiday greetings,Meeting invite,1,Unusual urgent payment requests signal BEC.
+ei10,What is quarantine in DMARC?,Deliver normally,Reject email,Send to spam folder,Forward to admin,3,Quarantine sends messages to spam.
+ei11,SPF softfail means?,No issue,Possible unauthorized sender,Guaranteed spoof,Attachment virus,2,Softfail indicates possible unauthorized sender.
+ei12,Why align From with DKIM/ SPF domains?,Aesthetics,Policy alignment prevents spoofing,Color scheme,Quota increase,2,Alignment enforces identity consistency.
+ei13,Safe response to invoice fraud email?,Pay now,Reply with details,Verify via known contact/phone,Ignore finance,3,Verify via separate trusted channel.
+ei14,URL defense tools do what?,Remove links,Rewrite and scan links,Add emojis,Translate emails,2,They rewrite links for scanning at click time.
+ei15,What is an EML?,Email file format,Image format,Executable,Archive format,1,EML stores raw email content.
+ei16,Outbound DMARC monitoring helps?,Prevent data loss,Track spoofing attempts,Fix Wi‑Fi,Manage printers,2,It provides visibility into spoofing.
+ei17,ARC in email stands for?,Authenticated Received Chain,Advanced Relay Control,Anti‑Replay Check,Active Route Channel,1,ARC preserves auth results across intermediaries.
+ei18,Phish kits often use what?,Unique domains only,Reusable templates/infra,No JS,Plain text only,2,Kits reuse infrastructure and templates.
+ei19,SPF includes too many lookups causes?,Policy pass,Circular DNS,Permerror and failures,Faster mail,3,Too many DNS lookups cause SPF permerror.
+ei20,Mailbox rules attack involves?,Server upgrade,Auto‑forward/hidden rules to exfiltrate mail,Color change,Calendar tweaks,2,Hidden rules exfiltrate or hide emails.
+ei21,Brand impersonation often abuses?,Top‑level domains only,IDNs/lookalike domains,Local LAN,ASCII art,2,Internationalized domains trick users.
+ei22,Attachment sandboxing is for?,Rendering emojis,Detonating files safely,Compressing emails,Theme changes,2,Sandboxing detonates files in isolation.
+ei23,Indicators of a fake O365 login page?,Correct domain,Exact branding,Odd subdomain and redirect chain,Valid company SSO,3,Look for odd subdomains/redirects.
+ei24,DMARC rua reports are sent to?,Random inbox,Specified report URI,Sender’s boss,NOC chat,2,Aggregate reports go to the rua address.
+ei25,SPF record type is usually?,TXT,MX,A,AAAA,1,SPF is published as TXT.
+ei26,Safe handling of unknown shared drives?,Open fast,Preview sender and verify link domain,Share broadly,Sync immediately,2,Verify sender and domain before opening.
+ei27,Phishers avoid reply‑to?,Always,Often set different reply‑to to capture replies,Never,Sometimes,2,They set a different reply‑to.
+ei28,SIEM helps by?,Making coffee,Aggregating logs to detect patterns,Changing themes,Blocking emojis,2,It aggregates and analyzes security logs.
+ei29,Inline images with link maps are risky because?,They speed up mail,They can hide tracking/malicious links,They compress attachments,They improve UX,2,They can hide tracking/malicious actions.
+ei30,DMARC p=reject means?,Deliver to spam,Reject unauthenticated mail,Ignore auth,Allow all,2,Reject blocks failing messages.
+ei31,SPF neutral result indicates?,Definite pass,No explicit policy about sender,Guaranteed fail,Header removal,2,Neutral means no policy for that sender.
+ei32,Best action after reporting phish?,Ignore inbox,Wait and continue training,Engage with SOC as needed,Share publicly,3,Follow internal process with SOC.
+ei33,Credential harvesting pages often have?,No input,Non‑interactive images,Masked password fields and fake SSO,SSH prompt,3,Look for fake SSO and controlled inputs.
+ei34,Malicious macros are commonly in?,.txt,.docm,.png,.pdf only,2,Macro‑enabled Office files can be dangerous.
+ei35,Why verify DKIM selector?,To ensure key lookup correctness,To change theme,To speed DNS,To block ads,1,Selector identifies the correct DKIM key.
+ei36,DMARC alignment types?,Relaxed/Strict,Left/Right,Open/Closed,Auto/Manual,1,Alignment can be relaxed or strict.
+ei37,What is BIMI?,Brand logo display based on auth,Mailbox cleanup,Spam score tool,Mobile theme,1,BIMI displays logos if auth requirements met.
+ei38,Forwarded messages may break?,SPF alignment,DLP rules,Wi‑Fi,DMZ,1,SPF can fail after forwarding.
+ei39,Mail gateway time‑of‑click protection?,Scans links when clicked,Deletes mails,Compresses mail,Changes fonts,1,It analyzes links at click time.
+ei40,Best way to validate payment change request?,Reply to email,Use known phone number to confirm,Send gift cards,Delay payroll,2,Verify using a trusted out‑of‑band channel.
+ei41,DMARC rua vs ruf?,Aggregate vs forensic reports,Forward vs back,Auth vs spam,Daily vs hourly,1,rua aggregates; ruf is forensic.
+ei42,Why least privilege on shared mailboxes?,Reduce theft risk,Speed up replies,Add emojis,Enable colors,1,Limits damage if compromised.
+ei43,Sender Policy “~all” means?,Hard fail,Soft fail,Pass,Neutral,2,~all denotes softfail.
+ei44,Why check age of domain?,Recent domains are more suspicious,Older is always malicious,Age irrelevant,Affects IMAP only,1,Brand‑new domains are often abused.
+ei45,Exfiltration via auto‑forward typically uses?,Filters to external addresses,IMAP only,POP3 only,SMTP only,1,Malicious rules forward mail externally.
+ei46,Compromised mailbox signs include?,Unsent drafts only,Unknown forwarding rules,Theme change,Correct avatars,2,Unrecognized rules are a sign.
+ei47,URL shortener in corporate email?,Always safe,Risky; expand/verify first,Always blocked,Only safe on mobile,2,Short links should be expanded.
+ei48,Security awareness tip cadence?,Once a decade,Quarterly/ongoing training,Daily all‑hands,Never,2,Regular ongoing training is effective.
+ei49,Attachment “invoice.scr” is?,Plain text,Screen saver executable,PDF,Compressed doc,2,.scr is executable; treat as malicious.
+ei50,Header “X‑PhishScore: 85” means?,Guaranteed phish,Heuristic score from a tool,DMARC fail,Wi‑Fi issue,2,It’s a tool‑specific heuristic score.
+
+

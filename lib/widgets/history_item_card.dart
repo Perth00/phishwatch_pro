@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../constants/app_theme.dart';
-import '../screens/scan_history_screen.dart';
 import '../models/history_item.dart';
 
 class HistoryItemCard extends StatefulWidget {

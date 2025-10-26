@@ -23,18 +23,22 @@ import 'screens/profile_screen.dart';
 import 'screens/profile_edit_screen.dart';
 import 'screens/verify_email_screen.dart';
 import 'screens/reset_password_sent_screen.dart';
+import 'screens/progress_screen.dart';
 import 'services/theme_service.dart';
 import 'services/onboarding_service.dart';
 import 'services/history_service.dart';
 import 'services/auth_service.dart';
 import 'services/progress_service.dart';
 import 'services/settings_service.dart';
+import 'services/sound_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Initialize Firebase BEFORE building the widget tree to avoid any
   // race conditions where services access Firebase too early.
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // Initialize audio session and preload sounds for instant playback
+  await SoundService.init();
 
   runApp(
     MultiProvider(
@@ -169,6 +173,10 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/scan-history',
       builder: (context, state) => const ScanHistoryScreen(),
+    ),
+    GoRoute(
+      path: '/progress',
+      builder: (context, state) => const ProgressScreen(),
     ),
   ],
 );
