@@ -159,11 +159,13 @@ class ProgressService extends ChangeNotifier {
       // Emit zero when user is not authenticated
       return Stream<int>.value(0);
     }
+    // Count passed attempts (>= 70%) so progress reflects 1/5, 2/5, ...
     Query<Map<String, dynamic>> query = _db
         .collection('users')
         .doc(uid)
-        .collection('quizzes')
-        .where('category', isEqualTo: category);
+        .collection('attempts')
+        .where('category', isEqualTo: category)
+        .where('passed', isEqualTo: true);
     if (difficulty != null) {
       query = query.where('difficulty', isEqualTo: difficulty);
     }
@@ -196,6 +198,72 @@ class ProgressService extends ChangeNotifier {
       tx.update(userRef, {'stats.quizzesCompleted': FieldValue.increment(1)});
     });
     notifyListeners();
+  }
+
+  // Store a detailed quiz attempt for history and progress
+  Future<void> recordQuizAttemptDetailed({
+    required String quizId,
+    required String category,
+    required String difficulty,
+    required int correct,
+    required int total,
+    required List<Map<String, dynamic>> answers,
+  }) async {
+    final uid = _uid;
+    if (uid == null) return;
+    final attemptsRef = _db.collection('users').doc(uid).collection('attempts');
+    final double accuracy = total == 0 ? 0.0 : (correct / total) * 100.0;
+    final bool passed = accuracy >= 70.0;
+    await attemptsRef.add({
+      'quizId': quizId,
+      'category': category,
+      'difficulty': difficulty,
+      'correct': correct,
+      'total': total,
+      'accuracy': accuracy,
+      'passed': passed,
+      'answers': answers,
+      'completedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  // One-time fixer: ensure attempts have the correct category/difficulty
+  // based on the quiz metadata. This updates older records that may have
+  // been written with an incorrect category (e.g., all under Basics).
+  Future<void> normalizeAttemptCategories({int maxDocs = 500}) async {
+    final uid = _uid;
+    if (uid == null) return;
+    final attemptsRef = _db.collection('users').doc(uid).collection('attempts');
+    try {
+      final snap = await attemptsRef.limit(maxDocs).get();
+      if (snap.docs.isEmpty) return;
+      WriteBatch batch = _db.batch();
+      int updates = 0;
+      for (final doc in snap.docs) {
+        final data = doc.data();
+        final String quizId = (data['quizId'] ?? '').toString();
+        if (quizId.isEmpty) continue;
+        final Quiz? quiz = LearningRepository.getQuiz(quizId);
+        if (quiz == null) continue;
+        final String desiredCategory = quiz.category;
+        final String desiredDifficulty = quiz.difficulty;
+        final String currentCategory = (data['category'] ?? '').toString();
+        final String currentDifficulty = (data['difficulty'] ?? '').toString();
+        if (currentCategory != desiredCategory ||
+            currentDifficulty != desiredDifficulty) {
+          batch.update(doc.reference, <String, dynamic>{
+            'category': desiredCategory,
+            'difficulty': desiredDifficulty,
+          });
+          updates += 1;
+        }
+      }
+      if (updates > 0) {
+        await batch.commit();
+      }
+    } catch (e) {
+      debugPrint('normalizeAttemptCategories failed: $e');
+    }
   }
 
   // Helper to load CSV-driven questions (assets/questions/<category>_<level>.csv)
@@ -233,6 +301,7 @@ class ProgressService extends ChangeNotifier {
       }
       // Ensure at least 50 by repeating if dataset is small
       if (questions.isEmpty) return <MultipleChoiceQuestion>[];
+      questions.shuffle();
       while (questions.length < 50) {
         questions.addAll(questions.take(50 - questions.length));
       }
@@ -287,6 +356,7 @@ class ProgressService extends ChangeNotifier {
         );
       }
       if (scenarios.isEmpty) return <Scenario>[];
+      scenarios.shuffle();
       while (scenarios.length < 20) {
         scenarios.addAll(scenarios.take(20 - scenarios.length));
       }
@@ -345,18 +415,38 @@ class ProgressService extends ChangeNotifier {
     final uid = _uid;
     if (uid == null) return false;
     final userRef = _db.collection('users').doc(uid);
-    final quizzes =
+    final attempts =
         await userRef
-            .collection('quizzes')
+            .collection('attempts')
             .where('category', isEqualTo: category)
             .where('passed', isEqualTo: true)
             .get();
-    // Simple rule: at least one passed quiz in this category unlocks Intermediate,
-    // at least two passed quizzes unlocks Advanced (tweak as needed).
-    final passedCount = quizzes.docs.length;
-    if (targetLevel == 'Intermediate') return passedCount >= 1;
-    if (targetLevel == 'Advanced') return passedCount >= 2;
+    // New rule: 5 passes unlock Intermediate; 10 passes unlock Advanced.
+    final passedCount = attempts.docs.length;
+    if (targetLevel == 'Intermediate') return passedCount >= 5;
+    if (targetLevel == 'Advanced') return passedCount >= 10;
     return false;
+  }
+
+  // Watch recent attempts for a given category
+  Stream<QuerySnapshot<Map<String, dynamic>>> watchAttempts({
+    required String category,
+    int limit = 25,
+  }) {
+    final uid = _uid;
+    if (uid == null) {
+      // Empty stream when signed out
+      return const Stream<QuerySnapshot<Map<String, dynamic>>>.empty();
+    }
+    // Avoid a composite index requirement by not ordering on the server.
+    // We will sort by 'completedAt' on the client side in the UI.
+    return _db
+        .collection('users')
+        .doc(uid)
+        .collection('attempts')
+        .where('category', isEqualTo: category)
+        .limit(limit)
+        .snapshots();
   }
 
   Future<void> recordScenarioAttempt({

@@ -280,7 +280,14 @@ class _ProfileScreenState extends State<ProfileScreen>
                       return null;
                     })(),
               ),
-              title: Text(user?.email ?? 'Guest'),
+              title: Text(
+                auth.isAuthenticated
+                    ? (() {
+                      final String name = _name.text.trim();
+                      return name.isEmpty ? 'New user' : name;
+                    })()
+                    : 'Guest',
+              ),
               subtitle:
                   auth.isAuthenticated
                       ? Row(

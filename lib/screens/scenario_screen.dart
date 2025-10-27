@@ -309,7 +309,9 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
       category: _category,
       level: _level,
     );
-    final pick = loaded.isEmpty ? [meta] : loaded;
+    final pick =
+        loaded.isEmpty ? [meta] : loaded
+          ..shuffle();
     setState(() {
       _scenarios = pick.length > 10 ? pick.take(10).toList() : pick;
       _userAnswers.addAll(List<bool?>.filled(_scenarios.length, null));
@@ -354,6 +356,8 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
       _index = 0;
       _selected = null;
       _locked = false;
+      // Randomize order on reset
+      _scenarios.shuffle();
       for (int i = 0; i < _userAnswers.length; i++) {
         _userAnswers[i] = null;
         _isCorrect[i] = false;
