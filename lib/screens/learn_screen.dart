@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import '../constants/app_theme.dart';
 import '../services/theme_service.dart';
@@ -30,6 +31,7 @@ class _LearnScreenState extends State<LearnScreen>
   late Animation<Offset> _contentSlideAnimation;
   late Animation<double> _contentFadeAnimation;
   late Animation<double> _fabAnimation;
+  bool _suppressCategoryTap = false;
 
   int _currentNavIndex = 2; // Learn tab
   int _selectedCategoryIndex = 0;
@@ -441,7 +443,29 @@ class _LearnScreenState extends State<LearnScreen>
     bool enabled,
     VoidCallback onPressed,
   ) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    // Improve contrast for dark and light themes
+    final Color background =
+        selected
+            ? colorScheme.primaryContainer
+            : (enabled
+                ? colorScheme.surfaceVariant.withOpacity(
+                  theme.brightness == Brightness.dark ? 0.40 : 0.85,
+                )
+                : colorScheme.surfaceVariant.withOpacity(
+                  theme.brightness == Brightness.dark ? 0.25 : 0.60,
+                ));
+    final Color foreground =
+        selected
+            ? colorScheme.onPrimaryContainer
+            : (enabled
+                ? colorScheme.onSurface
+                : colorScheme.onSurface.withOpacity(0.55));
+
     return BouncyButton(
+      background: background,
+      foreground: foreground,
       onPressed: enabled ? onPressed : () {},
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -451,25 +475,9 @@ class _LearnScreenState extends State<LearnScreen>
               if (!enabled)
                 Padding(
                   padding: const EdgeInsets.only(right: 6),
-                  child: Icon(
-                    Icons.lock_outline,
-                    size: 16,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withOpacity(0.5),
-                  ),
+                  child: Icon(Icons.lock_outline, size: 16, color: foreground),
                 ),
-              Text(
-                label,
-                style: TextStyle(
-                  color:
-                      enabled
-                          ? Theme.of(context).colorScheme.onSurface
-                          : Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withOpacity(0.5),
-                ),
-              ),
+              Text(label, style: TextStyle(color: foreground)),
             ],
           ),
           if (selected) const Icon(Icons.check, color: AppTheme.successColor),
@@ -719,7 +727,10 @@ class _LearnScreenState extends State<LearnScreen>
     // final progress = category.completedLessons / category.totalLessons; // replaced by realtime progress widget
 
     return GestureDetector(
-      onTap: () => _onCategorySelected(index),
+      onTap: () {
+        if (_suppressCategoryTap) return;
+        _onCategorySelected(index);
+      },
       onLongPress: () {
         final levelHint =
             'To increase your level, complete the quiz for this category.';
@@ -730,6 +741,7 @@ class _LearnScreenState extends State<LearnScreen>
       child: AnimatedContainer(
         duration: AppAnimations.fastAnimation,
         width: 150,
+        height: double.infinity,
         margin: const EdgeInsets.only(right: AppConstants.spacingM),
         padding: const EdgeInsets.all(AppConstants.spacingM),
         decoration: BoxDecoration(
@@ -757,59 +769,75 @@ class _LearnScreenState extends State<LearnScreen>
                   ]
                   : null,
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Stack(
+          fit: StackFit.expand,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(category.icon, color: category.color, size: 24),
-                const Spacer(),
-                // Level dropdown icon at top-right
-                InkWell(
-                  onTap: () => _showLevelPicker(category.title),
-                  borderRadius: BorderRadius.circular(16),
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: category.color.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(12),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(category.icon, color: category.color, size: 24),
+                    const Spacer(),
+                    // Level dropdown icon at top-right
+                    InkWell(
+                      onTap: () => _showLevelPicker(category.title),
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: category.color.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          Icons.expand_more,
+                          color: category.color,
+                          size: 18,
+                        ),
+                      ),
                     ),
-                    child: Icon(
-                      Icons.expand_more,
-                      color: category.color,
-                      size: 18,
-                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  category.title,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: theme.colorScheme.onSurface,
+                    fontSize: 13,
                   ),
+                ),
+                const SizedBox(height: 6),
+                // Per-category saved level badge
+                _CategoryLevelBadge(
+                  category: category.title,
+                  color: category.color,
+                ),
+                const SizedBox(height: 6),
+                // Realtime progress based on completed quizzes in Firestore
+                _CategoryProgressBar(
+                  category: category.title,
+                  totalLessons: category.totalLessons,
+                  color: category.color,
+                ),
+                const SizedBox(height: 2),
+                _CategoryProgressText(
+                  category: category.title,
+                  totalLessons: category.totalLessons,
                 ),
               ],
             ),
-            const SizedBox(height: 6),
-            Text(
-              category.title,
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: theme.colorScheme.onSurface,
-                fontSize: 13,
+            Positioned(
+              left: 80,
+              bottom: -15,
+              child: IconButton(
+                tooltip: 'View attempts',
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                icon: Icon(Icons.info_outline, size: 18, color: category.color),
+                onPressed: () => _showAttemptsBottomSheet(category.title),
               ),
-            ),
-            const SizedBox(height: 6),
-            // Per-category saved level badge
-            _CategoryLevelBadge(
-              category: category.title,
-              color: category.color,
-            ),
-            const SizedBox(height: 6),
-            // Realtime progress based on completed quizzes in Firestore
-            _CategoryProgressBar(
-              category: category.title,
-              totalLessons: category.totalLessons,
-              color: category.color,
-            ),
-            const SizedBox(height: 2),
-            _CategoryProgressText(
-              category: category.title,
-              totalLessons: category.totalLessons,
             ),
           ],
         ),
@@ -916,6 +944,130 @@ class _LearnScreenState extends State<LearnScreen>
         );
       },
     );
+  }
+
+  void _showAttemptsBottomSheet(String category) async {
+    final theme = Theme.of(context);
+    // Normalize any stale records before showing UI
+    await context.read<ProgressService>().normalizeAttemptCategories();
+    setState(() => _suppressCategoryTap = true);
+    // Defer to next frame to avoid the original tap's up event dismissing the sheet
+    await Future.delayed(const Duration(milliseconds: 80));
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder:
+          (_) => Container(
+            margin: const EdgeInsets.all(AppConstants.spacingM),
+            padding: const EdgeInsets.all(AppConstants.spacingL),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surface,
+              borderRadius: BorderRadius.circular(
+                AppConstants.borderRadius * 2,
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '$category • Attempts',
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.of(context).maybePop(),
+                      icon: const Icon(Icons.close),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  height: 320,
+                  child: StreamBuilder(
+                    stream: context.read<ProgressService>().watchAttempts(
+                      category: category,
+                      limit: 50,
+                    ),
+                    builder: (context, AsyncSnapshot snapshot) {
+                      if (snapshot.hasError) {
+                        return Center(
+                          child: Text(
+                            'Could not load attempts. Please try again later.',
+                          ),
+                        );
+                      }
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      // Normalize and sort client-side by completedAt desc
+                      final List<dynamic> rawDocs =
+                          (snapshot.data?.docs ?? <dynamic>[]) as List<dynamic>;
+                      final List<Map<String, dynamic>> attempts =
+                          rawDocs
+                              .map((d) => Map<String, dynamic>.from(d.data()))
+                              .toList();
+                      attempts.sort((a, b) {
+                        final dynamic ad = a['completedAt'];
+                        final dynamic bd = b['completedAt'];
+                        final int at =
+                            ad is Timestamp
+                                ? ad.millisecondsSinceEpoch
+                                : (ad is DateTime
+                                    ? ad.millisecondsSinceEpoch
+                                    : 0);
+                        final int bt =
+                            bd is Timestamp
+                                ? bd.millisecondsSinceEpoch
+                                : (bd is DateTime
+                                    ? bd.millisecondsSinceEpoch
+                                    : 0);
+                        return bt.compareTo(at);
+                      });
+                      if (attempts.isEmpty) {
+                        return const Center(child: Text('No attempts yet.'));
+                      }
+                      return ListView.builder(
+                        itemCount: attempts.length,
+                        itemBuilder: (context, i) {
+                          final data = attempts[i];
+                          final bool passed = (data['passed'] ?? false) as bool;
+                          final int correct = (data['correct'] ?? 0) as int;
+                          final int total = (data['total'] ?? 0) as int;
+                          final String difficulty =
+                              (data['difficulty'] ?? '') as String;
+                          return ListTile(
+                            dense: true,
+                            leading: Icon(
+                              passed ? Icons.check_circle : Icons.cancel,
+                              color:
+                                  passed
+                                      ? AppTheme.successColor
+                                      : AppTheme.errorColor,
+                            ),
+                            title: Text('$correct/$total correct'),
+                            subtitle: Text(
+                              'Level: ' +
+                                  (difficulty.isEmpty ? '-' : difficulty),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+    );
+    if (!mounted) return;
+    setState(() => _suppressCategoryTap = false);
   }
 
   Widget _buildQuickPracticeSection(ThemeData theme) {

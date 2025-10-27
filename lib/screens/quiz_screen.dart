@@ -77,15 +77,15 @@ class _QuizScreenState extends State<QuizScreen> {
     if (ok == true) {
       setState(() {
         _resetsUsed += 1;
+      });
+      // Reload a fresh randomized set from CSV for this quiz's category/level
+      await _loadQuestions();
+      setState(() {
         _index = 0;
         _correct = 0;
         _selected = null;
         _finished = false;
         _locked = false;
-        for (int i = 0; i < _userAnswers.length; i++) {
-          _userAnswers[i] = null;
-          _isCorrect[i] = false;
-        }
       });
     }
   }
@@ -104,6 +104,7 @@ class _QuizScreenState extends State<QuizScreen> {
         level: quizMeta.difficulty,
       );
       final chosen = (loaded.isEmpty ? quizMeta.questions : loaded).toList();
+      chosen.shuffle();
       // Limit to 10 questions per quiz
       setState(() {
         _questions = chosen.length > 10 ? chosen.take(10).toList() : chosen;
@@ -291,6 +292,26 @@ class _QuizScreenState extends State<QuizScreen> {
   Widget _buildResult(ThemeData theme, Quiz quiz) {
     final percent = (100.0 * _correct / (_questions.length)).toStringAsFixed(0);
     final passed = 100.0 * _correct / _questions.length >= quiz.passPercent;
+    // Persist detailed attempt for history and progress
+    final answers = <Map<String, dynamic>>[];
+    for (int i = 0; i < _questions.length; i++) {
+      final q = _questions[i];
+      answers.add({
+        'id': q.id,
+        'prompt': q.prompt,
+        'userIndex': _userAnswers[i],
+        'correctIndex': q.correctIndex,
+        'userCorrect': _isCorrect[i],
+      });
+    }
+    context.read<ProgressService>().recordQuizAttemptDetailed(
+      quizId: quiz.id,
+      category: quiz.category,
+      difficulty: quiz.difficulty,
+      correct: _correct,
+      total: _questions.length,
+      answers: answers,
+    );
     return Padding(
       padding: const EdgeInsets.all(AppConstants.spacingL),
       child: Column(
