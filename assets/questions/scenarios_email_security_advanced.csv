@@ -1,0 +1,12 @@
+id,title,description,isPhishing,rationale
+sea1,Consent Phish,OAuth page on fake domain asks for organization‑wide consent,true,Admin consent should occur on official domain only.
+sea2,ARC Break,Forwarding removes ARC and DKIM fails,true,Manipulated forwarding can indicate tampering.
+sea3,Verified Banner,Provider banner shows external sender,false,Informational banner only.
+sea4,Passkey Invitation,Provider invites passkeys on official site,false,Phishing‑resistant login.
+sea5,DMARC Reject Report,Receiver sends failure reports,false,Operational report about rejected mails.
+sea6,Signed Attachment,S/MIME signed invoice from known vendor,false,Signatures validate integrity.
+sea7,Mailbox Delegation,Unexpected delegate with full access,true,Compromise sign.
+sea8,Threat Feed Match,Domain appears on phishing intel,true,Known malicious domain flagged.
+sea9,3rd‑Party App,Unknown app granted read access,true,Consent phishing outcome.
+sea10,OAuth Device Code,Prompt to enter code on fake site,true,Always use official verification site.
+

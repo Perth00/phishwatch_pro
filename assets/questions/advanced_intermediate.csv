@@ -1,0 +1,22 @@
+id,prompt,option1,option2,option3,option4,correct,explanation
+adi1,Homograph detection uses…,Fonts,Punycode comparison,Themes,Images,2,Convert to punycode and compare.
+adi2,Best practice for payments change?,Email approval,Out‑of‑band verification,Chat ok,Auto accept,2,Use phone known to vendor.
+adi3,SPF/DMARC help with…,Sender auth,Content encryption,Password reset,VPN,1,Authenticate sending domain.
+adi4,Detect open redirect abuse by…,Monitoring redirect chains,Fonts,Themes,Colors,1,Chains lead to phishing.
+adi5,Mitigate QR phishing by…,Preview destination,Trust all,No camera,Random app,1,Always preview and verify.
+adi6,Password managers help by…,Origin matching only,Storing plaintext,Sharing widely,Randomizing fonts,1,They fill only on exact origins.
+adi7,Sandboxing attachments means…,Run in safe environment,Print,Open on prod,Ignore,1,Detonate in sandbox.
+adi8,BEC protection includes…,MFA + supplier callback,Dark mode,Fonts,Emojis,1,Use MFA and verify payments.
+adi9,Why browser warnings matter?,Cosmetic only,Indicate real risk,Omit risk,Ad blocker only,2,Respect security warnings.
+adi10,Pharming attack manipulates…,Email headers,DNS resolution,TLS cipher,Clipboard,2,DNS redirects to fake site.
+adi11,Best defense vs consent phishing?,Admin consent policies + training,Dark mode,Fonts,Logos,1,Control app grants and educate users.
+adi12,Passkeys resist phishing because…,Origin bound,Colorful,Short,Emoji,1,Credentials tied to origin.
+adi13,Open redirect detection in org?,Logging + allowlist,Any redirect ok,Block HTTPS,Ignore,1,Restrict redirects.
+adi14,Mailbox audit logs reveal…,Suspicious access and rule changes,Theme swaps,Fonts,Memes,1,Investigate anomalies.
+adi15,Threat intel feeds used for…,Detect known kits/domains,Change fonts,Add colors,Compress mail,1,Use for detection.
+adi16,Out‑of‑band payment verification…,Prevents BEC,Adds spam,Changes icons,Irrelevant,1,Always verify externally.
+adi17,Password manager autofill…,On exact origin only,Every site,IP only,Any domain,1,Origin matching prevents fill on phish.
+adi18,Time‑of‑click scanning…,Analyzes links at click,Deletes mail,Adds GIFs,Blocks CSS,1,Helps catch delayed activations.
+adi19,Homoglyph detection uses…,Confusable mapping,Pictures,Colors,Fonts,1,Detect similar characters.
+adi20,Post‑incident step after click…,Reset creds and review sessions,Ignore,Post online,Blame user,1,Contain and investigate.
+

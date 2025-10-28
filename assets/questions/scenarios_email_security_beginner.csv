@@ -19,6 +19,37 @@ seb17,DocuSign,"Sign at https://secure.docusign.com/c/123",false,Trusted e-sign 
 seb18,Payroll Change,"Confirm new account via attachment .scr",true,Executable attachment, high risk.
 seb19,Meeting Invite,"Calendar invite from colleague with internal link",false,Internal systems and context.
 seb20,Support Ticket,"Resolve ticket at http://support-fix-now.xyz",true,Random domain requesting credentials.
+seb21,Mailbox Full,"System warns via official portal with no link",false,Legitimate notice without phishing link.
+seb22,Prize Email,"Win a phone; pay small fee at random site",true,Advance-fee scam.
+seb23,Vendor Update,"Verify invoice via https://billing.example.com",false,Official billing domain.
+seb24,Shared Doc,"View on http://drive-share-fast.link",true,Look‑alike domain.
+seb25,Banking Alert,"Use bank app push to approve",false,Legitimate in-app approval.
+seb26,QR Login,"Scan QR to login at unknown domain",true,QR phishing.
+seb27,Forwarding Rule,"New external forwarding rule created",true,Potential exfiltration.
+seb28,Encrypted Message,"Healthcare portal link from official domain",false,Secure messaging flow.
+seb29,Gift Card Request,"CEO asks for codes urgently",true,BEC fraud pattern.
+seb30,Two-Factor Code,"Your code is 824220. Do not share.",false,Legitimate 2FA message.
+seb31,Password Reset,"Reset via https://account.example.com/security",false,Official security center.
+seb32,Mailbox Delegation,"Unexpected delegate added",true,Potential compromise.
+seb33,DMARC Report,"Aggregate report summary",false,Operational.
+seb34,Invoice HTML,"Attachment .html asks to login",true,HTML credential harvest.
+seb35,Delivery Service,"Track via official vendor app store link",false,Safer flow.
+seb36,Helpdesk Chat,"Agent asks for password to verify",true,Support never asks passwords.
+seb37,New Domain,"Brand support on brand-help.co",true,Look‑alike domain.
+seb38,App Consent,"Unknown app granted read access",true,Consent phishing outcome.
+seb39,Mailbox Rule,"Deletes security alerts automatically",true,Hide defender emails.
+seb40,Security Education,"Awareness newsletter from official domain",false,Legitimate communication.
+seb41,CT Log Alert,"New cert issued for close look‑alike",true,Monitor CT logs.
+seb42,Passkey Invite,"Provider invites passkey on official site",false,Secure login improvement.
+seb43,Archive Notice,"Old mails archived by policy",false,Normal operation.
+seb44,Reply-To Trick,"Reply-to is different suspicious domain",true,Attackers capture replies.
+seb45,Mailbox Storage,"Increase quota at https://mail.example.com/settings",false,Official settings path.
+seb46,Payroll Change,"Attachment .scr claims payroll update",true,Executable risk.
+seb47,Inbox Rule Alert,"Alert: new forwarding rule",false,Security alert.
+seb48,External Sender Banner,"Banner warns external",false,Informational banner.
+seb49,Vendor Seal,"Signed attachment from vendor",false,Signature indicates integrity.
+seb50,Public Wi‑Fi Scam,"Login via free‑wifi‑update.net",true,Fake login domain.
+
 
 
 

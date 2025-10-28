@@ -1,0 +1,52 @@
+id,prompt,option1,option2,option3,option4,correct,explanation
+esb1,What identifies the true sender?,Display name,Full email address/domain,Avatar color,Subject line,2,Check the actual email address.
+esb2,Unexpected attachment safest step?,Open to check,Scan or verify source,Forward widely,Print it,2,Scan or verify directly with sender.
+esb3,What is SPF for?,Spam folder,Sender domain auth,Content encryption,Attachment size,2,SPF authenticates envelope sender.
+esb4,DKIM ensures…,Header signing,Domain‑signed email integrity,Spam deletion,TLS only,2,DKIM signs mail by domain.
+esb5,DMARC policy helps…,Enforce SPF/DKIM alignment,Compress emails,Block TLS,Style emails,1,Policies enforce alignment.
+esb6,Phishing common theme?,Urgency/Threat,Long stories,Technical jargon,Memes,1,Creates urgency or fear.
+esb7,Good practice with links?,Hover to preview domain,Click all,Trust icon,Ignore warnings,1,Inspect destination.
+esb8,Mailbox rule attack can…,Hide replies,Fix spam,Speed mail,Auto encrypt,1,Rules can auto‑move/delete mail.
+esb9,Legit support asks for password?,Yes,Never,If urgent,Fridays only,2,Support never needs your password.
+esb10,Best response to suspicious invoice?,Pay quickly,Verify with vendor,Ignore forever,Reply with data,2,Verify via known channel.
+esb11,BCC abuse indicates…,Privacy,Spam/phish campaign,Encryption,Archiving,2,Large BCC lists are suspicious.
+esb12,What is a phishing landing page?,Newsletter,Fake login page,Calendar invite,Browser theme,2,Collects credentials.
+esb13,Attachment type safest?,.exe,.scr,.pdf from known source,.bat,3,Executables are risky; PDFs may be ok.
+esb14,Outlook/Google report button used to…,Notify IT/report to provider,Delete permanently,Forward to friend,Archive,1,Report to help filters.
+esb15,Display name shows CEO but domain is generic…,Safe,Impersonation,Newsletter,Spam only,2,Classic CEO spoof.
+esb16,QR code in email may…,Always be safe,Lead to phishing site,Open camera settings,Charge phone,2,QR links can lead to malicious pages.
+esb17,Unsubscribe link on unknown spam…,Confirms your address,Always safe,Sends feedback,Adds to contacts,1,It may confirm to spammers.
+esb18,Best authentication upgrade?,POP3,TLS only,DMARC with reject,IMAP,3,DMARC reject raises bar.
+esb19,Mailbox compromise sign?,Forwarding rules changed,Theme change,New emoji,Fonts updated,1,Rules used to hide attacker comms.
+esb20,Training effectiveness improves by…,Ignoring,Regular simulated phishing,Blocking all mail,Dark mode,2,Simulations raise awareness.
+esb21,Legit password resets come from…,Official domain links or portal,Random blog,Short URL only,Unknown sender,1,Expect official domains.
+esb22,Mailbox rule that forwards externally…,Suspicious,Always safe,Required,Harmless,1,External forwarding can exfiltrate.
+esb23,Phishing via HTML attachments works by…,Collecting creds in local form,Encrypting mail,Changing fonts,Blocking spam,1,HTML forms mimic sign‑ins.
+esb24,Best way to verify an email?,Out‑of‑band via known channel,Reply to sender,Ask in group chat,Ignore,1,Use a trusted channel.
+esb25,URL shortener in email should be…,Previewed before clicking,Trusted blindly,Always blocked,Ignored forever,1,Preview to inspect destination.
+esb26,What is a bounce message?,Delivery failure report,Spam,Attachment type,Link protector,1,DSN indicates delivery result.
+esb27,Common fake sender trick?,Display name spoofing,SPF pass only,Valid DKIM always,BIMI,1,Display name can mislead.
+esb28,Strongest MFA for email?,SMS,TOTP,Push,Security keys,4,Security keys are phishing‑resistant.
+esb29,Attachment “.scr” indicates…,Screen saver executable,PDF,Safe text,Image,1,Treat as malware.
+esb30,Legit support will ask for…,Passwords,Never passwords,SSN,Card PIN,2,They won’t ask for secrets.
+esb31,SPF record type is…,TXT,MX,A,AAAA,1,SPF is in TXT records.
+esb32,DMARC alignment compares…,From: with SPF/DKIM domains,To: with Cc:,Body with Subject,Date with Message‑ID,1,Alignment ties identity.
+esb33,DKIM proves…,Domain signed the email,Attachment is safe,Sender is human,Mail is encrypted,1,DKIM signs by domain.
+esb34,Mailbox compromise sign includes…,Unknown OAuth grants,New theme,Emoji use,Font change,1,Review app consents.
+esb35,BEC request for gift cards is…,Legit,Suspicious,Holiday norm,Safe,2,Classic BEC indicator.
+esb36,Reply‑To differing from From:…,May be a trap,Always safe,Random,Harmless,1,Attackers capture replies.
+esb37,Best action on mismatched domains…,Report and verify,Proceed,Ignore,Print,1,Report and do not click.
+esb38,Legit invoices come with…,Known PO and vendor validation,Typos only,Unknown sender,No context,1,Validate with known vendor.
+esb39,Using Cc/Bcc to many recipients…,Sign of mass phishing,Normal,Encrypted,Safe,1,Mass sends indicate campaigns.
+esb40,Strong reporting culture…,Improves detection,Adds spam only,No value,Blocks mail,1,It helps SOC respond quickly.
+esb41,Phishing landing kit often has…,Perfect DNS,Only text,Fake SSO buttons,No HTML,3,Buttons mimic real IdP.
+esb42,From a new domain registered yesterday…,More suspicious,Less suspicious,Always safe,Irrelevant,1,New domains are risky.
+esb43,Mailbox rules should be…,Monitored and reviewed,Ignored,Shared,Public,1,Audit helps detect abuse.
+esb44,Email banners should be…,Contextual and not excessive,All caps and red,Animated,Ignored,1,Helpful not noisy.
+esb45,Encrypted message notifications…,May link to secure portals,Always malicious,Always attachments,Impossible,1,Often legitimate.
+esb46,Passwordless login in email…,Verify domain before clicking,Always click,Ignore security,Share link,1,Ensure legit domain.
+esb47,Mass marketing from your own account…,May indicate compromise,Never possible,Always safe,Harmless,1,Could signal account use by attacker.
+esb48,Mailbox auto‑forward alerts…,Help detect exfiltration,Are useless,Are spam,Reduce phishing,1,Enable alerts.
+esb49,Anti‑phish training frequency…,Quarterly or continuous,Never,Yearly only,Daily spam,1,Regular cadence works.
+esb50,If in doubt…,Do not click and report,Proceed then report,Forward externally,Ignore policy,1,Err on the side of caution.
+

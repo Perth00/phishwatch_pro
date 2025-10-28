@@ -1,0 +1,52 @@
+id,title,description,isPhishing,rationale
+swi1,Open Redirect Chain,Promo link goes through multiple redirectors to a login page,true,Attackers chain redirects to obscure final phishing destination.
+swi2,OAuth Consent Screen,App asks for full mailbox access for a calendar feature,true,Excessive scopes are a red flag.
+swi3,CT Log Alert,Brand appears in new certificate for look‑alike domain,true,Certificate transparency reveals suspicious issuance.
+swi4,Fake Vendor Mirror,Mirror domain mismatches official vendor and lacks signatures,true,No signatures and odd domain indicate risk.
+swi5,Passkey Prompt,Official domain prompts to use a passkey,false,Passkeys are phishing‑resistant on correct origin.
+swi6,Device Binding,Wallet asks to bind device key on official site,false,Origin‑bound keys improve security.
+swi7,No‑Referrer Policy,App uses no‑referrer header on external links,false,Prevents leakage of sensitive URLs.
+swi8,Suspicious Extension,Extension from unknown site requests all‑site permissions,true,Install only from official stores.
+swi9,Service Worker Hijack,Offline page persists after visiting suspicious site,true,Malicious SW can serve phishing offline.
+swi10,Login in Iframe,Third‑party site embeds bank login in iframe,true,Clickjacking and origin confusion risk.
+swi11,HSTS Preload,Site is on HSTS preload list,false,HSTS improves HTTPS enforcement.
+swi12,Inline Script Allow,Site uses 'unsafe‑inline' CSP,true,Allows XSS and script injection.
+swi13,SRI Hash Missing,CDN script lacks SRI and integrity docs,true,Missing SRI increases risk of tampering.
+swi14,WHOIS Mismatch,Domain registrant is hidden and newly created,true,Fresh anonymous registrations can be risky.
+swi15,Verified Publisher,OAuth app shows verified publisher badge,false,Improves trust if domain matches.
+swi16,Phishing Kit Reuse,Multiple sites share identical phishing JS paths,true,Artifact reuse indicates kits.
+swi17,QR Code Payment,Merchant QR resolves to official domain,false,Normal if verified.
+swi18,Password Manager Warning,Manager refuses to fill on page,true,Likely origin mismatch; beware.
+swi19,CT Revocation,Cert shows revoked in OCSP,true,Revoked certificates indicate compromise.
+swi20,COOP/COEP Headers,App sets isolation headers,false,Protects against cross‑site leaks.
+swi21,Noopener on Links,External links have rel=noopener,false,Prevents tab‑nabbing.
+swi22,Fake Update Panel,Panel imitates browser update with download,true,Updates must come from browser/vendor.
+swi23,OAuth Device Flow,Phishing via device code on fake site,true,Verify codes only on official domain.
+swi24,3DS Payment Flow,Payment uses 3‑D Secure challenge on correct bank,false,Standard secure payment flow.
+swi25,Data URI Form,Login loads in data: URL,true,Data URLs can carry phishing content.
+swi26,Policy: Least Privilege,Permissions‑Policy restricts features,false,Good hardening.
+swi27,Malvertising Chain,Ad clicks lead to giveaway login,true,Malvertising often leads to phishing.
+swi28,Keylogger Injection,Site requests unusual keyboard permissions,true,Potential keylogger behavior.
+swi29,Attestation Info,Passkey dialog shows authenticator vendor,false,Expected attestation details.
+swi30,Domain Fronting,Phishing uses mismatched SNI and Host,true,Technique to mask real destination.
+swi31,Brand Seal Copy,Page shows copied trust badges,true,Seals can be faked easily.
+swi32,Sandboxed Iframe,Login in sandboxed iframe with allow‑list,false,Safer embedding with restrictions.
+swi33,Pinned Cert Mismatch,App refuses connection due to pin change,false,Pinning can block changes.
+swi34,HTTPOnly Cookies,Session stored in HTTPOnly Secure cookie,false,Proper cookie flags.
+swi35,DNS Poisoning,ISP shows malicious redirect,true,Pharming attack observed.
+swi36,DPoP Token,API uses DPoP bound tokens,false,Prevents token replay.
+swi37,K‑Anonymity Breach Check,Password checker uses k‑anonymity,false,Privacy‑preserving breach check.
+swi38,Deep Link Abuse,Open‑in‑app link jumps to fake login,true,Only allow trusted deep link domains.
+swi39,Signed Exchange,Page delivered via signed exchange from official site,false,Integrity preserved.
+swi40,Shop Checkout,Third‑party payment on trusted PSP domain,false,Normal if PSP is verified.
+swi41,Clipboard Read Prompt,Site asks to read clipboard on login,true,Suspicious permission for credential theft.
+swi42,CORP Violation,Console shows CORP blocked, page misses header,true,Missing CORP can leak sensitive data.
+swi43,PKCE Required,OAuth flow uses PKCE,false,Improves code flow security.
+swi44,Origin Trial Only,Feature gated behind origin trial,false,Normal experimentation.
+swi45,Fuzzy Domain Match,Monitoring flags near‑match to brand,true,Possible typosquat.
+swi46,Passwordless Link,Magic link from proper domain,false,Expected passwordless flow.
+swi47,Attacker CDN,Script from unknown CDN injected,true,Risk of malicious script.
+swi48,3rd‑Party Cookie Warning,Browser blocks third‑party cookies,false,Improves privacy/security.
+swi49,Lock Icon Removed,Site hides lock UI via CSS,true,Deceptive practice.
+swi50,Phishing Report Page,Official report page asks to paste suspicious URL,false,Normal reporting process.
+

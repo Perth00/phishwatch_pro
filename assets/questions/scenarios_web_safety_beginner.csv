@@ -1,0 +1,52 @@
+id,title,description,isPhishing,rationale
+swb1,Free Movie Streaming,Website offers "HD movies free" after installing a special codec,true,Legitimate sites do not require unknown codecs; risky downloads.
+swb2,Browser Update Prompt,A page says your browser is outdated and provides a direct update link,true,Updates should come from the browser or vendor, not random sites.
+swb3,Shortened Link Offer,Short link promises giveaway; destination is a look‑alike domain,true,Shorteners can hide malicious destinations.
+swb4,Locked Account Page,Login page says account locked but URL is slightly misspelled,true,Typosquatting suggests phishing.
+swb5,Survey Gift Card,Pop‑up survey promises gift card for entering email and password,true,Phishing uses rewards to harvest credentials.
+swb6,Extension Required,Site requires a new extension with broad permissions,true,Unknown extensions may steal data.
+swb7,Security Warning,Mixed content warning appears on login form,true,Do not enter credentials on mixed content pages.
+swb8,Verified Vendor Download,Official vendor page with HTTPS and signature instructions,false,Legitimate vendor provides signed downloads.
+swb9,Bank Page with Padlock,HTTPS bank domain with correct URL,false,Padlock and verified domain indicate legitimacy.
+swb10,Contest Page,Asks for credit card for a free prize,true,Phishing often asks for payment for freebies.
+swb11,Fake Support Chat,Support chat asks for your account password,true,Real support never asks for passwords.
+swb12,Software Mirror,Official mirror page with checksums,false,Checksums allow integrity verification.
+swb13,Video Player Error,Page requests Flash player installation,true,Flash is deprecated and often abused.
+swb14,Redirect Hop,Link chains through multiple redirects before login page,true,Open redirects are abused for phishing.
+swb15,Security Key Auth,Login with hardware key on official domain,false,WebAuthn is phishing resistant.
+swb16,Wi‑Fi Portal,Public Wi‑Fi portal asks only to accept terms,false,Typical captive portals ask for simple acceptance.
+swb17,Game Mod Download,Downloads executable from forum without signatures,true,Untrusted executables are risky.
+swb18,Extension Permissions,Extension requests "Read and change all data on all websites",true,Over‑broad permissions are suspicious.
+swb19,Invoice PDF,PDF from vendor site with expected checksum,false,Checksum matches vendor; likely legitimate.
+swb20,Login Overlay,Invisible overlay captures clicks on login button,true,Clickjacking attempts to steal clicks.
+swb21,QR Code Login,QR to login on official site,false,Official QR login is normal.
+swb22,Emoji URL,Link uses punycode look‑alike domain,true,Homoglyph IDN attack.
+swb23,Browser Cleanup Tool,Random blog offers cleanup tool download,true,Unknown sources are dangerous.
+swb24,Security Headers,Site sets HSTS and CSP,false,Good security headers indicate hardening.
+swb25,Passwordless Option,Prompts to use passkey on official domain,false,Passkeys are secure and phishing‑resistant.
+swb26,Support Number Spoof,Site lists generic support number that asks for OTP,true,OTP should not be shared; probable scam.
+swb27,Charity Donation,Website asks for gift cards as donations,true,Gift cards are red flags for scams.
+swb28,Two‑Factor Prompt,Official site requests TOTP after password,false,Standard MFA flow.
+swb29,Email Login Link,Magic link arrives from official domain,false,Legitimate passwordless email link.
+swb30,Web Wallet Clone,Wallet site looks identical but lives on new TLD,true,Look‑alike domain indicates clone.
+swb31,Streamer Giveaway,External site asks to link your account and enter password,true,Third‑party credential requests are suspect.
+swb32,Security Scanner,Page runs an online scan and demands payment,true,Fraudulent scanners pressure users to pay.
+swb33,Certificate Error,Browser warns cert invalid,true,Do not proceed with invalid certificates.
+swb34,Download with GPG,Vendor provides GPG signature,false,Signatures allow authenticity verification.
+swb35,In‑App Browser,App opens login in untrusted in‑app browser,true,May steal credentials via injected scripts.
+swb36,News Paywall,Official site requests subscription,false,Normal monetization.
+swb37,CAPTCHA Page,Legit page uses CAPTCHA to block bots,false,CAPTCHA is common anti‑bot mechanism.
+swb38,Lottery Tax,Site asks tax upfront to claim prize,true,Advance‑fee fraud.
+swb39,Password Reset Page,Official domain with correct TLS,false,Legitimate if URL is validated.
+swb40,Drive‑by Download,Autodownload starts without click,true,Drive‑by may deliver malware.
+swb41,Fake Wallet Update,Wallet site asks to "re‑enter seed" on new domain,true,Seed phrase should never be entered on unknown domains.
+swb42,Safe Payment,Payment via 3‑D Secure on bank domain,false,Standard secure payment.
+swb43,Malicious iFrame,Hidden iframe loads phishing page,true,UI redressing attempt.
+swb44,Trusted Store Extension,Extension from official store with limited permissions,false,Reasonable trust.
+swb45,Proof‑of‑Payment Upload,Site asks to upload card photo,true,Never upload sensitive card photos.
+swb46,Browser Password Check,Offers to check passwords against breaches,false,Modern browsers provide this feature.
+swb47,Promo Code Field,Legit checkout asks optional promo code,false,Expected behavior.
+swb48,Email Attachment Viewer,Online viewer asks login for all providers,true,Data harvesting across services.
+swb49,New Domain Alert,Brand monitoring flags new look‑alike,true,Likely typosquat for phishing.
+swb50,Official Firmware,Router vendor site provides signed firmware,false,Signed firmware is expected.
+
