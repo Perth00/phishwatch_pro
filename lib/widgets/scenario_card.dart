@@ -1,13 +1,22 @@
 import 'package:flutter/material.dart';
 import '../constants/app_theme.dart';
+import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../services/progress_service.dart';
 import '../screens/learn_screen.dart';
 import 'animated_card.dart';
 
 class ScenarioCard extends StatelessWidget {
   final ScenarioData scenario;
   final VoidCallback onTap;
+  final String? category; // optional when used outside of All pages
 
-  const ScenarioCard({super.key, required this.scenario, required this.onTap});
+  const ScenarioCard({
+    super.key,
+    required this.scenario,
+    required this.onTap,
+    this.category,
+  });
 
   Color get _difficultyColor {
     switch (scenario.difficulty.toLowerCase()) {
@@ -39,11 +48,17 @@ class ScenarioCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isCompleted = scenario.completedAt != null;
+    final String cat = category ?? _inferCategoryFromTitle();
+    final Color categoryBorder = _categoryColor(cat).withOpacity(0.45);
 
     return PopOutCard(
       onTap: onTap,
       child: Card(
         elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+          side: BorderSide(color: categoryBorder, width: 1.5),
+        ),
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppConstants.borderRadius),
@@ -67,7 +82,7 @@ class ScenarioCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(AppConstants.spacingS),
                       decoration: BoxDecoration(
-                        color: _difficultyColor.withOpacity(0.1),
+                        color: _difficultyColor.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
@@ -95,14 +110,18 @@ class ScenarioCard extends StatelessWidget {
                                   vertical: 2,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: _difficultyColor.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(4),
+                                  color: categoryBorder.withOpacity(0.12),
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(
+                                    color: categoryBorder.withOpacity(0.35),
+                                  ),
                                 ),
                                 child: Text(
                                   scenario.difficulty,
                                   style: theme.textTheme.labelSmall?.copyWith(
-                                    color: _difficultyColor,
-                                    fontWeight: FontWeight.w600,
+                                    color: categoryBorder,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.2,
                                   ),
                                 ),
                               ),
@@ -150,15 +169,13 @@ class ScenarioCard extends StatelessWidget {
                     color: theme.colorScheme.surfaceContainerHighest
                         .withOpacity(0.3),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: _difficultyColor.withOpacity(0.2),
-                    ),
+                    border: Border.all(color: categoryBorder.withOpacity(0.4)),
                   ),
                   child: Row(
                     children: [
                       Icon(
                         Icons.format_quote,
-                        color: _difficultyColor.withOpacity(0.6),
+                        color: categoryBorder.withOpacity(0.8),
                         size: 20,
                       ),
                       const SizedBox(width: AppConstants.spacingS),
@@ -196,13 +213,13 @@ class ScenarioCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: _difficultyColor.withOpacity(0.1),
+                        color: categoryBorder.withOpacity(0.15),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         Icons.play_arrow,
                         size: 20,
-                        color: _difficultyColor,
+                        color: categoryBorder,
                       ),
                     ),
                   ],
@@ -293,5 +310,28 @@ class ScenarioCard extends StatelessWidget {
     } else {
       return 'today';
     }
+  }
+
+  Color _categoryColor(String c) {
+    switch (c) {
+      case 'Basics':
+        return AppTheme.primaryColor; // purple/indigo
+      case 'Email Security':
+        return AppTheme.warningColor; // yellow/amber
+      case 'Web Safety':
+        return AppTheme.successColor; // green
+      case 'Advanced':
+        return AppTheme.errorColor; // red
+      default:
+        return AppTheme.primaryColor;
+    }
+  }
+
+  String _inferCategoryFromTitle() {
+    final t = scenario.title.toLowerCase();
+    if (t.contains('email')) return 'Email Security';
+    if (t.contains('web')) return 'Web Safety';
+    if (t.contains('advanced') || t.contains('fraud')) return 'Advanced';
+    return 'Basics';
   }
 }

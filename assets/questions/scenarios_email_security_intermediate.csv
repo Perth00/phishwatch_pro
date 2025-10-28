@@ -1,0 +1,12 @@
+id,title,description,isPhishing,rationale
+sei1,SPF Fail Alert,Email fails SPF and has mismatched domain,true,Failing SPF with mismatch indicates spoofing.
+sei2,Forwarded Thread,Thread forwarded from partner includes signed attachments,false,Legitimate if verified and signed.
+sei3,Consent Request,App asks for full mailbox read on calendar tool,true,Overbroad scopes are suspicious.
+sei4,Mailbox Rule,New rule auto‑moves invoices to archive,true,Used in fraud to hide emails.
+sei5,DMARC Report,Domain sends aggregate DMARC reports,false,Normal operational email.
+sei6,QR Login Link,QR code for login from official provider,false,Expected if domain matches.
+sei7,Missing DKIM,Email claims secure but lacks DKIM and SPF,true,Lack of auth indicators raises risk.
+sei8,ARC Pass,Forwarded email retains ARC pass,false,ARC helps preserve auth results.
+sei9,BEC Attempt,CEO asks for urgent wire with new account,true,Verify via out‑of‑band channel.
+sei10,Encrypted Message,Secure portal link from healthcare provider,false,Common secure messaging workflow.
+

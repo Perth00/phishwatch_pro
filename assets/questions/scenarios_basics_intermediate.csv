@@ -19,6 +19,37 @@ sbi17,Amazon Order,"Check order at https://amazon.example/order",false,Legit ven
 sbi18,Password Expiry,"Reset now at http://reset-password-365.top",true,Suspicious TLD and wording.
 sbi19,VPN Notice,"Connect using official VPN app",false,No links; operational instruction.
 sbi20,Helpdesk Call,"Caller demands OTP over phone",true,Never share OTP over calls.
+sbi21,Payroll Update,"Official portal asks to review payment details",false,Normal portal workflow on known domain.
+sbi22,Browser Extension,"Unknown site asks to install extension for viewing",true,Install only from official stores.
+sbi23,VPN Email,"Instruction to use official VPN app without links",false,Operational instruction.
+sbi24,Doc Share,"Open doc on http://drive-shared-files.co",true,Look‑alike drive domain.
+sbi25,Meeting Notes,"Notes available on https://intranet.example.com/notes",false,Internal domain is expected.
+sbi26,QR Login Poster,"Scan QR that goes to free-login-page.top",true,QR leading to unknown domain is risky.
+sbi27,Gift Card Drive,"Department requests gift cards via email",true,BEC with gift cards.
+sbi28,Helpdesk Reply,"Asks for password to unlock",true,Support never asks for passwords.
+sbi29,SSO Reminder,"Login via https://sso.example.com",false,Official SSO domain.
+sbi30,Cloud Invoice,"Download invoice from random file host",true,Untrusted file hosts.
+sbi31,Security Update,"Vendor update link to official site",false,Legit vendor domain.
+sbi32,Crypto Support,"Agent asks seed phrase via chat",true,Seed phrase must never be shared.
+sbi33,Banking SMS,"App notification without links",false,Safer flow via app.
+sbi34,Public Wi‑Fi,"Captive portal requests to accept terms",false,Expected behavior.
+sbi35,Fake Survey,"Survey at http://survey-prize-now.biz",true,Suspicious domain + prize.
+sbi36,Two‑Factor Email,"Code sent from official domain without link",false,Standard MFA.
+sbi37,Quishing,"QR on poster points to login clone",true,QR phishing.
+sbi38,Inbox Rule,"Rule auto‑forwards to external address",true,Rule-based exfiltration.
+sbi39,Account Notice,"Reset password at https://account.example.com/security",false,Legit security center.
+sbi40,Charity Scam,"Donate via crypto to unknown address",true,Unverifiable destination.
+sbi41,Remote Tool,"Email asks to install remote tool from random site",true,Untrusted remote admin tools.
+sbi42,Newsletter,"Opt‑in from known brand",false,Legit marketing.
+sbi43,Attachment .scr,"Executable invoice attached",true,Executable attachment risk.
+sbi44,Signed PDF,"Vendor provides signed PDF",false,Signatures help verify integrity.
+sbi45,Shipping Portal,"Update address at https://ship.example.com",false,Official portal.
+sbi46,Passwordless Link,"Magic link from proper domain",false,Legitimate flow.
+sbi47,Fake Help Portal,"Help at http://it-help-fix.support",true,Random support domain.
+sbi48,CT Alert,"New cert for look‑alike brand",true,CT monitoring detects typosquats.
+sbi49,Browser Warning,"Invalid certificate warning",true,Do not proceed.
+sbi50,Security Education,"Official page about phishing",false,Educational content.
+
 
 
 

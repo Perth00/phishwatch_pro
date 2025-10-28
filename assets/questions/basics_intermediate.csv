@@ -1,0 +1,52 @@
+id,prompt,option1,option2,option3,option4,correct,explanation
+bi1,What is phishing primarily?,Hardware failure,Social engineering,Network latency,Safe email,2,Phishing manipulates people to reveal data.
+bi2,Best action on suspicious email link?,Click quickly,Hover and verify,Forward to friends,Reply to sender,2,Hover to inspect domain before clicking.
+bi3,Attachment from unknown sender?,Open to check,Upload to scanner,Ignore warnings,Disable AV,2,Scan or avoid opening.
+bi4,What is spear phishing?,Mass spam,Targeted phishing,Phone call only,Antivirus alert,2,It targets a specific person or org.
+bi5,Common phishing sign?,Urgency and fear,Perfect grammar,Personalized info only,No links,1,Attackers create urgency.
+bi6,Check sender by…,Only display name,Full address and domain,Theme color,Font size,2,Verify the full email address.
+bi7,Legit orgs ask for password via email?,Often,Sometimes,Never,On holidays,3,Legitimate organizations never ask passwords via email.
+bi8,Where should you verify payment requests?,Same email thread,Official channel/phone,Social media,Random forum,2,Verify via a known official channel.
+bi9,Link text says bank.com but URL is b4nk.com…,Safe,Suspicious,Ignore and proceed,Normal,2,Typosquatting domain.
+bi10,What is vishing?,Video phishing,Voice call phishing,VPN phishing,Versioning attack,2,Phishing via phone calls.
+bi11,What is smishing?,Small phishing,SMS phishing,Smart phishing,Server phishing,2,Phishing via SMS messages.
+bi12,First step when unsure?,Enter credentials,Report and verify,Disable device,Pay fee,2,Report to IT/security and verify.
+bi13,Multi‑factor authentication helps because…,Adds steps only,Blocks all attacks,Requires second proof,Slows browsing,3,An extra factor reduces account takeover.
+bi14,Safe password practice?,Reuse,Write on sticky notes,Use manager,Share with colleague,3,Use a password manager.
+bi15,Unexpected prize email asks for shipping fee…,Legit,Phishing sign,Marketing,Neutral,2,Advance‑fee fraud.
+bi16,Invoice from unknown vendor with .zip attachment…,Open it,Delete or verify,Forward to all,Print it,2,Do not open unknown archives.
+bi17,Display name spoofing is…,Changing subject line,Fake name masks real email,Calendar spam,Emoji use,2,Attackers spoof display name.
+bi18,What is a red flag in sender domain?,Official domain,Misspelling or extra chars,HTTPS,DKIM,2,Watch for domain look‑alikes.
+bi19,Legitimate sign‑in page indicator?,Correct domain and HTTPS,Bold fonts,Many images,Green theme,1,Always check domain + padlock.
+bi20,What is a QR phishing (quishing)?,Scanning any QR,QR pointing to malicious login,QR as barcode,Printer error,2,QR links can lead to phishing pages.
+bi21,Safe to share OTP via email?,Yes,Only with manager,Never,On weekends,3,OTP must never be shared.
+bi22,Why avoid clicking unsubscribe on spam?,Confirms active inbox,Deletes spam,Blocks sender,Reports to police,1,It confirms your address to spammers.
+bi23,Signs of account compromise?,Unexpected MFA prompts,All emails clean,Less spam,New theme,1,Unsolicited MFA can indicate attack.
+bi24,Good habit for links in emails?,Open in same tab,Preview/verify domain,Trust brand logos,Ignore all links,2,Preview and verify.
+bi25,Executive impersonation asks urgent gift cards…,Compliant request,Phishing sign,Normal,Low risk,2,Gift cards are common fraud pattern.
+bi26,Best place to store passwords?,Browser only,Plain text file,Encrypted manager,Notes app,3,Use a manager with strong master password.
+bi27,Which is safer login method?,Password only,Password + 2FA,Biometric only,Shared password,2,Add 2FA for security.
+bi28,Email with mismatched link preview…,Likely benign,Phishing,Tracking only,Server issue,2,Hover shows different domain.
+bi29,Attachment file extension riskier?,.jpg,.png,.scr,.txt,3,Executable screensavers are risky.
+bi30,Report suspicious email to…,Random contact,Security/IT,Post online,Delete silently,2,Report through official channel.
+bi31,Legit companies request payments via…,Gift cards,Bank transfer after signed invoice,Text message,Social media,2,Legitimate processes use official invoicing.
+bi32,Email from unknown vendor demands W-9 quickly…,Likely phishing,Completely safe,Marketing,Internal memo,1,Unusual urgent financial requests are risky.
+bi33,Account recovery links should be opened from…,Unknown emails,Official site typed manually,Any message,Ad links,2,Go directly to the site and navigate.
+bi34,If a link preview shows a different domain than text…,Stop and verify,Proceed fast,Copy to friends,Print it,1,Link/text mismatch is a red flag.
+bi35,Data entry pages should always be checked for…,Padlock and correct domain,Green color,Centered logo,Large fonts,1,Verify TLS and exact domain.
+bi36,Phishing emails often have…,Generic greetings,Personal context only,Accurate headers,Internal ticket,1,Generic greetings like “Dear user”.
+bi37,If you suspect a phish, first…,Report and avoid interacting,Forward widely,Reply,Open attachment,1,Reporting helps protect others.
+bi38,Common pretext for phishers is…,Policy update with link,No content,Internal audit with correct portal,Blank email,1,Fake policy updates prompt clicks.
+bi39,Shortened URLs are safest when…,Expanded/previewed first,Clicked directly,Saved to notes,Downloaded,1,Always expand before clicking.
+bi40,Inbox rule that deletes verification emails…,Benign,Potential compromise,Improves security,Dark mode tool,2,Rules can hide attacker activity.
+bi41,When asked for OTP by unknown caller…,Provide quickly,Never share,Text it,Screenshot it,2,OTP is private.
+bi42,Legit delivery services ask payment via…,Random link,Official portal/app,Crypto only,Text reply,2,Use official channels.
+bi43,Phishing pages may copy…,Brand logos and styles,Server IP,Printer settings,OS theme,1,They imitate familiar brands.
+bi44,Best habit for attachments…,Open in mail,Scan or preview safely,Trust sender image,Disable AV,2,Use safe viewers/sandbox.
+bi45,Unusual login location alert…,Ignore,Investigate via official portal,Reply to email,Change wallpaper,2,Use account security center.
+bi46,If your account might be phished…,Change password and enable MFA,Do nothing,Email attacker,Close laptop,1,Rotate credentials and add MFA.
+bi47,Avoid entering credentials on…,HTTP pages,HTTPS with correct domain,Company VPN,SSO,1,HTTP is insecure.
+bi48,Sender domain with extra word like support‑brand.com…,Suspicious,Safest,Official,Internal,1,Extra words often indicate look‑alikes.
+bi49,Safe way to confirm charity emails…,Use official site/contact,Click email link,Send cash,Share post,1,Verify via official channels.
+bi50,If unsure about an email’s legitimacy…,Ask IT/security,Click anyway,Ignore processes,Forward outside,1,Always seek verification.
+

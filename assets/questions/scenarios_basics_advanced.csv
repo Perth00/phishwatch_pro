@@ -1,0 +1,12 @@
+id,title,description,isPhishing,rationale
+sba1,Credential Harvest,Landing page with only login fields on look‑alike domain,true,Minimal content + fake domain indicates harvesting.
+sba2,Forwarding Rule,Mailbox auto‑forward created without approval,true,Attackers hide responses via rules.
+sba3,Public Wi‑Fi Login,Official hotel captive portal,false,Normal captive portal page.
+sba4,Account Recovery,Service asks for passkey on official site,false,Modern phishing‑resistant auth.
+sba5,Fake Support Number,Email lists phone that demands OTP,true,Never share OTP with unknown callers.
+sba6,Link Preview Mismatch,Text shows brand.com but hover reveals brand‑help.co,true,Mismatch suggests phishing.
+sba7,Update Page,Random site prompts browser update,true,Updates should come from vendor/browser.
+sba8,Security Keys,Site recommends security key login on its domain,false,Legitimate security improvement.
+sba9,File Share Clone,Page clones drive UI on wrong domain,true,Look‑alike interface indicates phish.
+sba10,DM Spoof,Message from friend account asks for money,true,Possible account takeover.
+

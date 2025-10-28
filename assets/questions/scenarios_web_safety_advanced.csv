@@ -1,0 +1,52 @@
+id,title,description,isPhishing,rationale
+swa1,CT Log Mismatch,New cert appears for look‑alike wallet domain,true,CT logs show suspicious issuance for look‑alike domain.
+swa2,Passkey Clone,Clone of wallet prompts passkey on different origin,true,Passkeys only work on original origin; wrong origin is phishing.
+swa3,Device Binding Warning,Site asks to bind device key on unknown domain,true,Binding keys on untrusted domains is malicious.
+swa4,Service Worker Trap,After visiting site, offline page persists and asks login,true,Malicious service worker serving fake offline content.
+swa5,Deep Link Hijack,Open‑in‑app link jumps to fake login,true,Deep link abuse can redirect to phishing.
+swa6,Signed Exchange Official,App served via signed exchange on official site,false,SXG from official domain preserves integrity.
+swa7,COOP/COEP Present,Headers isolate app shell,false,Isolation headers improve security.
+swa8,Open Redirect Kit,Multiple redirect hops land on look‑alike login,true,Open redirects chained for phishing.
+swa9,No‑Referrer Policy,Links use no‑referrer to avoid leakage,false,Legitimate privacy protection.
+swa10,FIDO2 Only,Site enforces security keys on correct domain,false,Strong phishing resistance.
+swa11,Fake Update Modal,Modal urges browser update with download,true,Updates must come from vendor/browser.
+swa12,OCSP Revoked,OCSP marks cert as revoked on site,true,Revoked certificates indicate risk.
+swa13,Wallet Seed Request,Site asks to re‑enter seed phrase,true,Legitimate wallets never ask for seed online.
+swa14,Admin Portal Exposure,Admin page on public internet without MFA,true,High risk configuration, likely attack surface.
+swa15,CORP Missing,Console shows blocked cross‑origin resource policy,true,Missing CORP may expose data.
+swa16,PKCE Required,OAuth flow shows PKCE verifier,false,Good practice for OAuth.
+swa17,Homoglyph Login,Unicode confusable characters in domain,true,IDN homograph attack.
+swa18,Passwordless Legit,Passkey prompt on official bank,false,Secure authentication.
+swa19,SRI Pin Failure,Script hash mismatch alert on CDN,true,Tampered CDN asset.
+swa20,Referrer Stripping,Download page strips referrer for privacy,false,Reasonable choice.
+swa21,Attacker CDN Script,Unknown CDN serves login JS,true,Untrusted scripts delivering login logic.
+swa22,DPoP Proof Required,API demands DPoP token,false,Prevents token replay.
+swa23,Attestation Dialog,Passkey attestation shows known vendor,false,Expected behavior.
+swa24,Mirrored Wallet UI,Identical UI on .net instead of .com,true,Different TLD suggests clone.
+swa25,Security Scan Paywall,Online scanner demands payment to fix threats,true,Scareware tactic.
+swa26,3DS Challenge,Payment routed to bank 3‑D Secure on correct domain,false,Legitimate challenge step.
+swa27,QR Swap,Poster QR redirects to fresh domain with giveaway,true,QR phishing via swapped codes.
+swa28,Pinned Cert Change,App warns of pin mismatch,true,Potential attack or rotation; treat as risk.
+swa29,Isolated Iframe,Login in sandboxed iframe allowlist,false,Safer embedding when necessary.
+swa30,Malicious iFrame Overlay,Invisible overlay captures clicks,true,Clickjacking attempt.
+swa31,Fake Wallet Extension,Extension from random site requires broad perms,true,Install only from store.
+swa32,Store Extension Minimal,Extension from official store with minimal perms,false,Reasonable trust.
+swa33,Domain Fronting Mask,Observed SNI/Host mismatch to hide dest,true,Domain fronting used by attackers.
+swa34,HSTS Preload,Site on HSTS preload,false,Enforces HTTPS.
+swa35,Look‑alike Subdomain,accounts.brand‑secure.com vs accounts.brand.com,true,Suspicious extra word in domain.
+swa36,Trusted Payment PSP,Redirect to known PSP with EV cert,false,Legitimate PSP flow.
+swa37,Fake Seal,Page shows copied trust badges linking nowhere,true,Faked badges common on phish pages.
+swa38,CT Watch Alert,Monitoring flags cert for brand‑support.help,true,Look‑alike support domain.
+swa39,Clipboard Read Request,Login asks clipboard read permission,true,Unusual and risky.
+swa40,Strong CSP,App uses restrictive CSP,false,Mitigates XSS.
+swa41,Noopener Present,External links use rel=noopener,false,Prevents tab‑nabbing.
+swa42,Data URL Login,Login served via data: URL,true,Data URLs used for phishing.
+swa43,Host Header Abuse,Login behind reverse proxy shows odd host,true,Potential origin confusion.
+swa44,URL Shortener Preview,User previews short URL before clicking,false,Safer behavior.
+swa45,Fake Support Chat,Chat asks for password,true,Legitimate support never asks passwords.
+swa46,CT Revoked Chain,Intermediate cert shows revoked,true,Chain compromised.
+swa47,Permissions‑Policy Least,Only required features allowed,false,Least privilege is good.
+swa48,Re‑Auth on New Device,Service re‑authenticates with passkey,false,Expected security.
+swa49,Mirrored Brand Email,Login form embedded in email via HTML,true,No real logins in email.
+swa50,Official Security Page,Vendor page explaining phishing risks,false,Educational content.
+

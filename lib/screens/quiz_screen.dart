@@ -9,7 +9,16 @@ import '../services/sound_service.dart';
 
 class QuizScreen extends StatefulWidget {
   final String quizId;
-  const QuizScreen({super.key, required this.quizId});
+  final String? overrideCategory;
+  final String? overrideLevel;
+  final String? overrideTitle;
+  const QuizScreen({
+    super.key,
+    required this.quizId,
+    this.overrideCategory,
+    this.overrideLevel,
+    this.overrideTitle,
+  });
 
   @override
   State<QuizScreen> createState() => _QuizScreenState();
@@ -26,6 +35,7 @@ class _QuizScreenState extends State<QuizScreen> {
   final List<int?> _userAnswers = <int?>[];
   final List<bool> _isCorrect = <bool>[];
   int _resetsUsed = 0;
+  DateTime? _startTime;
 
   Future<void> _confirmAndResetQuiz() async {
     if (_resetsUsed >= 2) {
@@ -98,10 +108,13 @@ class _QuizScreenState extends State<QuizScreen> {
 
   Future<void> _loadQuestions() async {
     final quizMeta = LearningRepository.getQuiz(widget.quizId)!;
+    final String effectiveCategory =
+        widget.overrideCategory ?? quizMeta.category;
+    final String effectiveLevel = widget.overrideLevel ?? quizMeta.difficulty;
     try {
       final loaded = await context.read<ProgressService>().loadCsvQuestions(
-        category: quizMeta.category,
-        level: quizMeta.difficulty,
+        category: effectiveCategory,
+        level: effectiveLevel,
       );
       final chosen = (loaded.isEmpty ? quizMeta.questions : loaded).toList();
       chosen.shuffle();
@@ -112,6 +125,7 @@ class _QuizScreenState extends State<QuizScreen> {
         _userAnswers.addAll(List<int?>.filled(_questions.length, null));
         _isCorrect.addAll(List<bool>.filled(_questions.length, false));
       });
+      _startTime = DateTime.now();
     } catch (_) {
       setState(() {
         _questions = quizMeta.questions;
@@ -119,6 +133,7 @@ class _QuizScreenState extends State<QuizScreen> {
         _userAnswers.addAll(List<int?>.filled(_questions.length, null));
         _isCorrect.addAll(List<bool>.filled(_questions.length, false));
       });
+      _startTime = DateTime.now();
     }
   }
 
@@ -165,7 +180,7 @@ class _QuizScreenState extends State<QuizScreen> {
     final q = _index < _questions.length ? _questions[_index] : null;
     return Scaffold(
       appBar: AppBar(
-        title: Text(quiz.title),
+        title: Text(widget.overrideTitle ?? quiz.title),
         leading: BackButton(
           onPressed: () {
             SoundService.playButtonSound();
@@ -264,6 +279,13 @@ class _QuizScreenState extends State<QuizScreen> {
                                                 total: _questions.length,
                                                 category: quiz.category,
                                                 difficulty: quiz.difficulty,
+                                                durationSec:
+                                                    DateTime.now()
+                                                        .difference(
+                                                          _startTime ??
+                                                              DateTime.now(),
+                                                        )
+                                                        .inSeconds,
                                               );
                                         } else {
                                           setState(() {
@@ -299,18 +321,22 @@ class _QuizScreenState extends State<QuizScreen> {
       answers.add({
         'id': q.id,
         'prompt': q.prompt,
+        'options': q.options,
         'userIndex': _userAnswers[i],
         'correctIndex': q.correctIndex,
         'userCorrect': _isCorrect[i],
       });
     }
+    final int durationSec =
+        DateTime.now().difference(_startTime ?? DateTime.now()).inSeconds;
     context.read<ProgressService>().recordQuizAttemptDetailed(
       quizId: quiz.id,
-      category: quiz.category,
-      difficulty: quiz.difficulty,
+      category: widget.overrideCategory ?? quiz.category,
+      difficulty: widget.overrideLevel ?? quiz.difficulty,
       correct: _correct,
       total: _questions.length,
       answers: answers,
+      durationSec: durationSec,
     );
     return Padding(
       padding: const EdgeInsets.all(AppConstants.spacingL),

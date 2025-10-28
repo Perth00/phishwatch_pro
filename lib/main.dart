@@ -24,6 +24,8 @@ import 'screens/profile_edit_screen.dart';
 import 'screens/verify_email_screen.dart';
 import 'screens/reset_password_sent_screen.dart';
 import 'screens/progress_screen.dart';
+import 'screens/all_quizzes_screen.dart';
+import 'screens/all_scenarios_screen.dart';
 import 'services/theme_service.dart';
 import 'services/onboarding_service.dart';
 import 'services/history_service.dart';
@@ -127,6 +129,14 @@ final GoRouter _router = GoRouter(
     GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
     GoRoute(path: '/learn', builder: (context, state) => const LearnScreen()),
     GoRoute(
+      path: '/quizzes',
+      builder: (context, state) => const AllQuizzesScreen(),
+    ),
+    GoRoute(
+      path: '/scenarios',
+      builder: (context, state) => const AllScenariosScreen(),
+    ),
+    GoRoute(
       path: '/profile',
       builder: (context, state) => const ProfileScreen(),
     ),
@@ -160,15 +170,33 @@ final GoRouter _router = GoRouter(
     ),
     GoRoute(
       path: '/quiz/:id',
-      builder:
-          (context, state) =>
-              QuizScreen(quizId: state.pathParameters['id'] ?? ''),
+      builder: (context, state) {
+        final extras =
+            (state.extra is Map)
+                ? Map<String, dynamic>.from(state.extra as Map)
+                : <String, dynamic>{};
+        return QuizScreen(
+          quizId: state.pathParameters['id'] ?? '',
+          overrideCategory: extras['overrideCategory'] as String?,
+          overrideLevel: extras['overrideLevel'] as String?,
+          overrideTitle: extras['overrideTitle'] as String?,
+        );
+      },
     ),
     GoRoute(
       path: '/scenario/:id',
-      builder:
-          (context, state) =>
-              ScenarioScreen(scenarioId: state.pathParameters['id'] ?? ''),
+      builder: (context, state) {
+        final extras =
+            (state.extra is Map)
+                ? Map<String, dynamic>.from(state.extra as Map)
+                : <String, dynamic>{};
+        return ScenarioScreen(
+          scenarioId: state.pathParameters['id'] ?? '',
+          overrideCategory: extras['overrideCategory'] as String?,
+          overrideLevel: extras['overrideLevel'] as String?,
+          overrideTitle: extras['overrideTitle'] as String?,
+        );
+      },
     ),
     GoRoute(
       path: '/scan-history',

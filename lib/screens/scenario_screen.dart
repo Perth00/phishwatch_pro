@@ -9,7 +9,16 @@ import '../services/sound_service.dart';
 
 class ScenarioScreen extends StatefulWidget {
   final String scenarioId;
-  const ScenarioScreen({super.key, required this.scenarioId});
+  final String? overrideCategory;
+  final String? overrideLevel;
+  final String? overrideTitle;
+  const ScenarioScreen({
+    super.key,
+    required this.scenarioId,
+    this.overrideCategory,
+    this.overrideLevel,
+    this.overrideTitle,
+  });
 
   @override
   State<ScenarioScreen> createState() => _ScenarioScreenState();
@@ -27,6 +36,7 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
   final List<bool?> _userAnswers = <bool?>[];
   final List<bool> _isCorrect = <bool>[];
   int _resetsUsed = 0;
+  DateTime? _questionStart;
 
   @override
   Widget build(BuildContext context) {
@@ -303,8 +313,8 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
 
   Future<void> _bootstrap() async {
     final meta = LearningRepository.getScenario(widget.scenarioId)!;
-    _category = meta.category;
-    _level = meta.difficulty;
+    _category = widget.overrideCategory ?? meta.category;
+    _level = widget.overrideLevel ?? meta.difficulty;
     final loaded = await context.read<ProgressService>().loadScenarioCsv(
       category: _category,
       level: _level,
@@ -318,6 +328,7 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
       _isCorrect.addAll(List<bool>.filled(_scenarios.length, false));
       _loading = false;
     });
+    _questionStart = DateTime.now();
   }
 
   Future<void> _onSelect(bool value) async {
@@ -327,6 +338,8 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
     });
     final current = _scenarios[_index];
     final correctNow = value == current.isPhishing;
+    final int durationSec =
+        DateTime.now().difference(_questionStart ?? DateTime.now()).inSeconds;
     if (correctNow) {
       SoundService.playSuccessSound();
       _userAnswers[_index] = value;
@@ -335,6 +348,7 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
       await context.read<ProgressService>().recordScenarioAttempt(
         scenarioId: current.id,
         correct: true,
+        durationSec: durationSec,
       );
       setState(() {});
       return;
@@ -347,6 +361,7 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
     await context.read<ProgressService>().recordScenarioAttempt(
       scenarioId: current.id,
       correct: false,
+      durationSec: durationSec,
     );
     setState(() {});
   }
@@ -362,6 +377,7 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
         _userAnswers[i] = null;
         _isCorrect[i] = false;
       }
+      _questionStart = DateTime.now();
     });
   }
 
@@ -431,6 +447,7 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
       _index += 1;
       _selected = null;
       _locked = false;
+      _questionStart = DateTime.now();
     });
   }
 }

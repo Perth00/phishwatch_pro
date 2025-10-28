@@ -1,0 +1,52 @@
+id,prompt,option1,option2,option3,option4,correct,explanation
+wsb1,What is a secure URL scheme?,http,ftp,https,file,3,HTTPS encrypts data in transit between browser and server.
+wsb2,Which indicates a legitimate site certificate?,Lock icon,Red address bar,Popup warning,No certificate,1,Lock icon shows a valid TLS certificate.
+wsb3,What is a common sign of a malicious download button?,Multiple fake buttons,Clear source,Verified publisher,Small file size,1,Deceptive pages show many fake buttons.
+wsb4,What should you check before entering credentials?,URL domain,Font style,Background color,Ad count,1,Always verify the domain name.
+wsb5,Typosquatting is…,Using large fonts,Misspelled domain,Mobile layout,Dark theme,2,Attackers register look‑alike domains.
+wsb6,Which file type is risky from unknown sites?,.pdf,.jpg,.exe,.txt,3,Executable files can run malware.
+wsb7,What should you do with unexpected browser permission prompts?,Accept quickly,Block/Review,Ignore forever,Restart browser,2,Block first and review the request.
+wsb8,Which is a safe password practice?,Reuse everywhere,Short memorable,Use manager,Share with friend,3,Use a password manager for unique strong passwords.
+wsb9,What does 2FA add?,Nothing,Extra step,Device encryption,VPN,2,Two‑factor adds an extra verification step.
+wsb10,Shortened links can…,Be harmless,Hide destination,Speed up site,Fix typos,2,They obscure the real target domain.
+wsb11,When a site asks to install a plugin to view content…,Install always,Check source/avoid,Disable AV,Use incognito,2,Do not install unknown plugins.
+wsb12,Cookies are primarily used to…,Hack users,Store session,Scan devices,Encrypt traffic,2,Sessions are tracked using cookies.
+wsb13,Public Wi‑Fi risk can be reduced by…,Turning off screen,Using VPN,Max brightness,Guest account,2,VPN encrypts traffic.
+wsb14,Phishing pages often copy…,Source code,Fonts,Logos and layout,Error pages,3,They imitate brand identity.
+wsb15,Browser warnings about unsafe sites should be…,Ignored,Bypassed,Heeded,Shared on social,3,Respect browser safety warnings.
+wsb16,Credential stuffing uses…,Leaked passwords,USB keys,QR codes,Biometric data,1,It reuses passwords from breaches.
+wsb17,What helps defend against drive‑by downloads?,Disabled JS,Antivirus updates,Modern browser,All of these,4,Up‑to‑date browsers/AV help prevent.
+wsb18,What is clickjacking?,Invisible overlays,Font clicking,Ad clicking,Mouse tracker,1,Hidden frames trick users to click.
+wsb19,Safe way to install extensions?,Random sites,Official store,Email attachments,Torrent,2,Use the official web store only.
+wsb20,Which setting improves privacy?,Allow all cookies,Block third‑party cookies,Enable Flash,Disable updates,2,Blocking third‑party cookies reduces tracking.
+wsb21,URL with “.ru” at end means…,Malicious always,Russian TLD,Redirect only,Secure site,2,It’s just a top‑level domain.
+wsb22,What is a referrer?,Password,Header with previous page,Tracking pixel,Malware,2,Referrer header shows where you came from.
+wsb23,Safe method to verify downloads?,Run directly,Hash/signature check,Open in email,Rename file,2,Verify checksum or signature.
+wsb24,What is HSTS?,Email protocol,Forcing HTTPS,Password reset,VPN mode,2,HSTS enforces HTTPS automatically.
+wsb25,Incognito mode…,Hides from employer,Disables extensions,Hides local history,Hides IP,3,It mainly prevents local history saving.
+wsb26,What to do with suspicious pop‑ups?,Interact to close,Use task manager,Click OK,Type data,2,Force close or block.
+wsb27,What is a PUP?,Potentially unwanted program,Purple update plan,Public user profile,Power user process,1,Adware/toolbar often bundled.
+wsb28,What is a CAPTCHA for?,Block bots,Encrypt traffic,Speed sites,Backup data,1,It differentiates humans from bots.
+wsb29,QR code on websites can…,Open links safely always,Be malicious,Only show text,Bypass HTTPS,2,QR can point to phishing URLs.
+wsb30,Certificate pinning prevents…,DNS leaks,MITM with rogue cert,Password reuse,Spam,2,Pins to a known certificate.
+wsb31,Which is a sign of compromised site?,Spelling fixes,Unusual redirects,Dark mode,Larger fonts,2,Unexpected redirects indicate compromise.
+wsb32,What is CSP?,Content Security Policy,Client Server Port,Cookie SameSite Policy,Cloud Service Plan,1,CSP mitigates XSS by restricting sources.
+wsb33,Browser auto‑update should be…,Disabled,Manual only,Enabled,Random,3,Stay protected with updates.
+wsb34,What is social engineering?,Hardware attack,Tricking users,Server patching,Wi‑Fi tuning,2,Manipulates people not systems.
+wsb35,Safe handling of browser passwords?,Export to email,Plain text file,Use built‑in/manager,Share with admin,3,Store securely with a manager.
+wsb36,Which URL is suspect?,login.example.com,secure.example.com,example.com-login.co,account.example.com,3,Hyphenated domain at end is suspicious.
+wsb37,Ad‑blockers can…,Reduce malware risk,Increase spam,Disable AV,Steal data by default,1,Fewer malvertising vectors.
+wsb38,Sandboxing helps by…,Isolating processes,Speeding CPU,Compressing files,Blocking all trackers,1,It limits damage from exploits.
+wsb39,Which is safer download source?,Random blog,Official vendor,Friend’s USB,Forum mirror,2,Prefer official vendor.
+wsb40,What is a phishing kit?,Security tool,Bundle to build phishing pages,Browser theme,Training course,2,It’s a ready‑made phishing package.
+wsb41,Strong sign of fake support chat?,Grammar perfect,Asks for password,Has logo,Uses green color,2,Legit support never asks passwords.
+wsb42,When encountering mixed content warnings…,Ignore,Fix later,Do not submit data,Enable Flash,3,Avoid forms on mixed content pages.
+wsb43,What helps identify fake giveaways?,Too good to be true,Simple rules,Official pages,Limited winners,1,Unrealistic rewards are suspicious.
+wsb44,Passwordless with WebAuthn uses…,SMS codes,Security keys/Biometrics,Email links,Backup codes,2,Uses platform authenticators or keys.
+wsb45,Phishing often creates urgency to…,Delay action,Verify offline,Act quickly,Mute device,3,Pressure is a classic tactic.
+wsb46,Which is safer payment page?,HTTP,HTTPS with padlock,IP address only,Embedded in iframe from other site,2,Use HTTPS and verify domain.
+wsb47,URL shortener best practice?,Never use,Preview/expand before click,Open all,Trust by default,2,Preview to inspect destination.
+wsb48,Safe browsing database purpose?,Track shopping,Block known threats,Speed videos,Improve fonts,2,Browsers block malicious sites.
+wsb49,Before entering card details…,Use public Wi‑Fi,Check padlock and domain,Disable 2FA,Use same password,2,Verify secure connection and site.
+wsb50,Best response to suspicious website behavior?,Report and leave,Keep browsing,Enter fake data,Disable updates,1,Exit and report to admin.
+

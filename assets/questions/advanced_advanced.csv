@@ -1,0 +1,52 @@
+id,prompt,option1,option2,option3,option4,correct,explanation
+ada1,Passkeys resist phishing by…,Visual themes,Origin‑bound credentials,Fonts,Emojis,2,Keys are tied to origin.
+ada2,DPoP protects tokens against…,Replay,Typos,XSS,CSRF,1,Proof‑of‑possession binds token to key.
+ada3,COOP/COEP help prevent…,Cross‑site leaks,Typos,Spam,Latency,1,Isolation reduces data leaks.
+ada4,CT logs can reveal…,CSS changes,Brand cert issuance,Fonts,DMARC,2,Monitor for suspicious certs.
+ada5,PKCE secures OAuth…,Authorization code flow,Implicit flow,Cookies,Images,1,Prevents code interception.
+ada6,SRI integrity checks verify…,Asset hash,File size,Colors,Fonts,1,Ensure CDN asset integrity.
+ada7,No‑referrer policy sends…,Full URL,Origin only,Nothing,Referrer plus params,3,Protects sensitive paths.
+ada8,Best defense vs MFA fatigue…,Number matching + limits,Ignore,Dark theme,Fonts,1,Reduce push abuse.
+ada9,Mitigate consent phishing by…,Admin consent policies,Emojis,Themes,Fonts,1,Restrict app grants.
+ada10,WebAuthn attestation conveys…,Authenticator details,Color theme,Cache,Viewport,1,Authenticator info and trust.
+ada11,HSTS preload ensures…,HTTPS enforced for domain,HTTP only,Fonts,Colors,1,Preloaded lists force HTTPS.
+ada12,Signed exchanges (SXG) provide…,Integrity-preserved content,Fonts,Colors,Spam,1,Content retains integrity across distribution.
+ada13,Referrer-Policy strict-origin-when-cross-origin sends…,Origin on cross-site,Full URL,Nothing,Params only,1,Safer default.
+ada14,COOP requires…,Process isolation between origins,Fonts,Logos,Themes,1,Prevents cross-site leaks.
+ada15,Permissions-Policy least privilege means…,Only required features allowed,All features,Random,Fonts,1,Limit features.
+ada16,CT SCT proves…,Log inclusion,Spam score,Theme,Font,1,Signed timestamp proves CT log entry.
+ada17,DPoP proof contains…,Signed header with public key,Fonts,Theme,Referrer,1,Proof binds token to key.
+ada18,OAuth device flow safe usage requires…,Enter code at official site,Any site ok,Short URLs only,Email code,1,Use vendor verification URL.
+ada19,JWT best practice for browser…,Short-lived + httpOnly cookies,LocalStorage long-lived,Query tokens,Any storage,1,Reduce theft risk.
+ada20,Post-phish remediation…,Revoke sessions/grants and rotate creds,Change theme,Ignore,Delay,1,Contain and recover.
+ada21,Modern WebAuthn UI should…,Show RP ID and domain clearly,Hide domain,Use colors,Skip UI,1,Help users verify origin.
+ada22,Prevent open redirect abuse by…,Allowlist exact destinations,Allow any,Use HTTP,Inline scripts,1,Restrict redirect targets.
+ada23,OCSP/CRL check ensures…,Certificate not revoked,Fonts,Spam,Images,1,Check revocation status.
+ada24,Top defense vs homoglyphs…,Block confusables + warn,Ignore,Use GIFs,More fonts,1,Detect and block.
+ada25,PKCE code challenge method S256…,Uses SHA-256,Plain only,MD5,CRC,1,Prefer S256.
+ada26,SameSite=Lax by default mitigates…,CSRF on top-level GETs,Fonts,Themes,Typos,1,Reduces CSRF risk.
+ada27,Trusted Types helps…,Mitigate DOM XSS,Change theme,Compress CSS,Fonts,1,Enforces safe sinks.
+ada28,Subresource Integrity requires…,Hash in link/script tag,Email,Header only,SVG,1,Pin expected hash.
+ada29,FIDO attestation privacy…,May be anonymized by AAGUIDs,Always exposes identity,Irrelevant,Encrypts mail,1,Platforms can limit info.
+ada30,OAuth redirect URI best practice…,Exact match allowlist,Wildcard any,Random,Query only,1,Whitelist exact URIs.
+ada31,CT monitoring for brand…,Detects rogue certs,Changes themes,Edits fonts,Adds colors,1,Watch logs for brand strings.
+ada32,Device binding ties…,Session to device key,Fonts,Theme,Color,1,Reduces replay.
+ada33,Noopener on links prevents…,Tab-nabbing,tabs opening,Color leaks,Font bugs,1,Stops opener access.
+ada34,CSP default-src 'none' means…,Block all by default,Allow all,Only images,Only fonts,1,Start from deny.
+ada35,Best auth for admin portals…,FIDO2 + conditional access,Password only,Email code,Any 2FA,1,Use phishing-resistant factors.
+ada36,Referrer Policy no-referrer-when-downgrade…,Default legacy policy,Best strict policy,Ignore,Encrypts,1,Legacy default behavior.
+ada37,COEP requires…,Cross-origin resources opt-in,Fonts,Colors,Logos,1,Enable corp/cors.
+ada38,Credential phishing via relay mitigated by…,FIDO/Origin bound,MFA push only,Themes,Logos,1,Origin-bound prevents relay.
+ada39,DPoP clock skew handling…,Allow small leeway,Ignore,Fail all,Use fonts,1,Prevent false negatives.
+ada40,Email banners should…,Be contextual and minimal,All red,Animated,Hidden,1,Aid users not overwhelm.
+ada41,SRI cannot protect against…,First-party script changes,CDN tamper,Hash mismatch,Cache,1,Owner changes are trusted.
+ada42,Revocation checking issues…,OCSP stapling helps,Fonts,Themes,Logos,1,Stapling improves reliability.
+ada43,WebRTC permission prompts…,Require user gesture + HTTPS,Fonts,Colors,HTTP only,1,Secure context with consent.
+ada44,Isolation headers together provide…,Robust site isolation,Colors,Fonts,Themes,1,Combine COOP/COEP/CORP.
+ada45,DPoP protects against…,Token replay,Typos,Latency,Spam,1,Bind token to key.
+ada46,JWT in localStorage risk…,XSS token theft,Fonts,Themes,Headers,1,Prefer cookies.
+ada47,Attacker kits can…,Reuse JS/paths across sites,Only single-use,Never reused,Always unique,1,Artifacts repeat.
+ada48,Browser password leak check…,Uses k‑anonymity to compare hashes,Reads full password,Sends in clear,Email only,1,Privacy-preserving checks.
+ada49,Payment pages safest when…,Verified PSP/bank with HTTPS,HTTP,IP only,Short URL,1,Verify domain and TLS.
+ada50,After suspected phishing…,Report, reset creds, and review sessions,Ignore,Proceed,Post online,1,Containment and remediation.
+

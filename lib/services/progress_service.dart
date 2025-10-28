@@ -3,6 +3,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'auth_service.dart';
 import '../models/learning_content.dart';
+import '../models/video_scenario.dart';
 
 class ProgressService extends ChangeNotifier {
   // Lazily obtain Firestore instance to avoid accessing Firebase before
@@ -178,6 +179,7 @@ class ProgressService extends ChangeNotifier {
     required int total,
     String? category,
     String? difficulty,
+    int? durationSec,
   }) async {
     final uid = _uid;
     if (uid == null) return;
@@ -192,6 +194,7 @@ class ProgressService extends ChangeNotifier {
         'accuracy': accuracy,
         'passed': passed,
         'completedAt': FieldValue.serverTimestamp(),
+        if (durationSec != null) 'durationSec': durationSec,
         if (category != null) 'category': category,
         if (difficulty != null) 'difficulty': difficulty,
       }, SetOptions(merge: true));
@@ -208,6 +211,7 @@ class ProgressService extends ChangeNotifier {
     required int correct,
     required int total,
     required List<Map<String, dynamic>> answers,
+    int? durationSec,
   }) async {
     final uid = _uid;
     if (uid == null) return;
@@ -224,6 +228,7 @@ class ProgressService extends ChangeNotifier {
       'passed': passed,
       'answers': answers,
       'completedAt': FieldValue.serverTimestamp(),
+      if (durationSec != null) 'durationSec': durationSec,
     });
   }
 
@@ -312,20 +317,67 @@ class ProgressService extends ChangeNotifier {
   }
 
   List<String> _safeSplitCsv(String line) {
-    // Simple CSV splitter without quotes handling for our controlled content
-    final parts = <String>[];
-    final buffer = StringBuffer();
+    // CSV splitter with basic quote handling: fields may be wrapped in ""
+    // and may contain commas. Double quotes inside fields are escaped as "".
+    final List<String> parts = <String>[];
+    final StringBuffer current = StringBuffer();
+    bool inQuotes = false;
     for (int i = 0; i < line.length; i++) {
-      final ch = line[i];
-      if (ch == ',') {
-        parts.add(buffer.toString());
-        buffer.clear();
+      final String ch = line[i];
+      if (ch == '"') {
+        if (inQuotes && i + 1 < line.length && line[i + 1] == '"') {
+          // Escaped quote
+          current.write('"');
+          i++; // skip next
+        } else {
+          inQuotes = !inQuotes;
+        }
+      } else if (ch == ',' && !inQuotes) {
+        parts.add(current.toString().trim());
+        current.clear();
       } else {
-        buffer.write(ch);
+        current.write(ch);
       }
     }
-    parts.add(buffer.toString());
+    parts.add(current.toString().trim());
     return parts;
+  }
+
+  // Video scenarios: assets/questions/scenarios_videos_<category>_<level>.csv
+  // Columns: id,title,videoUrl,question,option1,option2,option3,option4,correct,explanation
+  Future<List<VideoScenario>> loadVideoScenarioCsv({
+    required String category,
+    required String level,
+  }) async {
+    try {
+      final assetPath =
+          'assets/questions/scenarios_videos_${category.toLowerCase().replaceAll(' ', '_')}_${level.toLowerCase()}.csv';
+      final csv = await rootBundle.loadString(assetPath);
+      final lines = csv.split('\n').where((l) => l.trim().isNotEmpty).toList();
+      if (lines.isEmpty) return <VideoScenario>[];
+      final List<VideoScenario> items = <VideoScenario>[];
+      for (int i = 1; i < lines.length; i++) {
+        final cols = _safeSplitCsv(lines[i]);
+        if (cols.length < 10) continue;
+        final correctIndex = int.tryParse(cols[8]) ?? 1;
+        items.add(
+          VideoScenario(
+            id: cols[0],
+            title: cols[1],
+            videoUrl: cols[2],
+            question: cols[3],
+            options: [cols[4], cols[5], cols[6], cols[7]],
+            correctIndex: (correctIndex - 1).clamp(0, 3),
+            explanation: cols[9],
+            category: category,
+            difficulty: level,
+          ),
+        );
+      }
+      return items;
+    } catch (_) {
+      return <VideoScenario>[];
+    }
   }
 
   Future<List<Scenario>> loadScenarioCsv({
@@ -357,10 +409,11 @@ class ProgressService extends ChangeNotifier {
       }
       if (scenarios.isEmpty) return <Scenario>[];
       scenarios.shuffle();
-      while (scenarios.length < 20) {
-        scenarios.addAll(scenarios.take(20 - scenarios.length));
+      // Ensure at least 50 items to align with dataset size
+      while (scenarios.length < 50) {
+        scenarios.addAll(scenarios.take(50 - scenarios.length));
       }
-      return scenarios.take(20).toList();
+      return scenarios.take(50).toList();
     } catch (_) {
       return <Scenario>[];
     }
@@ -449,9 +502,42 @@ class ProgressService extends ChangeNotifier {
         .snapshots();
   }
 
+  // Watch a user's latest quiz result document for a specific quiz
+  Stream<Map<String, dynamic>?> watchQuizResult({required String quizId}) {
+    final uid = _uid;
+    if (uid == null) {
+      return const Stream<Map<String, dynamic>?>.empty();
+    }
+    return _db
+        .collection('users')
+        .doc(uid)
+        .collection('quizzes')
+        .doc(quizId)
+        .snapshots()
+        .map((d) => d.data());
+  }
+
+  // Watch a user's scenario attempt document
+  Stream<Map<String, dynamic>?> watchScenarioResult({
+    required String scenarioId,
+  }) {
+    final uid = _uid;
+    if (uid == null) {
+      return const Stream<Map<String, dynamic>?>.empty();
+    }
+    return _db
+        .collection('users')
+        .doc(uid)
+        .collection('scenarios')
+        .doc(scenarioId)
+        .snapshots()
+        .map((d) => d.data());
+  }
+
   Future<void> recordScenarioAttempt({
     required String scenarioId,
     required bool correct,
+    int? durationSec,
   }) async {
     final uid = _uid;
     if (uid == null) return;
@@ -461,9 +547,45 @@ class ProgressService extends ChangeNotifier {
       tx.set(resultsRef, {
         'correct': correct,
         'attemptedAt': FieldValue.serverTimestamp(),
+        if (durationSec != null)
+          'durationSec': FieldValue.increment(durationSec),
       }, SetOptions(merge: true));
       tx.update(userRef, {'stats.scenariosCompleted': FieldValue.increment(1)});
     });
     notifyListeners();
+  }
+
+  // Return set of completed scenario ids among provided ids.
+  // A scenario is considered completed if a document exists at
+  // users/{uid}/scenarios/{scenarioId} (regardless of correctness).
+  Future<Set<String>> getCompletedScenarioIds({
+    required List<String> scenarioIds,
+  }) async {
+    final uid = _uid;
+    if (uid == null || scenarioIds.isEmpty) return <String>{};
+    final Set<String> done = <String>{};
+    // Firestore whereIn supports up to 10 ids per query; chunk if needed.
+    const int chunkSize = 10;
+    for (int i = 0; i < scenarioIds.length; i += chunkSize) {
+      final List<String> chunk = scenarioIds.sublist(
+        i,
+        (i + chunkSize).clamp(0, scenarioIds.length),
+      );
+      try {
+        final snap =
+            await _db
+                .collection('users')
+                .doc(uid)
+                .collection('scenarios')
+                .where(FieldPath.documentId, whereIn: chunk)
+                .get();
+        for (final d in snap.docs) {
+          done.add(d.id);
+        }
+      } catch (_) {
+        // ignore
+      }
+    }
+    return done;
   }
 }

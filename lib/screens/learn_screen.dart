@@ -12,6 +12,9 @@ import '../widgets/animated_card.dart';
 import '../widgets/quiz_card.dart';
 import '../widgets/scenario_card.dart';
 import '../widgets/progress_indicator_widget.dart';
+import '../models/video_scenario.dart';
+import 'video_scenario_screen.dart';
+import '../widgets/video_scenario_card.dart';
 import '../models/learning_content.dart';
 import '../widgets/bouncy_button.dart';
 
@@ -100,35 +103,7 @@ class _LearnScreenState extends State<LearnScreen>
     ),
   ];
 
-  final List<ScenarioData> _scenarios = [
-    ScenarioData(
-      id: 'scenario_1',
-      title: 'Banking Email',
-      description: 'You receive an urgent email from your bank...',
-      difficulty: 'Beginner',
-      estimatedTime: 3,
-      completedAt: DateTime.now().subtract(const Duration(days: 1)),
-      score: 92,
-    ),
-    ScenarioData(
-      id: 'scenario_2',
-      title: 'Social Media Alert',
-      description: 'Your social media account security is at risk...',
-      difficulty: 'Intermediate',
-      estimatedTime: 5,
-      completedAt: null,
-      score: null,
-    ),
-    ScenarioData(
-      id: 'scenario_3',
-      title: 'CEO Fraud',
-      description: 'Your boss urgently needs you to transfer money...',
-      difficulty: 'Advanced',
-      estimatedTime: 8,
-      completedAt: null,
-      score: null,
-    ),
-  ];
+  // Scenarios for Learn page are loaded from CSV dynamically per category/level
 
   @override
   void initState() {
@@ -240,14 +215,59 @@ class _LearnScreenState extends State<LearnScreen>
     _showLevelPicker(_categories[index].title);
   }
 
+  Future<bool> _confirmStartDialog({
+    required String title,
+    required String message,
+    String confirmLabel = 'Start',
+  }) async {
+    final bool? ok = await showDialog<bool>(
+      context: context,
+      barrierDismissible: true,
+      builder:
+          (ctx) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: Text(title),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: Text(confirmLabel),
+              ),
+            ],
+          ),
+    );
+    return ok == true;
+  }
+
   void _startQuiz(QuizData quiz) {
     SoundService.playButtonSound();
-    _guardedNavigateToQuiz();
+    () async {
+      final bool ok = await _confirmStartDialog(
+        title: 'Start quiz?',
+        message: 'You are about to start ${quiz.title} • ${quiz.difficulty}.',
+      );
+      if (!ok) return;
+      _guardedNavigateToQuiz();
+    }();
   }
 
   void _startScenario(ScenarioData scenario) {
     SoundService.playButtonSound();
-    _guardedNavigateToScenario();
+    () async {
+      final bool ok = await _confirmStartDialog(
+        title: 'Start scenario?',
+        message:
+            'You are about to start ${scenario.title} • ${scenario.difficulty}.',
+      );
+      if (!ok) return;
+      _guardedNavigateToScenario();
+    }();
   }
 
   Future<void> _guardedNavigateToQuiz() async {
@@ -263,7 +283,19 @@ class _LearnScreenState extends State<LearnScreen>
     // Choose quiz based on selected category
     final String targetQuizId =
         _selectedCategoryIndex == 1 ? 'quiz_2' : 'quiz_1';
-    context.go('/quiz/$targetQuizId');
+    final String category = _categories[_selectedCategoryIndex].title;
+    String? level = await context.read<ProgressService>().getCategoryLevel(
+      category,
+    );
+    level ??= 'Beginner';
+    context.go(
+      '/quiz/$targetQuizId',
+      extra: {
+        'overrideCategory': category,
+        'overrideLevel': level,
+        'overrideTitle': '$category • $level',
+      },
+    );
   }
 
   Future<void> _guardedNavigateToScenario() async {
@@ -278,7 +310,19 @@ class _LearnScreenState extends State<LearnScreen>
     }
     final String targetScenarioId =
         _selectedCategoryIndex == 0 ? 'scenario_1' : 'scenario_2';
-    context.go('/scenario/$targetScenarioId');
+    final String category = _categories[_selectedCategoryIndex].title;
+    String? level = await context.read<ProgressService>().getCategoryLevel(
+      category,
+    );
+    level ??= 'Beginner';
+    context.go(
+      '/scenario/$targetScenarioId',
+      extra: {
+        'overrideCategory': category,
+        'overrideLevel': level,
+        'overrideTitle': '$category • $level',
+      },
+    );
   }
 
   void _showAuthRequiredDialog() {
@@ -1042,6 +1086,35 @@ class _LearnScreenState extends State<LearnScreen>
                           final int total = (data['total'] ?? 0) as int;
                           final String difficulty =
                               (data['difficulty'] ?? '') as String;
+                          // Resolve and format attempt completion date
+                          final dynamic completedAtRaw = data['completedAt'];
+                          DateTime? completedAt;
+                          if (completedAtRaw is Timestamp) {
+                            completedAt = completedAtRaw.toDate();
+                          } else if (completedAtRaw is DateTime) {
+                            completedAt = completedAtRaw;
+                          }
+                          String formattedDate = '-';
+                          if (completedAt != null) {
+                            final DateTime d = completedAt.toLocal();
+                            const List<String> months = <String>[
+                              'Jan',
+                              'Feb',
+                              'Mar',
+                              'Apr',
+                              'May',
+                              'Jun',
+                              'Jul',
+                              'Aug',
+                              'Sep',
+                              'Oct',
+                              'Nov',
+                              'Dec',
+                            ];
+                            String two(int n) => n.toString().padLeft(2, '0');
+                            formattedDate =
+                                '${d.day} ${months[d.month - 1]} ${d.year} • ${two(d.hour)}:${two(d.minute)}';
+                          }
                           return ListTile(
                             dense: true,
                             leading: Icon(
@@ -1052,10 +1125,37 @@ class _LearnScreenState extends State<LearnScreen>
                                       : AppTheme.errorColor,
                             ),
                             title: Text('$correct/$total correct'),
-                            subtitle: Text(
-                              'Level: ' +
-                                  (difficulty.isEmpty ? '-' : difficulty),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'Level: ' +
+                                      (difficulty.isEmpty ? '-' : difficulty),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  formattedDate,
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: theme.colorScheme.onSurface
+                                        .withOpacity(0.7),
+                                  ),
+                                ),
+                              ],
                             ),
+                            trailing: Tooltip(
+                              message:
+                                  'Tap to view details. Long-press the row too.',
+                              triggerMode: TooltipTriggerMode.tap,
+                              child: IconButton(
+                                onPressed: () => _showAttemptDetails(data),
+                                icon: const Icon(Icons.touch_app_outlined),
+                                color: theme.colorScheme.primary,
+                                splashRadius: 18,
+                                tooltip: 'View details',
+                              ),
+                            ),
+                            onLongPress: () => _showAttemptDetails(data),
                           );
                         },
                       );
@@ -1068,6 +1168,130 @@ class _LearnScreenState extends State<LearnScreen>
     );
     if (!mounted) return;
     setState(() => _suppressCategoryTap = false);
+  }
+
+  void _showAttemptDetails(Map<String, dynamic> attempt) {
+    final ThemeData theme = Theme.of(context);
+    final String quizId = (attempt['quizId'] ?? '') as String;
+    final List<dynamic> rawAnswers =
+        (attempt['answers'] ?? <dynamic>[]) as List<dynamic>;
+    // Fallback options using repository if not stored
+    final Quiz? quiz = LearningRepository.getQuiz(quizId);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) {
+        return Container(
+          margin: const EdgeInsets.all(AppConstants.spacingM),
+          padding: const EdgeInsets.all(AppConstants.spacingL),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+            borderRadius: BorderRadius.circular(AppConstants.borderRadius * 2),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Attempt Details',
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.of(context).maybePop(),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.6,
+                child: ListView.builder(
+                  itemCount: rawAnswers.length,
+                  itemBuilder: (context, index) {
+                    final Map<String, dynamic> a = Map<String, dynamic>.from(
+                      rawAnswers[index] as Map,
+                    );
+                    final String prompt = (a['prompt'] ?? '-') as String;
+                    final List<dynamic> optsDyn = (a['options'] ?? []) as List;
+                    final List<String> options =
+                        optsDyn.isEmpty && quiz != null
+                            ? quiz.questions
+                                .firstWhere(
+                                  (q) => q.id == (a['id'] ?? ''),
+                                  orElse:
+                                      () => const MultipleChoiceQuestion(
+                                        id: 'missing',
+                                        prompt: '-',
+                                        options: <String>[],
+                                        correctIndex: 0,
+                                      ),
+                                )
+                                .options
+                            : optsDyn.map((e) => e.toString()).toList();
+                    final int userIndex = (a['userIndex'] ?? -1) as int;
+                    final int correctIndex = (a['correctIndex'] ?? -1) as int;
+                    final bool userCorrect =
+                        (a['userCorrect'] ?? false) as bool;
+                    final String userText =
+                        userIndex >= 0 && userIndex < options.length
+                            ? options[userIndex]
+                            : 'Not answered';
+                    final String correctText =
+                        correctIndex >= 0 && correctIndex < options.length
+                            ? options[correctIndex]
+                            : '-';
+
+                    return ListTile(
+                      leading: Icon(
+                        userCorrect ? Icons.check_circle : Icons.cancel,
+                        color:
+                            userCorrect
+                                ? AppTheme.successColor
+                                : AppTheme.errorColor,
+                      ),
+                      title: Text(prompt),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 4),
+                          Text(
+                            'Your answer: ' + userText,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurface.withOpacity(
+                                0.8,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Correct answer: ' + correctText,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color:
+                                  userCorrect
+                                      ? AppTheme.successColor
+                                      : AppTheme.errorColor,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildQuickPracticeSection(ThemeData theme) {
@@ -1200,7 +1424,7 @@ class _LearnScreenState extends State<LearnScreen>
             TextButton(
               onPressed: () {
                 SoundService.playButtonSound();
-                context.go('/quiz/${LearningRepository.quizzes.first.id}');
+                context.go('/quizzes');
               },
               child: const Text('View All'),
             ),
@@ -1215,6 +1439,8 @@ class _LearnScreenState extends State<LearnScreen>
               child: QuizCard(
                 quiz: filtered[index],
                 onTap: () => _startQuiz(filtered[index]),
+                totalLessons: _categories[_selectedCategoryIndex].totalLessons,
+                category: _categories[_selectedCategoryIndex].title,
               ),
             ),
           );
@@ -1224,6 +1450,7 @@ class _LearnScreenState extends State<LearnScreen>
   }
 
   Widget _buildScenariosSection(ThemeData theme) {
+    final String category = _categories[_selectedCategoryIndex].title;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1240,27 +1467,159 @@ class _LearnScreenState extends State<LearnScreen>
             TextButton(
               onPressed: () {
                 SoundService.playButtonSound();
-                context.go(
-                  '/scenario/${LearningRepository.scenarios.first.id}',
-                );
+                context.go('/scenarios');
               },
               child: const Text('View All'),
             ),
           ],
         ),
         const SizedBox(height: AppConstants.spacingM),
-        ...List.generate(_scenarios.length, (index) {
-          return AnimatedCard(
-            delay: Duration(milliseconds: 600 + (index * 100)),
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: AppConstants.spacingM),
-              child: ScenarioCard(
-                scenario: _scenarios[index],
-                onTap: () => _startScenario(_scenarios[index]),
-              ),
-            ),
-          );
-        }),
+        FutureBuilder<List<Widget>>(
+          future: () async {
+            final ps = context.read<ProgressService>();
+            String? saved = await ps.getCategoryLevel(category);
+            final String primaryLevel = saved ?? 'Beginner';
+            final List<Widget> cards = <Widget>[];
+            // Prefer video scenarios if available
+            try {
+              final vids = await ps.loadVideoScenarioCsv(
+                category: category,
+                level: primaryLevel,
+              );
+              for (final v in vids.take(2)) {
+                cards.add(
+                  AnimatedCard(
+                    delay: const Duration(milliseconds: 600),
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        bottom: AppConstants.spacingM,
+                      ),
+                      child: VideoScenarioCard(
+                        scenario: v,
+                        onTap: () {
+                          () async {
+                            final bool ok = await _confirmStartDialog(
+                              title: 'Start video scenario?',
+                              message: 'Open "${v.title}" now?',
+                            );
+                            if (!ok) return;
+                            if (!context.mounted) return;
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder:
+                                    (_) => VideoScenarioScreen(scenario: v),
+                              ),
+                            );
+                          }();
+                        },
+                      ),
+                    ),
+                  ),
+                );
+              }
+            } catch (_) {}
+            final List<(String, String, Scenario)> picks =
+                <(String, String, Scenario)>[];
+            try {
+              final primary = await ps.loadScenarioCsv(
+                category: category,
+                level: primaryLevel,
+              );
+              if (primary.isNotEmpty) {
+                for (final sc in primary.take(2)) {
+                  picks.add((category, primaryLevel, sc));
+                }
+              }
+            } catch (_) {}
+            if (picks.isEmpty && primaryLevel != 'Beginner') {
+              try {
+                final alt = await ps.loadScenarioCsv(
+                  category: category,
+                  level: 'Beginner',
+                );
+                if (alt.isNotEmpty) {
+                  for (final sc in alt.take(2)) {
+                    picks.add((category, 'Beginner', sc));
+                  }
+                }
+              } catch (_) {}
+            }
+            if (picks.isEmpty) {
+              const others = <String>[
+                'Basics',
+                'Email Security',
+                'Web Safety',
+                'Advanced',
+              ];
+              for (final cat in others) {
+                if (cat == category) continue;
+                try {
+                  final alt = await ps.loadScenarioCsv(
+                    category: cat,
+                    level: 'Beginner',
+                  );
+                  if (alt.isNotEmpty) picks.add((cat, 'Beginner', alt.first));
+                  if (picks.length >= 2) break;
+                } catch (_) {}
+              }
+            }
+            // Build text scenario cards until we have 1-2 total
+            for (int i = 0; i < picks.length && cards.length < 2; i++) {
+              final entry = picks[i];
+              final String cat = entry.$1;
+              final String lvl = entry.$2;
+              final Scenario sc = entry.$3;
+              cards.add(
+                AnimatedCard(
+                  delay: Duration(milliseconds: 600 + (i * 100)),
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      bottom: AppConstants.spacingM,
+                    ),
+                    child: ScenarioCard(
+                      scenario: ScenarioData(
+                        id: sc.id,
+                        title: sc.title,
+                        description: sc.description,
+                        difficulty: lvl,
+                        estimatedTime: 5,
+                        completedAt: null,
+                        score: null,
+                      ),
+                      category: cat,
+                      onTap:
+                          () => _startScenario(
+                            ScenarioData(
+                              id: sc.id,
+                              title: sc.title,
+                              description: sc.description,
+                              difficulty: lvl,
+                              estimatedTime: 5,
+                              completedAt: null,
+                              score: null,
+                            ),
+                          ),
+                    ),
+                  ),
+                ),
+              );
+            }
+            return cards;
+          }(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            final cards = snapshot.data ?? <Widget>[];
+            if (cards.isEmpty) {
+              return Text(
+                'No scenarios available for $category yet.',
+                style: theme.textTheme.bodyMedium,
+              );
+            }
+            return Column(children: cards.take(2).toList());
+          },
+        ),
       ],
     );
   }
@@ -1346,13 +1705,26 @@ class _LearnScreenState extends State<LearnScreen>
                 child: const Text('Cancel'),
               ),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   SoundService.playButtonSound();
                   Navigator.pop(context);
                   // Route to a concrete quiz id to avoid null errors
                   final String targetQuizId =
                       _selectedCategoryIndex == 1 ? 'quiz_2' : 'quiz_1';
-                  context.go('/quiz/$targetQuizId');
+                  final String category =
+                      _categories[_selectedCategoryIndex].title;
+                  String? level = await context
+                      .read<ProgressService>()
+                      .getCategoryLevel(category);
+                  level ??= 'Beginner';
+                  context.go(
+                    '/quiz/$targetQuizId',
+                    extra: {
+                      'overrideCategory': category,
+                      'overrideLevel': level,
+                      'overrideTitle': '$category • $level',
+                    },
+                  );
                 },
                 child: const Text('Start Quiz'),
               ),
@@ -1377,12 +1749,25 @@ class _LearnScreenState extends State<LearnScreen>
                 child: const Text('Cancel'),
               ),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   SoundService.playButtonSound();
                   Navigator.pop(context);
                   final String targetScenarioId =
                       _selectedCategoryIndex == 0 ? 'scenario_1' : 'scenario_2';
-                  context.go('/scenario/$targetScenarioId');
+                  final String category =
+                      _categories[_selectedCategoryIndex].title;
+                  String? level = await context
+                      .read<ProgressService>()
+                      .getCategoryLevel(category);
+                  level ??= 'Beginner';
+                  context.go(
+                    '/scenario/$targetScenarioId',
+                    extra: {
+                      'overrideCategory': category,
+                      'overrideLevel': level,
+                      'overrideTitle': '$category • $level',
+                    },
+                  );
                 },
                 child: const Text('Start Scenario'),
               ),

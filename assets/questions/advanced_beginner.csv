@@ -1,0 +1,52 @@
+id,prompt,option1,option2,option3,option4,correct,explanation
+adb1,What is social engineering?,Tricking people,Server tuning,Encryption,Storage,1,Manipulates human behavior.
+adb2,Phishing kits are…,Security patches,Prebuilt fake pages,VPNs,Antivirus,2,Kits assemble phishing sites.
+adb3,Best quick link check?,Hover to see domain,Open immediately,Trust logo,Ignore HTTPS,1,Preview target first.
+adb4,Report phishing using…,Official report button/IT,Reply to attacker,Delete only,Share widely,1,Use official reporting.
+adb5,Password reuse risk?,None,Credential stuffing,Better memory,More access,2,Breaches enable stuffing.
+adb6,Which MFA is strongest?,SMS,TOTP,Push,FIDO2 keys,4,Security keys resist phishing.
+adb7,Typosquatting example?,example.com,examp1e.com,sub.example.com,cdn.example.com,2,Numeric substitution.
+adb8,QR code can hide…,Nothing,Final destination,Fonts,OS version,2,Shorteners and QR obscure targets.
+adb9,Green padlock alone means…,Always safe,Encrypted transport only,No phishing risk,Verified identity,2,Only transport; still verify domain.
+adb10,Invoice scam often asks for…,Account change without verification,Feedback,Meeting time,Logo,1,Verify through known contacts.
+adb11,Short link best practice?,Preview destination first,Click fast,Trust any,Ignore,1,Expand/preview safely.
+adb12,If OTP requested by email…,Never share,Share if manager asks,Reply with code,Post online,1,OTP must remain private.
+adb13,Unknown extension requests broad perms…,Install anyway,Check store + reviews,Trust logo,Ignore scope,2,Only install trusted extensions.
+adb14,Password manager benefit?,Unique strong passwords,Reuse passwords,Share with friends,Plain text storage,1,Managers create unique passwords.
+adb15,Typos in urgent emails…,Always harmless,Common phishing sign,Rarely seen,Guarantee safety,2,Combined with urgency it’s suspicious.
+adb16,Login page should be checked for…,HTTPS and exact domain,Brand color only,Large logo,Short URL,1,Verify origin and TLS.
+adb17,Report phish via…,Built-in button or IT,Reply to attacker,Social media,Ignore,1,Use official channels.
+adb18,Prize emails asking shipping fee…,Likely scam,Legit,Charity,Neutral,1,Advance-fee pattern.
+adb19,Attachments like .exe/.scr…,High risk,Always safe,Encrypted only,Low risk,1,Avoid running executables.
+adb20,If you clicked a bad link…,Change passwords and report,Ignore,Share link,Bookmark it,1,Rotate creds and notify.
+adb21,Green padlock indicates…,Encrypted connection not trust,Always trust,Owner verified,Phish proof,1,Still verify domain.
+adb22,Check sender by…,Display name only,Full address/domain,Avatar,Subject line,2,Verify actual address.
+adb23,QR codes can…,Lead to phishing,Only photos,Fix Wi-Fi,Do nothing,1,QRs can link to phish.
+adb24,Smishing is…,SMS phishing,Smart phishing,Small phishing,Server phishing,1,SMS-based phishing.
+adb25,Vishing is…,Voice call phishing,Video phishing,VPN phishing,Versioning,1,Phone-based social engineering.
+adb26,SPF/DMARC/DKIM help…,Authenticate senders,Encrypt content,Compress mail,Filter images,1,They verify sending domain.
+adb27,BEC often demands…,Gift cards/wires urgently,Feedback forms,UI themes,Fonts,1,Financial urgency.
+adb28,Strongest MFA is…,FIDO2 keys,SMS,TOTP,Email link,1,Keys resist phishing.
+adb29,Safe charity verification…,Official site/phone,Email link only,QR in poster,Unknown number,1,Verify independently.
+adb30,Password reset best practice…,Use official site directly,Click any link,Share code,Reuse old password,1,Open site manually.
+adb31,Homoglyph domains are…,Look-alikes using similar chars,Safe,Always legit,Typos fixed,1,Confusable characters trick users.
+adb32,Unsubscribe on unknown spam…,May confirm address,Always safe,Encrypts mail,Deletes account,1,Avoid clicking.
+adb33,Mailbox rule exfiltration…,Forwards mail externally,Changes theme,Adds emoji,Fixes spam,1,Forwarding can leak data.
+adb34,Report rate KPI…,Measures awareness,Changes fonts,Adds spam,Tracks emojis,1,Higher report rate helps SOC.
+adb35,Credential harvesting portals…,Have fake SSO buttons,No forms,Encrypted only,Are benign,1,They mimic SSO.
+adb36,Training cadence…,Regular/ongoing,Yearly only,Never,Hourly,1,Regular training is effective.
+adb37,Attachment detonation…,Sandbox execution,Fonts,Themes,Dark mode,1,Run in safe environment.
+adb38,Passwordless links…,Verify sender/domain first,Always click,Ignore,Share widely,1,Ensure legit origin.
+adb39,If unsure…,Do not click and report,Proceed,Reply,Forward externally,1,Err on caution.
+adb40,Look‑alike domains often add…,Extra words or chars,Security only,HTTPS always,No TLD,1,Extra words indicate phish.
+adb41,Mailbox compromise sign…,Unknown forwarding rules,Theme change,New emoji,Font swap,1,Rules can indicate takeover.
+adb42,Time‑of‑click protection…,Scans links on click only,Deletes email,Adds emojis,Changes CSS,1,Protects against delayed activation.
+adb43,DMARC policy p=reject…,Rejects failing mail,Allows all,Sends to spam only,Ignores SPF,1,Enforces alignment.
+adb44,SPF checks…,Sender IP authorization,Body text,Fonts,Images,1,Validates sending IP.
+adb45,DKIM provides…,Domain signature for integrity,Password reset,Fonts,Themes,1,Signs messages.
+adb46,BIMI shows…,Brand logos with auth,Random avatars,Spam score,Fonts,1,Logos shown with strong auth.
+adb47,Credential stuffing uses…,Leaked passwords,VPN,Fonts,Dark mode,1,Reused credentials exploited.
+adb48,Most secure extension source…,Official store,Random site,Email attachment,Forum post,1,Use official web store.
+adb49,If a page asks for plugin install…,Decline & verify,Install quickly,Allow all,Ignore,1,Unknown plugins risky.
+adb50,Safe browsing DB…,Blocks known threats,Speeds CSS,Adds emojis,Compresses images,1,Browsers block bad sites.
+

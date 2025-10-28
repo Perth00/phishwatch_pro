@@ -1,0 +1,42 @@
+id,prompt,option1,option2,option3,option4,correct,explanation
+esa1,Best DMARC policy for strong enforcement?,p=none,p=quarantine,p=reject,No policy,3,Reject blocks failed alignment.
+esa2,BEC prevention strongest with…,Keyword filters only,MFA + out‑of‑band verification,Dark theme,HTML signatures,2,Verify payments and use MFA.
+esa3,ARC headers mainly help with…,Forwarding/aliases integrity,CSS themes,Inline images,Font size,1,ARC preserves auth results through forwards.
+esa4,Compromised OAuth token signs include…,Unexpected consents,New fonts,More emojis,Blue theme,1,Review app consents.
+esa5,How to detect look‑alike sender domains?,Just color,Punycode and CT logs,Attachment size,TLS cert brand,2,Monitor domains and certs.
+esa6,SPF alignment checks compare…,MAIL FROM and From:,To: and Cc:,Subject and Date,Body and Signature,1,Alignment ties envelope and header.
+esa7,DKIM selector rotation helps…,Color scheme,Key management,Fonts,Marketing,2,Rotate keys for security.
+esa8,Best practice for high‑risk senders?,No DMARC,Strict DMARC + monitoring,Disable SPF,Forwarding only,2,Strong policies reduce spoofing.
+esa9,Quishing is…,QR code phishing,SMS phishing,Quick phishing,Queue phishing,1,QR codes link to phishing.
+esa10,Mitigate mailbox rule abuse by…,Alerting on auto‑forward,Ignore logs,Disable all rules,Expand inbox,1,Alert on suspicious rules.
+esa11,Attachment detonation uses…,Sandbox execution,Just preview,Font renderers,Color filters,1,Safely executes to detect malware.
+esa12,Detect MFA fatigue attacks by…,Captcha,Login geo anomalies and push storms,Time zone,Fonts,2,Monitor push frequency and geo.
+esa13,Anti‑phishing banners should be…,Ignored,Contextual and concise,Loud and constant,Animated,2,Make them helpful not noisy.
+esa14,Message authentication fails often due to…,Forwarding breaks,User theme,Fonts,Emojis,1,Forwarding can change headers.
+esa15,SPF -all means…,Soft fail,Hard fail,Pass,Ignore,2,Hard fail on non‑listed senders.
+esa16,Look‑alike TLD defense?,Register variants and monitor,Ignore,Use GIFs,Shorter subjects,1,Defensive registrations help.
+esa17,Valid support email indicators?,Official domain + previous ticket,Random domain,Short URL,Emoji,1,Verify domain and context.
+esa18,Prevent consent phishing by…,User education + admin consent policies,Fonts,Dark mode,Themes,1,Restrict grants and train users.
+esa19,DKIM body length tag l= can…,Allow partial signing,Break DNS,Encrypt content,Style email,1,It allows partial body signing.
+esa20,Transport encryption with MTA‑STS…,Opportunistic only,Policy‑enforced TLS,Drops TLS,Adds emojis,2,Enforces TLS to domain.
+esa21,Best control for app consents?,User self‑service only,Admin consent policies + review,No controls,Random,2,Restrict and review app consents.
+esa22,Forensic DMARC (ruf) contains…,Full message samples,Aggregate counts only,Nothing,Sender secrets,1,Contains redacted samples per policy.
+esa23,Mailbox takeover via OAuth requires…,Granted scopes,Fonts,Emojis,Themes,1,Review and revoke malicious grants.
+esa24,ARC break indicates…,Forwarding path modified,More emojis,Better fonts,Spam,1,Auth chain may be altered.
+esa25,BIMI requires…,Strong authentication + VMC,Nothing,Short URLs,Blue logos,1,Verified Mark Certificates and auth.
+esa26,Look‑alike reply‑to is used to…,Capture responses,Improve UX,Compress mail,Encrypt traffic,1,Attackers collect replies.
+esa27,Effective awareness metric is…,Report rate and time‑to‑report,Email theme,Font size,Color,1,Measure reporting quality.
+esa28,Blocking auto‑forward to external…,Reduces exfiltration,Increases phishing,Changes fonts,Adds emojis,1,Prevents data loss.
+esa29,Strongest protection against consent phishing?,Education only,Consent policies + limited scopes,Fonts,Dark mode,2,Combine policy and least privilege.
+esa30,SPF macros and includes risk…,Excessive DNS lookups,Dark mode,Faster mail,Better fonts,1,Keep lookup count low.
+esa31,Sender rewriting schemes (SRS) help…,SPF on forwards,Fonts,Themes,Images,1,Preserve SPF across forwards.
+esa32,Inbound gateway time‑of‑click…,Scans links when clicked,Deletes all mail,Changes CSS,Adds banners only,1,Protects even delayed activations.
+esa33,Valid DKIM key rotation period…,Regularly (e.g., 6–12 months),Never,Daily,Hourly,1,Rotate keys periodically.
+esa34,DMARC pct= value…,Applies policy to a percentage,Changes fonts,Encrypts mail,Deletes spam,1,Rollout control.
+esa35,High confidence for legit sender when…,SPF/DKIM/DMARC all aligned,Only SPF pass,Only DKIM pass,Only DMARC pass,1,Alignment across all is strongest.
+esa36,Good remediation after compromise…,Reset creds, revoke grants, audit rules,Change theme,Ignore,Share emojis,1,Revoke access and investigate.
+esa37,Out‑of‑band invoice validation…,Prevents BEC success,Is optional only,Adds emojis,Slows mail,1,Use a known phone number.
+esa38,Mailbox rules to watch for…,Delete security emails/forward external,Only color changes,Font swap,Theme update,1,These hide attacker activity.
+esa39,SPF redirect= misuse can…,Delegate policy to attacker domain,Harden security,Fix TLS,Change UI,1,Be cautious with redirect.
+esa40,Best practice for DMARC rollout…,Start with none/quarantine then reject,Reject immediately,No monitoring,Random,1,Monitor then enforce.
+

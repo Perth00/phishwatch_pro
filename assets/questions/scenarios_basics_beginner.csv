@@ -1,0 +1,12 @@
+id,title,description,isPhishing,rationale
+sbb1,Prize Email,You receive an email claiming you won a phone and asking a small fee to claim.,true,Advance‑fee fraud is a phishing tactic.
+sbb2,Bank Alert,Email says your account is locked and asks you to login via provided link.,true,Check domain; urgent lockouts are classic phishing.
+sbb3,Delivery Notice,Unknown courier asks you to pay customs via link.,true,Phishers exploit delivery themes and payment.
+sbb4,Colleague Share,Known colleague shares a doc via official domain,false,Legit shares come from proper domain.
+sbb5,Password Reset,You request a password reset and receive link from official domain,false,Expected action with correct domain.
+sbb6,Invoice Scam,Vendor “updates” bank details via email only.,true,Payment changes require out‑of‑band verification.
+sbb7,Security Notice,Email asks to verify account within 1 hour.,true,Artificial urgency used to coerce.
+sbb8,Newsletter,Opt‑in newsletter from known store,false,Normal marketing email.
+sbb9,QR Login,Official app provides QR to sign in,false,Expected flow if domain/app matches.
+sbb10,Gift Cards,CEO “asks” for urgent gift cards.,true,Common business email compromise pattern.
+

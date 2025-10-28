@@ -1,0 +1,52 @@
+id,prompt,option1,option2,option3,option4,correct,explanation
+wsa1,What does COOP/COEP enable?,Faster CSS,Robust cross‑origin isolation,Bigger cache,Offline mode,2,They enforce cross‑origin isolation.
+wsa2,Mitigate dangling markup injection by…,Sanitizing URLs, CSP + proper encoding,Disabling TLS,User agent checks,2,Encode untrusted input and use CSP.
+wsa3,Strict‑Dynamic in CSP allows…,All scripts,Trusted script chains,No scripts,Only inline,2,Allows scripts loaded by trusted scripts.
+wsa4,Best defense against OAuth device code phishing?,Short expiry + bind to user,Plain tokens,No consent,Disable MFA,1,Bind flow to user and short timeouts.
+wsa5,Detect IDN homographs with…,Punycode conversion,Viewport checks,Flexbox,Grid,1,Compare Unicode to punycode.
+wsa6,Service Worker phishing risk is…,Offline credential capture,CSS swap,Dark theme spoof,Font loading,1,SW can persist malicious offline pages.
+wsa7,Password managers resist phishing using…,Origin binding,Tab color,Cookies,Cache,1,They match exact origins.
+wsa8,Trusted Web Activity risk is…,Full cert pinning break,App store skip for PWA,No TLS needed,Localhost only,2,TWA deploys PWAs as apps.
+wsa9,Certificate Transparency SCTs prove…,HSTS,CRL status,Inclusion in CT logs,SPF,3,Signed Timestamps prove log inclusion.
+wsa10,Origin‑bound keys (Passkeys) prevent…,MITM,Credential replay,Pixel tracking,CSP,2,Keys are scoped to origin.
+wsa11,Mitigate pixel tracking by…,Block third‑party cookies,More images,HTTP only,Old TLS,1,Blocks cross‑site identifiers.
+wsa12,Prevent OAuth redirect URI manipulation by…,Wildcard allow,Exact match + PKCE,Hash only,Any subdomain,2,Exact matching with PKCE.
+wsa13,SRI weakness addressed by…,Immutable + versioned hashes,Dynamic eval,Inline event handlers,No CSP,1,Pin versions and use immutable.
+wsa14,Detect phishing kits at scale using…,Heuristics + artifacts,Theme color,Viewport size,Flexbox,1,Artifacts reveal reused kits.
+wsa15,What is Referrer‑Policy no‑referrer?,Sends full referrer,Sends origin only,Sends nothing,Blocks redirects,3,No referrer is sent.
+wsa16,Web Bluetooth security requires…,Any origin,User gesture + HTTPS,HTTP only,Background access,2,Requires secure context and gesture.
+wsa17,What is a Supercookie?,Big normal cookie,Tracker via caches/ETags,Secure cookie,First‑party cookie,2,Uses alternative storage for tracking.
+wsa18,Credential phishing via SMS links can be reduced by…,Link preview/verification,Mute phone,Airplane mode,Low brightness,1,Verify destination before login.
+wsa19,Prevent HTML smuggling by…,Disable JS only,Content scanning + blocking,Inline styles,Flexbox,2,Block encoded payload delivery.
+wsa20,Ideal CSP for app shell?,default‑src 'self'; object‑src 'none',Allow all,Inline everything,Img data only,1,Restrictive defaults are best.
+wsa21,Double key pinning risk is…,No update path,Strong security,Better UX,Free certs,1,Can brick site on key change.
+wsa22,Detect look‑alike domains with…,Fuzzy matching and brand monitoring,CSS vars,Inline SVG,Grid,1,Monitor variants and registrations.
+wsa23,Prevent token theft in SPA by…,HTTPOnly cookies + SameSite,LocalStorage,URL fragments,SessionStorage,1,Prefer cookies with proper flags.
+wsa24,Mitigate subdomain takeover by…,DNS hygiene + remove stale records,Add CDN,More SPF,Bigger images,1,Clean DNS and monitor.
+wsa25,Passkey phishing resistance is…,High,Medium,Low,Variable,1,Passkeys are strongly phishing‑resistant.
+wsa26,Which header enforces CORP?,Cross‑Origin‑Resource‑Policy,Cache‑Control,Age,Keep‑Alive,1,CORP restricts cross‑origin resource reads.
+wsa27,Signed HTTP Exchanges help with…,Offline integrity,Fonts,Flexbox,DNS,1,Signed exchanges preserve integrity.
+wsa28,Prevent OAuth app impersonation by…,Verified publisher & scopes,Green logo,Any redirect,HTTP,1,Use verified publisher and minimal scopes.
+wsa29,Defence against tab‑nabbing?,rel="noopener",Viewport meta,ARIA roles,Grid,1,Use noopener on external links.
+wsa30,Mitigate drive‑by cryptomining by…,Blocklist + script monitor,More CSS,Caching,XHR,1,Block malicious scripts.
+wsa31,Detect staged phishing via…,Registration patterns,Contrast ratio,Flexbox,Scale,1,Monitor domains and kit reuse.
+wsa32,Good policy for feature‑policy/permissions‑policy?,Allow all,Least privilege,Mirror CSP,Ignore,2,Grant only required features.
+wsa33,Prevent MFA fatigue attacks by…,Number matching & limits,More colors,Fonts,Short URLs,1,Use number matching and throttle.
+wsa34,Secure auto‑fill should be…,Origin scoped,Any domain,IP based,Color based,1,Only fill on matching origin.
+wsa35,Mitigate browser extension risks by…,Least permissions,Dark theme,Flexbox,CSS vars,1,Request minimal permissions.
+wsa36,Protect from key‑logging overlays by…,Focus indicators + permissions,More fonts,Scroll snapping,Grid,1,Detect and prevent overlays.
+wsa37,How to validate app downloads?,Code signing verification,Check file size,Light theme,DPI,1,Validate signatures.
+wsa38,Prevent OAuth token leakage via redirects by…,Fragment response type,Form post only,Query tokens,Wildcard,2,Use form post or secure patterns.
+wsa39,Detect fake payment popups by…,Origin trial,Window.open with trusted origins,New tab only,Flexbox,2,Check opener/origin.
+wsa40,Limit exposure to cross‑site leaks by…,COOP/COEP,Inline JS,Public CDNs,Old TLS,1,Use isolation headers.
+wsa41,Passkey attestation proves…,Device model & authenticator,IP address,Theme,Viewport,1,Attestation conveys authenticator info.
+wsa42,SSRF defenses on web apps include…,Deny‑list only,Allowlist egress + metadata protection,Old proxies,Disable TLS,2,Restrict egress and protect metadata.
+wsa43,Safe link sharing practice?,Strip tracking params,Add query tokens,Shorten always,Use file:,1,Remove trackers.
+wsa44,PKCE strengthens…,Authorization code flow,Implicit flow,Password grant,Device grant only,1,PKCE binds code to client.
+wsa45,How to detect phishing via CT logs?,Search brand keywords,Dark mode,Grid,Flexbox,1,Monitor for certs containing brand.
+wsa46,Replay‑resistant tokens are…,DPoP‑bound tokens,JWT HS256,TLS only,Refresh tokens only,1,DPoP binds tokens to key.
+wsa47,What is device binding?,Bind session to user agent,Bind auth to device public key,Color theme bind,Font bind,2,Keys tied to device prevent replay.
+wsa48,Mitigate phishing MFA bypass by…,FIDO2/WebAuthn,Color picker,Flexbox,Text shadow,1,Use phishing‑resistant MFA.
+wsa49,How to verify browser update pages?,Vendor domain + cert,Short URL,Any TLD,Ad link,1,Always verify official domain and TLS.
+wsa50,Best action on suspected sophisticated phishing?,Report to security & avoid interaction,Test on prod,Enter dummy data,Trust page,1,Escalate and avoid interaction.
+

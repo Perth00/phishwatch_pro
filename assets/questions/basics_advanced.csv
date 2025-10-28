@@ -1,0 +1,52 @@
+id,prompt,option1,option2,option3,option4,correct,explanation
+ba1,Best indicator of legit login page?,Exact domain + HTTPS,Many images,Green padlock only,No typos,1,Always match exact domain with TLS.
+ba2,CEO fraud typically asks for…,System updates,Gift cards/wires urgently,Feedback,Meeting notes,2,Financial urgency is a hallmark.
+ba3,How to validate attachment safety?,Open in VM,Check extension only,Scan with AV/sandbox,Trust brand,3,Use AV or sandbox scanning.
+ba4,Phishing via calendar invites works by…,Meeting notes,Auto‑adding events with links,Timezone tricks,Noise,2,Events may include malicious links.
+ba5,Most robust MFA against phishing?,Email code,SMS code,App TOTP,Security keys (FIDO2),4,Hardware keys resist relay attacks.
+ba6,Detect homograph domains by…,Theme color,Punycode inspection,Image size,CSS,2,Convert to punycode and compare.
+ba7,Best response to MFA fatigue push spam?,Approve to stop,Ignore and report,Change theme,Disable account,2,Report and reset.
+ba8,Attachment with macros safest handling?,Enable macros,Upload to cloud analyzer,Print it,Forward to peers,2,Sandbox macro docs.
+ba9,To reduce phishing risk on remote work…,Public Wi‑Fi only,VPN + updated devices,Disable updates,Share creds,2,Use VPN and patching.
+ba10,Which link is suspicious?,https://bank.com.login.co,https://bank.com,https://accounts.bank.com,https://bank.com/support,1,Look‑alike domain at end.
+ba11,Credential stuffing mitigated by…,Password reuse,MFA + unique passwords,Disable TLS,Incognito mode,2,Unique passwords and MFA help.
+ba12,Detect business email compromise by…,Verified changes via callback,Trust email alone,Ignore invoices,Auto pay,1,Out‑of‑band verification.
+ba13,QR code login safest when…,Any camera app,Official app/site verifies,Shared QR,Public Wi‑Fi,2,Verify QR in the official app/site.
+ba14,Best practice for email forwarding rules?,Allow unknown rules,Review and alert on changes,Ignore logs,Disable all mail,2,Attackers hide via rules.
+ba15,How to report phishing properly?,Delete only,Report via tool/IT,Ignore,Reply to attacker,2,Use built‑in report or IT.
+ba16,Threat intel feeds help by…,Blocking ads,Surfacing known kits/domains,Changing fonts,Dark mode,2,They list known threats.
+ba17,Signs of credential harvesting portal?,Minimal content + login,Rich content,EULA only,Blog posts,1,Empty pages with only login fields.
+ba18,Use of CAPTCHAs by attackers is to…,Block security,Appear legit,Steal cookies,Disable AV,2,They imitate legitimacy.
+ba19,Look‑alike SSL certificates can…,Appear valid while domain differs,Be impossible,Bypass HSTS,Disable cookies,1,Cert valid for wrong domain is still phishing.
+ba20,Payment change requests must be…,Denied,Verified out‑of‑band,Auto‑approved,Delayed,2,Always verify with vendor.
+ba21,Best account recovery strategy?,Single email,Multiple options + keys,Public questions,None,2,Use multiple secure recovery methods.
+ba22,Detect spoofed phone numbers via…,Caller ID only,Call back official number,Trust SMS,Assume safe,2,Use official contact to verify.
+ba23,Safest action after clicking phishing?,Keep browsing,Enter fake data,Disconnect, change password, and report,Buy AV,3,Contain quickly and rotate creds.
+ba24,What is a phishing landing kit?,Security training,Bundle of scripts and pages,Firmware,Patch notes,2,Kits assemble full phishing pages.
+ba25,How to protect high‑value accounts?,No MFA,Weak passwords,Phishing‑resistant MFA,Reuse passwords,3,Use FIDO2 for admins.
+ba26,Best way to validate urgent supplier change?,Email reply,Independent call to known contact,Chat link,Approve quickly,2,Out‑of‑band verification prevents fraud.
+ba27,What is a lure page?,Benign site,Page designed to entice clicks to phish,Payment portal,Policy page,2,Used to attract victims.
+ba28,Phishers harvest tokens by…,Auth proxy/relay,Fonts,Themes,Dark mode,1,Relays capture session tokens.
+ba29,Mobile phishing defense includes…,Disable updates,App store only + OS updates,Root device,Public Wi‑Fi only,2,Use official stores and updates.
+ba30,Detect mailbox forwarding compromise by…,Monitoring rule creation,Fonts,Color,Signature length,1,Alert on rule changes.
+ba31,Enterprise banner best practice?,Contextual for externals,Always red,Ignore users,All caps,1,Make banners helpful.
+ba32,Good KPI for awareness?,Clicks only,Report rate and resilience,Theme count,Font size,2,Measure reporting and resilience.
+ba33,If passkey available…,Prefer it over password,Ignore,Use SMS only,Share key,1,Passkeys resist phishing.
+ba34,Webmail “app password” risk?,Bypasses MFA safely,Can allow bypass of MFA,Improves UX,Encrypts mail,2,Legacy flows can bypass MFA.
+ba35,QR code posted in public…,Trust by default,Verify destination first,Redeem fast,Share,2,QRs can be swapped.
+ba36,SPF include chains risk?,Too many DNS lookups cause permerror,Safer,Speedy,No effect,1,Limit includes.
+ba37,Detect homoglyphs by…,Automated confusable checks,Theme,Fonts,Images,1,Tools detect confusables.
+ba38,Time‑of‑click protection…,Scans links on click,Deletes mail,Adds GIFs,Blocks TLS,1,Helps catch delayed activations.
+ba39,Mailbox takeover signal?,Impossible login notifications,New rules and suspicious logins,Emoji count,Wallpaper,2,Watch for rules + geo anomalies.
+ba40,Training campaigns should…,Simulate realistic themes,Use same template,Be rare,Ignore metrics,1,Realistic variety improves learning.
+ba41,TYposquatting defense?,Register variants + monitor,Change logo,Use serif fonts,Shorter name,1,Defensive registration helps.
+ba42,Backup channel for payments?,None,Known phone to finance contact,Chatbot,Social media,2,Always a verified backup channel.
+ba43,Malicious HTML attachments often…,Collect credentials,Change theme,Patch servers,Reduce spam,1,HTML forms can steal credentials.
+ba44,Strongest protection for admin email?,POP3 only,Security keys + device trust,Dark mode,Static IP only,2,Use phishing‑resistant MFA.
+ba45,If link was clicked…,Reset passwords and review sessions,Ignore,Blame,Forward publicly,1,Assume compromise and act.
+ba46,Outlook add‑ins from unknown vendors…,Always safe,Need review can be risky,Auto approve,Ignore,2,Review vendor and perms.
+ba47,Email encryption (S/MIME) assures…,Confidentiality/integrity,More colors,Spam removal,Calendar fixes,1,Provides encryption and signing.
+ba48,Compromised OAuth grants…,Allow persistent access until revoked,Harmless,Auto expire safely,Improve UX only,1,Revoke unknown consents.
+ba49,Mailbox audit logs help…,Detect suspicious access,Change font,Add emojis,Fix Wi‑Fi,1,Investigate anomalous access.
+ba50,Legit password reset best practice…,Open official site directly,Click any reset link,Share code,Reuse password,1,Type the site then reset.
+

@@ -1,0 +1,52 @@
+id,prompt,option1,option2,option3,option4,correct,explanation
+wsi1,What does SameSite=Lax mitigate?,Password reuse,CSRF,SQL injection,Clickjacking,2,Lax reduces cross‑site request forgery.
+wsi2,HTTP Strict Transport Security is delivered via…,HTML tag,Response header,Robots.txt,JavaScript,2,HSTS is a response header.
+wsi3,Subresource Integrity validates…,Response size,Script/style hash,Server IP,User agent,2,SRI checks content hashes.
+wsi4,Which header disables site in iframes?,X‑Frame‑Options,ETag,Cache‑Control,Alt‑Svc,1,Prevents clickjacking.
+wsi5,Phishing kit reuse can be detected by…,Unique certs,Shared artifacts,No redirects,Valid SPF,2,Artifacts like paths/JS repeat.
+wsi6,DMARC policy p=reject means…,Reject spoofed mail,Encrypt emails,Block all mail,Disable DKIM,1,Instructs receivers to reject fails.
+wsi7,Which helps detect typosquats?,WHOIS only,Certificate transparency,Robots.txt,Web sockets,2,CT logs show new certificates.
+wsi8,Open redirect risk is…,User tracking,Phishing chaining,XSS only,DOS,2,Attackers chain redirects for phishing.
+wsi9,Content spoofing happens when…,CSS blocked,User input reflected,CDN fails,404 occurs,2,Unvalidated user input is echoed.
+wsi10,Good practice for OAuth redirect URIs?,Wildcard domains,Exact allowlist,Any localhost,Query only,2,Restrict to an allowlist.
+wsi11,What is domain fronting?,CDN hacking,Host mismatch via SNI/Host,DNS tunneling,AMP trick,2,Uses different TLS SNI and Host.
+wsi12,SPF fails on…,From mismatch,IMAP,POP3,TLS off,1,Envelope from mismatch.
+wsi13,Detect malicious extensions by…,Reviews/permissions,Dark mode,Theme color,Icon size,1,Check reviews and requested permissions.
+wsi14,Phishing attachments commonly use…,Macros in Office,SVG only,PNG only,PDF only,1,Macro‑laden docs deliver malware.
+wsi15,Keylogger indicators include…,High CPU,Strange input hooks,Large cache,Blue screen,2,Hooks intercept keyboard events.
+wsi16,Safe approach to bug bounty DMs?,Send creds,Click links,Verify program and scope,Ignore all,3,Confirm official program first.
+wsi17,Detect homoglyph attacks by…,Visual inspection only,Unicode confusables check,Disable logs,Clear cache,2,Use confusable detection.
+wsi18,CSR for TLS contains…,Private key only,Public key & subject,Passwords,OTP,2,CSRs hold public key and subject.
+wsi19,Trusted indicators for web wallets?,Random domain,HTTPS + official domain,Short URL only,QR only,2,Verify domain and TLS.
+wsi20,Browser isolation (site‑per‑process) helps…,Faster CSS,Tab colors,Memory isolation,Audio quality,3,Limits cross‑site data leakage.
+wsi21,Prevent phishing via QR by…,Scan directly,Random apps,Preview/verify,Disable camera,3,Preview and verify destination.
+wsi22,Password breach monitoring uses…,Robots.txt,Have I Been Pwned k‑anonymity,GeoIP,User agents,2,K‑anonymity protects privacy.
+wsi23,Which is risky CSP rule?,default‑src 'none',script‑src 'self',script‑src 'unsafe‑inline',img‑src data:,3,Unsafe inline allows XSS.
+wsi24,Spear phishing is…,Mass mailed,Targeted,Only via SMS,Only via calls,2,It is highly targeted.
+wsi25,Typosquat defense for orgs?,Trademark only,Register variants,Ignore,Use Flash,2,Register likely variants.
+wsi26,Malvertising often abuses…,Ad networks,CDNs,DNSSEC,MFA,1,Ad networks distribute malicious ads.
+wsi27,Safe approach to browser updates?,Delay months,Auto updates,Disable always,Manual quarterly,2,Keep auto updates.
+wsi28,Detect fake support sites by…,Asking passwords,Official domain verification,24/7 label,Using green theme,2,Legit sites never ask passwords.
+wsi29,Secure download pages should…,Direct to mirror only,Provide checksums/signatures,Block HTTPS,Hide versions,2,Allow users to verify downloads.
+wsi30,WebAuthn protects against…,Credential phishing,Audio bugs,Layout shifts,Cache misses,1,Origin‑bound authentication.
+wsi31,Prevent CSRF on state‑changing requests by…,GET only,CSRF tokens,Caching,CDN,2,Use anti‑CSRF tokens.
+wsi32,What is a pharming attack?,Browser lag,DNS poisoning,FTP failure,Video lag,2,Redirects victims via DNS poisoning.
+wsi33,Homograph detection tools look for…,Font size,Unicode tricks,Ad blockers,Screen DPI,2,They detect confusable characters.
+wsi34,Good link preview practice?,Open directly,Check domain and path,Trust shorteners,Ignore warnings,2,Inspect where it leads.
+wsi35,Suspicious cookie behavior includes…,Short expiry,HTTPOnly,Sensitive + non‑secure,SameSite,3,Sensitive cookies must be secure.
+wsi36,Secure context required for…,Clipboard APIs,CSS Grid,Flexbox,HTML5 video,1,Many powerful APIs need HTTPS.
+wsi37,Phishing via OAuth consent screens…,Impossible,Ask broad scopes,Only on mobile,Harmless,2,Attackers request excessive scopes.
+wsi38,Certificate revocation checked via…,OCSP/CRL,Robots,TTL,WHOIS,1,OCSP and CRLs indicate revocation.
+wsi39,Mitigate open‑in‑app deep link abuse by…,Allow all,Validate domains,Block HTTPS,Disable JS,2,Restrict to trusted domains.
+wsi40,Best practice for admin portals…,Default creds,Public internet,IP allowlist/MFA,HTTP only,3,Use MFA and restrict access.
+wsi41,Detect fake wallets via…,Random TLD use,Permissioned blockchains,Community trust + audits,SVG logo,3,Check audits and community feedback.
+wsi42,Passwordless phishing defense strength is…,High,Low,Same as passwords,Irrelevant,1,Prevents credential replay.
+wsi43,Safe browser cleanup tool source?,Random blog,Official vendor,DM link,Torrent,2,Official vendor only.
+wsi44,Prevent UI redressing by…,Frame busting & XFO,CSS filters,Viewport tag,Fonts,1,Use X‑Frame‑Options and frame busting.
+wsi45,Trusted site seals can be…,Faked,E2E secure,Malware free,Immutable,1,Seals can be copied.
+wsi46,Secure payment requires…,Verified domain + 3DS,Short URL,IP address,HTTP only,1,Use strong auth and proper domain.
+wsi47,Browser password leak checks use…,Pwned lists,CDN images,CSS counters,Robots.txt,1,Compare hashes with breach lists.
+wsi48,Safe cookie flags are…,Secure + HttpOnly,Public,Editable,Third‑party only,1,Secure protects in transit; HttpOnly stops JS.
+wsi49,Detect fake update sites by…,Asking passwords,Official vendor domain,All caps text,Stock photos,2,Always verify the domain.
+wsi50,Best practice on suspicious tabs…,Close and report,Continue test,Enter data,Trust page,1,Leave and report.
+
