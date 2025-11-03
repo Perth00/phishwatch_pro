@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:go_router/go_router.dart';
 import '../constants/app_theme.dart';
 import '../models/learning_content.dart';
@@ -138,34 +139,40 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
                   },
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  OutlinedButton.icon(
-                    onPressed: () {
-                      SoundService.playButtonSound();
-                      _confirmAndResetScenario();
-                    },
-                    icon: const Icon(Icons.refresh),
-                    label: const Text('Reset'),
+              SafeArea(
+                top: false,
+                minimum: const EdgeInsets.only(bottom: 8),
+                child: Center(
+                  child: Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      OutlinedButton.icon(
+                        onPressed: () {
+                          SoundService.playButtonSound();
+                          _confirmAndResetScenario();
+                        },
+                        icon: const Icon(Icons.refresh),
+                        label: const Text('Reset'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          SoundService.playButtonSound();
+                          context.go('/learn');
+                        },
+                        child: const Text('Back to Learn'),
+                      ),
+                      OutlinedButton(
+                        onPressed: () {
+                          SoundService.playButtonSound();
+                          context.push('/progress');
+                        },
+                        child: const Text('View Progress'),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: () {
-                      SoundService.playButtonSound();
-                      context.go('/learn');
-                    },
-                    child: const Text('Back to Learn'),
-                  ),
-                  const SizedBox(width: 8),
-                  OutlinedButton(
-                    onPressed: () {
-                      SoundService.playButtonSound();
-                      context.push('/progress');
-                    },
-                    child: const Text('View Progress'),
-                  ),
-                ],
+                ),
               ),
             ],
           ),
@@ -269,34 +276,38 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
                 Text('Why: ${scenario.rationale}'),
                 const SizedBox(height: 16),
               ],
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        SoundService.playButtonSound();
-                        _resetScenario();
-                      },
-                      icon: const Icon(Icons.refresh),
-                      label: const Text('Reset'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed:
-                          _locked
-                              ? () {
-                                SoundService.playButtonSound();
-                                _next();
-                              }
-                              : null,
-                      child: Text(
-                        _index + 1 == _scenarios.length ? 'Finish' : 'Next',
+              SafeArea(
+                top: false,
+                minimum: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          SoundService.playButtonSound();
+                          _resetScenario();
+                        },
+                        icon: const Icon(Icons.refresh),
+                        label: const Text('Reset'),
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed:
+                            _locked
+                                ? () {
+                                  SoundService.playButtonSound();
+                                  _next();
+                                }
+                                : null,
+                        child: Text(
+                          _index + 1 == _scenarios.length ? 'Finish' : 'Next',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -312,16 +323,48 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
   }
 
   Future<void> _bootstrap() async {
-    final meta = LearningRepository.getScenario(widget.scenarioId)!;
-    _category = widget.overrideCategory ?? meta.category;
-    _level = widget.overrideLevel ?? meta.difficulty;
-    final loaded = await context.read<ProgressService>().loadScenarioCsv(
-      category: _category,
-      level: _level,
-    );
-    final pick =
-        loaded.isEmpty ? [meta] : loaded
-          ..shuffle();
+    _category = widget.overrideCategory ?? 'Basics';
+    _level = widget.overrideLevel ?? 'Beginner';
+    List<Scenario> loaded = await context
+        .read<ProgressService>()
+        .loadScenarioCsv(category: _category, level: _level);
+    if (loaded.isEmpty) {
+      // Hard fallback to Basics Beginner to guarantee a full set
+      loaded = await context.read<ProgressService>().loadScenarioCsv(
+        category: 'Basics',
+        level: 'Beginner',
+      );
+      if (loaded.isEmpty) {
+        try {
+          final String raw = await rootBundle.loadString(
+            'assets/questions/scenarios_basics_beginner.csv',
+          );
+          final List<String> lines =
+              raw.split('\n').where((l) => l.trim().isNotEmpty).toList();
+          for (int i = 1; i < lines.length; i++) {
+            final parts = lines[i].split(',');
+            if (parts.length < 5) continue;
+            final bool isPhish =
+                parts[parts.length - 2].trim().toLowerCase() == 'true' ||
+                parts[parts.length - 2].trim() == '1';
+            final String rationale = parts.last;
+            final String desc = parts.sublist(2, parts.length - 2).join(',');
+            loaded.add(
+              Scenario(
+                id: parts[0],
+                title: parts[1],
+                description: desc,
+                isPhishing: isPhish,
+                rationale: rationale,
+                category: 'Basics',
+                difficulty: 'Beginner',
+              ),
+            );
+          }
+        } catch (_) {}
+      }
+    }
+    final List<Scenario> pick = (loaded)..shuffle();
     setState(() {
       _scenarios = pick.length > 10 ? pick.take(10).toList() : pick;
       _userAnswers.addAll(List<bool?>.filled(_scenarios.length, null));

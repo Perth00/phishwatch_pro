@@ -274,11 +274,15 @@ class _QuizScreenState extends State<QuizScreen> {
                                           context
                                               .read<ProgressService>()
                                               .recordQuizResult(
-                                                quizId: quiz.id,
+                                                quizId: widget.quizId,
                                                 correct: _correct,
                                                 total: _questions.length,
-                                                category: quiz.category,
-                                                difficulty: quiz.difficulty,
+                                                category:
+                                                    widget.overrideCategory ??
+                                                    quiz.category,
+                                                difficulty:
+                                                    widget.overrideLevel ??
+                                                    quiz.difficulty,
                                                 durationSec:
                                                     DateTime.now()
                                                         .difference(
@@ -330,7 +334,7 @@ class _QuizScreenState extends State<QuizScreen> {
     final int durationSec =
         DateTime.now().difference(_startTime ?? DateTime.now()).inSeconds;
     context.read<ProgressService>().recordQuizAttemptDetailed(
-      quizId: quiz.id,
+      quizId: widget.quizId,
       category: widget.overrideCategory ?? quiz.category,
       difficulty: widget.overrideLevel ?? quiz.difficulty,
       correct: _correct,
