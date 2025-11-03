@@ -253,7 +253,7 @@ class _LearnScreenState extends State<LearnScreen>
         message: 'You are about to start ${quiz.title} • ${quiz.difficulty}.',
       );
       if (!ok) return;
-      _guardedNavigateToQuiz();
+      _guardedNavigateToQuiz(quiz.id);
     }();
   }
 
@@ -270,7 +270,7 @@ class _LearnScreenState extends State<LearnScreen>
     }();
   }
 
-  Future<void> _guardedNavigateToQuiz() async {
+  Future<void> _guardedNavigateToQuiz([String? targetQuizId]) async {
     final auth = context.read<AuthService>();
     if (!auth.isAuthenticated) {
       _showAuthRequiredDialog();
@@ -280,16 +280,19 @@ class _LearnScreenState extends State<LearnScreen>
       _showVerifyDialog();
       return;
     }
-    // Choose quiz based on selected category
-    final String targetQuizId =
-        _selectedCategoryIndex == 1 ? 'quiz_2' : 'quiz_1';
+    // Choose quiz based on selected category and construct per-category id
     final String category = _categories[_selectedCategoryIndex].title;
     String? level = await context.read<ProgressService>().getCategoryLevel(
       category,
     );
     level ??= 'Beginner';
+    final String resolvedQuizId =
+        'quiz_' +
+        category.toLowerCase().replaceAll(' ', '_') +
+        '_' +
+        level.toLowerCase();
     context.go(
-      '/quiz/$targetQuizId',
+      '/quiz/$resolvedQuizId',
       extra: {
         'overrideCategory': category,
         'overrideLevel': level,
@@ -308,13 +311,16 @@ class _LearnScreenState extends State<LearnScreen>
       _showVerifyDialog();
       return;
     }
-    final String targetScenarioId =
-        _selectedCategoryIndex == 0 ? 'scenario_1' : 'scenario_2';
     final String category = _categories[_selectedCategoryIndex].title;
     String? level = await context.read<ProgressService>().getCategoryLevel(
       category,
     );
     level ??= 'Beginner';
+    final String targetScenarioId =
+        'scenario_' +
+        category.toLowerCase().replaceAll(' ', '_') +
+        '_' +
+        level.toLowerCase();
     context.go(
       '/scenario/$targetScenarioId',
       extra: {
@@ -549,6 +555,7 @@ class _LearnScreenState extends State<LearnScreen>
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
+      extendBody: true,
       body: SafeArea(
         child: Column(
           children: [
@@ -607,18 +614,25 @@ class _LearnScreenState extends State<LearnScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Learn & Practice',
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.primaryColor,
+              Expanded(
+                child: Text(
+                  'Learn & Practice',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.primaryColor,
+                  ),
                 ),
               ),
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildLevelBadge(theme),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: _buildLevelBadge(theme),
+                  ),
                   Consumer<ThemeService>(
                     builder: (context, themeService, child) {
                       return IconButton(
@@ -704,8 +718,14 @@ class _LearnScreenState extends State<LearnScreen>
   }
 
   Widget _buildContent(ThemeData theme) {
+    final double bottomSafe = MediaQuery.of(context).padding.bottom;
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppConstants.spacingL),
+      padding: EdgeInsets.fromLTRB(
+        AppConstants.spacingL,
+        AppConstants.spacingL,
+        AppConstants.spacingL,
+        AppConstants.spacingL + kBottomNavigationBarHeight + bottomSafe + 16,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1708,15 +1728,16 @@ class _LearnScreenState extends State<LearnScreen>
                 onPressed: () async {
                   SoundService.playButtonSound();
                   Navigator.pop(context);
-                  // Route to a concrete quiz id to avoid null errors
-                  final String targetQuizId =
-                      _selectedCategoryIndex == 1 ? 'quiz_2' : 'quiz_1';
+                  // Route to a synthetic id per category+level so results
+                  // and duration are tracked per category correctly
                   final String category =
                       _categories[_selectedCategoryIndex].title;
                   String? level = await context
                       .read<ProgressService>()
                       .getCategoryLevel(category);
                   level ??= 'Beginner';
+                  final String targetQuizId =
+                      'quiz_${category.toLowerCase().replaceAll(' ', '_')}_${level.toLowerCase()}';
                   context.go(
                     '/quiz/$targetQuizId',
                     extra: {
@@ -1752,14 +1773,14 @@ class _LearnScreenState extends State<LearnScreen>
                 onPressed: () async {
                   SoundService.playButtonSound();
                   Navigator.pop(context);
-                  final String targetScenarioId =
-                      _selectedCategoryIndex == 0 ? 'scenario_1' : 'scenario_2';
                   final String category =
                       _categories[_selectedCategoryIndex].title;
                   String? level = await context
                       .read<ProgressService>()
                       .getCategoryLevel(category);
                   level ??= 'Beginner';
+                  final String targetScenarioId =
+                      'scenario_${category.toLowerCase().replaceAll(' ', '_')}_${level.toLowerCase()}';
                   context.go(
                     '/scenario/$targetScenarioId',
                     extra: {

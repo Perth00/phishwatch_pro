@@ -146,30 +146,7 @@ class LearningRepository {
     ),
   ];
 
-  static final List<Scenario> scenarios = <Scenario>[
-    Scenario(
-      id: 'scenario_1',
-      title: 'Banking Email',
-      description:
-          'Subject: URGENT: Account Locked\n\nDear customer, your account will be closed in 24 hours. Verify now: http://secure-bank-help.com',
-      isPhishing: true,
-      rationale:
-          'Urgent threat, generic greeting, and suspicious URL that is not the official bank domain.',
-      category: 'Email Security',
-      difficulty: 'Beginner',
-    ),
-    Scenario(
-      id: 'scenario_2',
-      title: 'Security Notification',
-      description:
-          'We detected a new login from your device. If this was you, ignore. If not, visit https://example.com/security to review.',
-      isPhishing: false,
-      rationale:
-          'Legitimate services send notifications with official domains and without asking for passwords via email.',
-      category: 'Basics',
-      difficulty: 'Intermediate',
-    ),
-  ];
+  static final List<Scenario> scenarios = <Scenario>[];
 
   static Lesson? getLesson(String id) => lessons.firstWhere(
     (l) => l.id == id,
@@ -196,17 +173,11 @@ class LearningRepository {
         ),
   );
 
-  static Scenario? getScenario(String id) => scenarios.firstWhere(
-    (s) => s.id == id,
-    orElse:
-        () => const Scenario(
-          id: 'missing',
-          title: 'Scenario not found',
-          description: 'This is a placeholder scenario.',
-          isPhishing: true,
-          rationale: 'No rationale available.',
-          category: 'Basics',
-          difficulty: 'Beginner',
-        ),
-  );
+  static Scenario? getScenario(String id) {
+    try {
+      return scenarios.firstWhere((s) => s.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
 }

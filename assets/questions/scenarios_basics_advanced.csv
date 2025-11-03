@@ -10,3 +10,11 @@ sba8,Security Keys,Site recommends security key login on its domain,false,Legiti
 sba9,File Share Clone,Page clones drive UI on wrong domain,true,Look‑alike interface indicates phish.
 sba10,DM Spoof,Message from friend account asks for money,true,Possible account takeover.
 
+
+
+
+
+
+
+
+

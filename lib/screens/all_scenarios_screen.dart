@@ -46,7 +46,6 @@ class _AllScenariosScreenState extends State<AllScenariosScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final scenarios = LearningRepository.scenarios;
     // Build from fixed categories to ensure all appear
     const List<String> categories = [
       'Basics',
@@ -55,11 +54,16 @@ class _AllScenariosScreenState extends State<AllScenariosScreen> {
       'Advanced',
     ];
     Scenario _pickBase(String cat) {
-      try {
-        return scenarios.firstWhere((s) => s.category == cat);
-      } catch (_) {
-        return scenarios.first; // fallback
-      }
+      // Create a lightweight placeholder; display will be replaced by CSV
+      return Scenario(
+        id: 'placeholder_$cat',
+        title: 'Scenario',
+        description: '',
+        isPhishing: true,
+        rationale: '',
+        category: cat,
+        difficulty: 'Beginner',
+      );
     }
 
     final List<({String type, String category, String level, Scenario base})>
@@ -171,14 +175,22 @@ class _AllScenariosScreenState extends State<AllScenariosScreen> {
                       level: level,
                     ),
                     builder: (context, snapshot) {
-                      final Scenario? csvScenario =
-                          (snapshot.data != null && snapshot.data!.isNotEmpty)
-                              ? snapshot.data!.first
-                              : null;
-                      final String displayTitle = csvScenario?.title ?? s.title;
-                      final String displayDesc =
-                          csvScenario?.description ?? s.description;
-                      final String displayId = csvScenario?.id ?? s.id;
+                      final bool hasData =
+                          snapshot.connectionState == ConnectionState.done &&
+                          (snapshot.data != null && snapshot.data!.isNotEmpty);
+                      final Scenario? csvScenario = hasData
+                          ? snapshot.data!.first
+                          : null;
+                      final String slug =
+                          category.toLowerCase().replaceAll(' ', '_') +
+                              '_' +
+                              level.toLowerCase();
+                      final String displayTitle = csvScenario?.title ??
+                          (s.title.isNotEmpty ? s.title : '$category Scenario');
+                      final String displayDesc = csvScenario?.description ??
+                          'Tap to start $category • $level scenario practice';
+                      final String displayId = csvScenario?.id ??
+                          'scenario_' + slug;
                       final card = ScenarioCard(
                         scenario: ScenarioData(
                           id: displayId,
@@ -225,7 +237,7 @@ class _AllScenariosScreenState extends State<AllScenariosScreen> {
                             if (ok != true) return;
                             if (!context.mounted) return;
                             context.go(
-                              '/scenario/${s.id}',
+                              '/scenario/$displayId',
                               extra: {
                                 'overrideCategory': category,
                                 'overrideLevel': level,
@@ -330,7 +342,8 @@ class _AllScenariosScreenState extends State<AllScenariosScreen> {
                 return StatefulBuilder(
                   builder: (context, setLocal) {
                     Future<Set<String>> _fetchDone() async {
-                      return ps.getCompletedScenarioIds(
+                      // Only count PASSED items for progressive unlock
+                      return ps.getPassedScenarioIds(
                         scenarioIds: items.map((e) => e.id).toList(),
                       );
                     }
@@ -339,7 +352,7 @@ class _AllScenariosScreenState extends State<AllScenariosScreen> {
                       future: _fetchDone(),
                       builder: (context, doneSnap) {
                         final done = doneSnap.data ?? <String>{};
-                        // Progressive unlock: first 2 unlocked, then +1 for each completed
+                        // Progressive unlock: first 2 unlocked, then +1 for each PASSED
                         final int unlockedCount = (2 + done.length).clamp(
                           0,
                           items.length,

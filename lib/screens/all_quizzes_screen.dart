@@ -8,9 +8,7 @@ import '../widgets/quiz_card.dart';
 import '../widgets/locked_overlay.dart';
 import '../widgets/filter_bar.dart';
 import 'learn_screen.dart';
-import '../widgets/video_scenario_card.dart';
-import '../models/video_scenario.dart';
-import 'video_scenario_screen.dart';
+// Video scenario imports removed; All Quizzes shows only quizzes
 
 class AllQuizzesScreen extends StatefulWidget {
   const AllQuizzesScreen({super.key});
@@ -23,7 +21,7 @@ class _AllQuizzesScreenState extends State<AllQuizzesScreen> {
   Map<String, String> _levels = <String, String>{};
   String _filterCategory = 'All';
   String _filterLevel = 'All';
-  String _filterType = 'All';
+  // Type filter removed; All Quizzes lists only quizzes
 
   static const Map<String, int> _totalLessonsByCategory = <String, int>{
     'Basics': 5,
@@ -70,13 +68,12 @@ class _AllQuizzesScreenState extends State<AllQuizzesScreen> {
       }
     }
 
-    final List<({String type, String category, String level, Quiz? quiz})>
-    entries = <({String type, String category, String level, Quiz? quiz})>[];
+    final List<({String category, String level, Quiz quiz})>
+    entries = <({String category, String level, Quiz quiz})>[];
     for (final cat in categories) {
       final base = _pickBase(cat);
       for (final level in ['Beginner', 'Intermediate', 'Advanced']) {
-        entries.add((type: 'Quiz', category: cat, level: level, quiz: base));
-        entries.add((type: 'Video', category: cat, level: level, quiz: null));
+        entries.add((category: cat, level: level, quiz: base));
       }
     }
     const List<String> catOrder = [
@@ -93,7 +90,6 @@ class _AllQuizzesScreenState extends State<AllQuizzesScreen> {
       final al = levelOrder.indexOf(a.level);
       final bl = levelOrder.indexOf(b.level);
       if (al != bl) return al.compareTo(bl);
-      if (a.type != b.type) return a.type.compareTo(b.type);
       return 0;
     });
 
@@ -128,10 +124,6 @@ class _AllQuizzesScreenState extends State<AllQuizzesScreen> {
                                 ? true
                                 : e.level == _filterLevel,
                       )
-                      .where(
-                        (e) =>
-                            _filterType == 'All' ? true : e.type == _filterType,
-                      )
                       .length,
               separatorBuilder:
                   (_, __) => const SizedBox(height: AppConstants.spacingM),
@@ -150,12 +142,6 @@ class _AllQuizzesScreenState extends State<AllQuizzesScreen> {
                                   ? true
                                   : e.level == _filterLevel,
                         )
-                        .where(
-                          (e) =>
-                              _filterType == 'All'
-                                  ? true
-                                  : e.type == _filterType,
-                        )
                         .toList();
                 final e = filtered[i];
                 final String category = e.category;
@@ -163,13 +149,15 @@ class _AllQuizzesScreenState extends State<AllQuizzesScreen> {
                 final String userLevel = _levels[category] ?? 'Beginner';
                 final bool locked = _idx(level) > _idx(userLevel);
 
-                if (e.type == 'Quiz') {
-                  final q = e.quiz!;
+                {
+                  final q = e.quiz;
+                  final String quizId =
+                      'quiz_${category.toLowerCase().replaceAll(' ', '_')}_${level.toLowerCase()}';
                   final int totalLessons =
                       _totalLessonsByCategory[category] ?? 5;
                   final card = QuizCard(
                     quiz: QuizData(
-                      id: q.id,
+                      id: quizId,
                       title: category,
                       description: 'Practice in $category',
                       difficulty: level,
@@ -211,11 +199,11 @@ class _AllQuizzesScreenState extends State<AllQuizzesScreen> {
                         if (ok != true) return;
                         if (!context.mounted) return;
                         context.go(
-                          '/quiz/${q.id}',
+                          '/quiz/$quizId',
                           extra: {
                             'overrideCategory': category,
                             'overrideLevel': level,
-                            'overrideTitle': '${q.title} • $level',
+                            'overrideTitle': '$category • $level',
                           },
                         );
                       }();
@@ -254,105 +242,7 @@ class _AllQuizzesScreenState extends State<AllQuizzesScreen> {
                   );
                 }
 
-                return FutureBuilder<List<VideoScenario>>(
-                  future: context.read<ProgressService>().loadVideoScenarioCsv(
-                    category: category,
-                    level: level,
-                  ),
-                  builder: (context, snap) {
-                    final VideoScenario? vs =
-                        (snap.data != null && snap.data!.isNotEmpty)
-                            ? snap.data!.first
-                            : null;
-                    final placeholder = VideoScenario(
-                      id: 'missing',
-                      title: 'Video Scenario',
-                      videoUrl: '',
-                      question: 'Watch and answer',
-                      options: const ['A', 'B', 'C', 'D'],
-                      correctIndex: 0,
-                      explanation: '',
-                      category: category,
-                      difficulty: level,
-                    );
-                    final v = vs ?? placeholder;
-                    final card = VideoScenarioCard(
-                      scenario: v,
-                      onTap: () {
-                        if (locked) {
-                          _showLockedHint(context, category, level);
-                          return;
-                        }
-                        () async {
-                          final bool? ok = await showDialog<bool>(
-                            context: context,
-                            barrierDismissible: true,
-                            builder:
-                                (ctx) => AlertDialog(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  title: const Text('Start video scenario?'),
-                                  content: Text('Open "${v.title}" now?'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed:
-                                          () => Navigator.pop(ctx, false),
-                                      child: const Text('Cancel'),
-                                    ),
-                                    ElevatedButton(
-                                      onPressed: () => Navigator.pop(ctx, true),
-                                      child: const Text('Start'),
-                                    ),
-                                  ],
-                                ),
-                          );
-                          if (ok != true) return;
-                          if (!context.mounted) return;
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => VideoScenarioScreen(scenario: v),
-                            ),
-                          );
-                        }();
-                      },
-                    );
-                    if (!locked) return card;
-                    return ClipRRect(
-                      borderRadius: BorderRadius.circular(
-                        AppConstants.borderRadius,
-                      ),
-                      child: Stack(
-                        children: [
-                          ColorFiltered(
-                            colorFilter: const ColorFilter.mode(
-                              Colors.grey,
-                              BlendMode.saturation,
-                            ),
-                            child: card,
-                          ),
-                          const LockedOverlay(),
-                          Positioned.fill(
-                            child: Material(
-                              color: Colors.transparent,
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(
-                                  AppConstants.borderRadius,
-                                ),
-                                onTap:
-                                    () => _showLockedHint(
-                                      context,
-                                      category,
-                                      level,
-                                    ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                );
+                // Video scenarios are not displayed on All Quizzes page
               },
             ),
           ),
@@ -392,9 +282,6 @@ class _AllQuizzesScreenState extends State<AllQuizzesScreen> {
           },
           gradientStart: AppTheme.primaryColor,
           gradientEnd: AppTheme.accentColor,
-          types: const ['All', 'Quiz', 'Video scenario'],
-          selectedType: _filterType,
-          onTypeChanged: (t) => setState(() => _filterType = t ?? 'All'),
         ),
         // Extra row removed; the type chips are now integrated above
       ],

@@ -29,6 +29,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -38,8 +39,22 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+
+    testOptions {
+        animationsDisabled = true
+    }
 }
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // AndroidX test and Espresso (aligned with Flutter/AGP constraints)
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.0")
+
+    // Optional Espresso extensions
+    androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.0")
+    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.5.0")
 }

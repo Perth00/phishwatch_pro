@@ -85,74 +85,86 @@ class _LoginScreenState extends State<LoginScreen>
         centerTitle: false,
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(AppConstants.spacingL),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 24),
-              Text(
-                'Welcome back',
-                style: theme.textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                'Sign in to continue',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity(0.7),
-                ),
-              ),
-              const SizedBox(height: 24),
-              TextField(
-                controller: _email,
-                keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(labelText: 'Email'),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _password,
-                obscureText: true,
-                decoration: const InputDecoration(labelText: 'Password'),
-              ),
-              const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () => context.go('/forgot'),
-                  child: const Text('Forgot password?'),
-                ),
-              ),
-              if (_error != null) ...[
-                Text(_error!, style: TextStyle(color: theme.colorScheme.error)),
-                const SizedBox(height: 8),
-              ],
-              if (_error != null) _ResendCooldownButton(),
-              const Spacer(),
-              BouncyButton(
-                onPressed: _busy ? null : _login,
-                child:
-                    _busy
-                        ? const SizedBox(
-                          height: 18,
-                          width: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                        : const Text('Sign in'),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text("New here?"),
-                  TextButton(
-                    onPressed: () => context.go('/register'),
-                    child: const Text('Create account'),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final double bottomInset = MediaQuery.of(context).viewInsets.bottom;
+            return SingleChildScrollView(
+              padding: EdgeInsets.only(bottom: bottomInset),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Padding(
+                  padding: const EdgeInsets.all(AppConstants.spacingL),
+                  child: IntrinsicHeight(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const SizedBox(height: 24),
+                        Text(
+                          'Welcome back',
+                          style: theme.textTheme.headlineMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          'Sign in to continue',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurface.withOpacity(0.7),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        TextField(
+                          controller: _email,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: const InputDecoration(labelText: 'Email'),
+                        ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: _password,
+                          obscureText: true,
+                          decoration: const InputDecoration(labelText: 'Password'),
+                        ),
+                        const SizedBox(height: 8),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: () => context.go('/forgot'),
+                            child: const Text('Forgot password?'),
+                          ),
+                        ),
+                        if (_error != null) ...[
+                          Text(_error!, style: TextStyle(color: theme.colorScheme.error)),
+                          const SizedBox(height: 8),
+                        ],
+                        if (_error != null) _ResendCooldownButton(),
+                        const Spacer(),
+                        BouncyButton(
+                          onPressed: _busy ? null : _login,
+                          child: _busy
+                              ? const SizedBox(
+                                  height: 18,
+                                  width: 18,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : const Text('Sign in'),
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text("New here?"),
+                            TextButton(
+                              onPressed: () => context.go('/register'),
+                              child: const Text('Create account'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ],
+                ),
               ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );

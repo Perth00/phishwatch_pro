@@ -43,6 +43,7 @@ class _HistoryItemCardState extends State<HistoryItemCard>
       case 'suspicious':
         return AppTheme.warningColor;
       case 'safe':
+      case 'legitimate':
         return AppTheme.successColor;
       default:
         return AppTheme.primaryColor;
@@ -56,6 +57,7 @@ class _HistoryItemCardState extends State<HistoryItemCard>
       case 'suspicious':
         return Icons.warning_outlined;
       case 'safe':
+      case 'legitimate':
         return Icons.verified_outlined;
       default:
         return Icons.help_outline;

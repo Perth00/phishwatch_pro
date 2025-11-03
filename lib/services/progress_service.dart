@@ -248,8 +248,15 @@ class ProgressService extends ChangeNotifier {
         final data = doc.data();
         final String quizId = (data['quizId'] ?? '').toString();
         if (quizId.isEmpty) continue;
-        final Quiz? quiz = LearningRepository.getQuiz(quizId);
-        if (quiz == null) continue;
+        // Only normalize records whose quizId exists in our repository.
+        // Synthetic IDs (like quiz_web_safety_beginner) should KEEP their
+        // stored category/difficulty; otherwise they get incorrectly reset
+        // to Basics by the fallback 'missing' quiz.
+        final bool exists = LearningRepository.quizzes.any(
+          (q) => q.id == quizId,
+        );
+        if (!exists) continue;
+        final Quiz quiz = LearningRepository.getQuiz(quizId)!;
         final String desiredCategory = quiz.category;
         final String desiredDifficulty = quiz.difficulty;
         final String currentCategory = (data['category'] ?? '').toString();
@@ -385,23 +392,67 @@ class ProgressService extends ChangeNotifier {
     required String level,
   }) async {
     try {
-      final assetPath =
-          'assets/questions/scenarios_${category.toLowerCase().replaceAll(' ', '_')}_${level.toLowerCase()}.csv';
-      final csv = await rootBundle.loadString(assetPath);
+      final String baseCat = category.trim().toLowerCase().replaceAll(' ', '_');
+      final String baseLvl = level.trim().toLowerCase();
+      final List<String> candidates = <String>[
+        'assets/questions/scenarios_' + baseCat + '_' + baseLvl + '.csv',
+        if (baseCat.endsWith('s'))
+          'assets/questions/scenarios_' +
+              baseCat.substring(0, baseCat.length - 1) +
+              '_' +
+              baseLvl +
+              '.csv',
+        if (!baseCat.endsWith('s'))
+          'assets/questions/scenarios_' + baseCat + 's_' + baseLvl + '.csv',
+      ];
+      String? csv;
+      for (final p in candidates) {
+        try {
+          csv = await rootBundle.loadString(p);
+          if ((csv).isNotEmpty) {
+            break;
+          }
+        } catch (_) {
+          // try next candidate
+        }
+      }
+      if (csv == null || csv.isEmpty) {
+        // Final fallback: try Basics CSV for the same level so the UI always
+        // gets a full set (prevents single hardcoded placeholder items)
+        final String fallbackPath =
+            'assets/questions/scenarios_basics_' + baseLvl + '.csv';
+        try {
+          final String fb = await rootBundle.loadString(fallbackPath);
+          csv = fb;
+        } catch (_) {
+          return <Scenario>[];
+        }
+      }
       final lines = csv.split('\n').where((l) => l.trim().isNotEmpty).toList();
       if (lines.isEmpty) return <Scenario>[];
       final List<Scenario> scenarios = <Scenario>[];
       for (int i = 1; i < lines.length; i++) {
-        final cols = _safeSplitCsv(lines[i]);
+        final List<String> cols = _safeSplitCsv(lines[i]);
         if (cols.length < 5) continue;
-        final isPhishing = (cols[3].toLowerCase() == 'true' || cols[3] == '1');
+        // Be tolerant of extra commas in description by pulling last two
+        // fields as [isPhishing, rationale] and joining the middle as desc.
+        final String id = cols[0];
+        final String title = cols[1];
+        final String isPhishingRaw = cols[cols.length - 2].trim();
+        final String rationale = cols[cols.length - 1];
+        final String description =
+            (cols.length == 5)
+                ? cols[2]
+                : cols.sublist(2, cols.length - 2).join(',');
+        final bool isPhishing =
+            isPhishingRaw.toLowerCase() == 'true' || isPhishingRaw == '1';
         scenarios.add(
           Scenario(
-            id: cols[0],
-            title: cols[1],
-            description: cols[2],
+            id: id,
+            title: title,
+            description: description,
             isPhishing: isPhishing,
-            rationale: cols[4],
+            rationale: rationale,
             category: category,
             difficulty: level,
           ),
@@ -587,5 +638,32 @@ class ProgressService extends ChangeNotifier {
       }
     }
     return done;
+  }
+
+  // Return set of PASSED scenario ids among provided ids (correct == true).
+  // Used to gate progressive unlock for video scenarios so failures do not
+  // unlock additional items.
+  Future<Set<String>> getPassedScenarioIds({
+    required List<String> scenarioIds,
+  }) async {
+    final uid = _uid;
+    if (uid == null || scenarioIds.isEmpty) return <String>{};
+    try {
+      final snap =
+          await _db
+              .collection('users')
+              .doc(uid)
+              .collection('scenarios')
+              .where('correct', isEqualTo: true)
+              .get();
+      final Set<String> allow = scenarioIds.toSet();
+      final Set<String> passed = <String>{};
+      for (final d in snap.docs) {
+        if (allow.contains(d.id)) passed.add(d.id);
+      }
+      return passed;
+    } catch (_) {
+      return <String>{};
+    }
   }
 }

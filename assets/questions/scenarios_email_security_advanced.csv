@@ -10,3 +10,11 @@ sea8,Threat Feed Match,Domain appears on phishing intel,true,Known malicious dom
 sea9,3rd‑Party App,Unknown app granted read access,true,Consent phishing outcome.
 sea10,OAuth Device Code,Prompt to enter code on fake site,true,Always use official verification site.
 
+
+
+
+
+
+
+
+

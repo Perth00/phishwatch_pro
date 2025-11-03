@@ -27,7 +27,13 @@ class _ScanHistoryScreenState extends State<ScanHistoryScreen>
   String _selectedFilter = 'All';
   String _sortBy = 'Date';
   bool _isFilterExpanded = false;
-  final List<String> _filterOptions = ['All', 'Phishing', 'Safe', 'Suspicious'];
+  final List<String> _filterOptions = [
+    'All',
+    'Phishing',
+    'Safe',
+    'Suspicious',
+    'Legitimate',
+  ];
   final List<String> _sortOptions = ['Date', 'Risk Level', 'Confidence'];
 
   // Data now comes from HistoryService
@@ -183,11 +189,11 @@ class _ScanHistoryScreenState extends State<ScanHistoryScreen>
       ),
       body: Column(
         children: [
-          // Enhanced Filter Section
-          AnimatedContainer(
-            duration: AppAnimations.normalAnimation,
-            height: _isFilterExpanded ? 120 : 0,
-            child: _isFilterExpanded ? _buildFilterSection(theme) : null,
+          // Enhanced Filter Section (animated expand/collapse without fixed height)
+          SizeTransition(
+            sizeFactor: _filterAnimation,
+            axisAlignment: -1.0,
+            child: _buildFilterSection(theme),
           ),
 
           // Results Summary
