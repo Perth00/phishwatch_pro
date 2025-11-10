@@ -9,6 +9,9 @@ import '../services/sound_service.dart';
 import '../services/gemini_service.dart';
 import '../models/scan_result_data.dart';
 import '../widgets/confirm_dialog.dart';
+import '../services/hugging_face_service.dart';
+import '../services/history_service.dart';
+import 'package:provider/provider.dart';
 
 class ScanResultScreen extends StatefulWidget {
   const ScanResultScreen({super.key, this.data});
@@ -25,15 +28,22 @@ class _ScanResultScreenState extends State<ScanResultScreen>
   late AnimationController _slideController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+  late final ScrollController _scrollController;
 
   // Result data (dynamic)
-  late final bool _isPhishing;
-  late final double _confidence;
-  late final String _classification;
-  late final String _riskLevel;
-  late final String _source;
-  late final String _message;
-  late final bool _hasGeminiAnalysis;
+  late bool _isPhishing;
+  late double _confidence;
+  late String _classification;
+  late String _riskLevel;
+  late String _source;
+  late String _message;
+  late bool _hasGeminiAnalysis;
+
+  // Services and config for scanning
+  final HuggingFaceService _hf = HuggingFaceService();
+  final GeminiService _gemini = GeminiService();
+  static const int _minWordCount = 15;
+  Future<GeminiAnalysis?>? _geminiAnalysisFuture;
 
   @override
   void initState() {
@@ -48,6 +58,7 @@ class _ScanResultScreenState extends State<ScanResultScreen>
       _source = data.source;
       _message = data.message;
       _hasGeminiAnalysis = data.geminiAnalysis != null;
+      _geminiAnalysisFuture = data.geminiAnalysisFuture;
     } else {
       // Fallback sample data when navigated directly
       _isPhishing = true;
@@ -72,6 +83,8 @@ class _ScanResultScreenState extends State<ScanResultScreen>
       vsync: this,
     );
 
+    _scrollController = ScrollController();
+
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _fadeController,
@@ -94,12 +107,20 @@ class _ScanResultScreenState extends State<ScanResultScreen>
     Future.delayed(const Duration(milliseconds: 200), () {
       if (mounted) _slideController.forward();
     });
+
+    // Ensure the view starts at the top on open
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _scrollController.hasClients) {
+        _scrollController.jumpTo(0);
+      }
+    });
   }
 
   @override
   void dispose() {
     _fadeController.dispose();
     _slideController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -116,140 +137,148 @@ class _ScanResultScreenState extends State<ScanResultScreen>
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return Scaffold(
-      backgroundColor: colorScheme.surface,
-      appBar: AppBar(
-        title: const Text('Scan Result'),
-        leading: IconButton(
-          onPressed: () async {
-            final confirmed = await showDialog<bool>(
-              context: context,
-              builder:
-                  (_) => ConfirmDialog(
-                    title: 'Leave result?',
-                    message: 'You will return to Home.',
-                    confirmText: 'Leave',
-                    cancelText: 'Stay',
-                    onConfirm: () {},
-                  ),
-            );
-            if (confirmed == true) {
-              if (!mounted) return;
-              context.go('/home');
-            }
-          },
-          icon: const Icon(Icons.arrow_back),
+    return WillPopScope(
+      onWillPop: () async {
+        context.go('/home');
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: colorScheme.surface,
+        appBar: AppBar(
+          title: const Text('Scan Result'),
+          leading: IconButton(
+            onPressed: () async {
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder:
+                    (_) => ConfirmDialog(
+                      title: 'Leave result?',
+                      message: 'You will return to Home.',
+                      confirmText: 'Leave',
+                      cancelText: 'Stay',
+                      onConfirm: () {},
+                    ),
+              );
+              if (confirmed == true) {
+                if (!mounted) return;
+                context.go('/home');
+              }
+            },
+            icon: const Icon(Icons.arrow_back),
+          ),
         ),
-      ),
-      body: FadeTransition(
-        opacity: _fadeAnimation,
-        child: SlideTransition(
-          position: _slideAnimation,
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(AppConstants.spacingL),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Result header
-                _buildResultHeader(theme),
+        body: FadeTransition(
+          opacity: _fadeAnimation,
+          child: SlideTransition(
+            position: _slideAnimation,
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              padding: const EdgeInsets.all(AppConstants.spacingL),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Result header
+                  _buildResultHeader(theme),
 
-                const SizedBox(height: AppConstants.spacingXL),
+                  const SizedBox(height: AppConstants.spacingXL),
 
-                // Confidence meter
-                ConfidenceMeter(
-                  confidence: _confidence,
-                  isPhishing: _isPhishing,
-                ),
-
-                const SizedBox(height: AppConstants.spacingXL),
-
-                // Source information
-                _buildSourceInfo(theme),
-
-                const SizedBox(height: AppConstants.spacingXL),
-
-                // Message content
-                _buildMessageContent(theme),
-
-                const SizedBox(height: AppConstants.spacingXL),
-
-                // Educational Feedback from Gemini (async loading)
-                if (widget.data?.geminiAnalysisFuture != null)
-                  FutureBuilder<GeminiAnalysis?>(
-                    future: widget.data!.geminiAnalysisFuture,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        // Show loading animation
-                        return Column(
-                          children: const [
-                            EducationalFeedbackLoading(),
-                            SizedBox(height: AppConstants.spacingXL),
-                          ],
-                        );
-                      } else if (snapshot.hasData && snapshot.data != null) {
-                        // Show Gemini analysis
-                        return Column(
-                          children: [
-                            EducationalFeedbackCard(
-                              analysis: snapshot.data!,
-                              isPhishing: _isPhishing,
-                            ),
-                            const SizedBox(height: AppConstants.spacingXL),
-                          ],
-                        );
-                      } else {
-                        // Show fallback if failed
-                        return Column(
-                          children: [
-                            ExplanationCard(
-                              isPhishing: _isPhishing,
-                              confidence: _confidence,
-                              suspiciousElements: const [
-                                'Urgency tactics',
-                                'Suspicious domain',
-                                'Request for credentials',
-                                'Impersonation attempt',
-                              ],
-                            ),
-                            const SizedBox(height: AppConstants.spacingXL),
-                          ],
-                        );
-                      }
-                    },
-                  )
-                else if (_hasGeminiAnalysis &&
-                    widget.data?.geminiAnalysis != null)
-                  // Direct analysis (for backwards compatibility)
-                  Column(
-                    children: [
-                      EducationalFeedbackCard(
-                        analysis: widget.data!.geminiAnalysis!,
-                        isPhishing: _isPhishing,
-                      ),
-                      const SizedBox(height: AppConstants.spacingXL),
-                    ],
-                  )
-                else
-                  // Fallback to basic explanation
-                  Column(
-                    children: [
-                      ExplanationCard(
-                        isPhishing: _isPhishing,
-                        confidence: _confidence,
-                        suspiciousElements: const [
-                          'Urgency tactics',
-                          'Suspicious domain',
-                          'Request for credentials',
-                          'Impersonation attempt',
-                        ],
-                      ),
-                      const SizedBox(height: AppConstants.spacingXL),
-                    ],
+                  // Confidence meter
+                  ConfidenceMeter(
+                    confidence: _confidence,
+                    isPhishing: _isPhishing,
                   ),
 
-                // Action buttons
-                _buildActionButtons(theme),
-              ],
+                  const SizedBox(height: AppConstants.spacingXL),
+
+                  // Source information
+                  _buildSourceInfo(theme),
+
+                  const SizedBox(height: AppConstants.spacingXL),
+
+                  // Message content
+                  _buildMessageContent(theme),
+
+                  const SizedBox(height: AppConstants.spacingXL),
+
+                  // Educational Feedback from Gemini (async loading)
+                  if (_geminiAnalysisFuture != null)
+                    FutureBuilder<GeminiAnalysis?>(
+                      future: _geminiAnalysisFuture,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          // Show loading animation
+                          return Column(
+                            children: const [
+                              EducationalFeedbackLoading(),
+                              SizedBox(height: AppConstants.spacingXL),
+                            ],
+                          );
+                        } else if (snapshot.hasData && snapshot.data != null) {
+                          // Show Gemini analysis
+                          return Column(
+                            children: [
+                              EducationalFeedbackCard(
+                                analysis: snapshot.data!,
+                                isPhishing: _isPhishing,
+                              ),
+                              const SizedBox(height: AppConstants.spacingXL),
+                            ],
+                          );
+                        } else {
+                          // Show fallback if failed
+                          return Column(
+                            children: [
+                              ExplanationCard(
+                                isPhishing: _isPhishing,
+                                confidence: _confidence,
+                                suspiciousElements: const [
+                                  'Urgency tactics',
+                                  'Suspicious domain',
+                                  'Request for credentials',
+                                  'Impersonation attempt',
+                                ],
+                              ),
+                              const SizedBox(height: AppConstants.spacingXL),
+                            ],
+                          );
+                        }
+                      },
+                    )
+                  else if (_hasGeminiAnalysis &&
+                      widget.data?.geminiAnalysis != null)
+                    // Direct analysis (for backwards compatibility)
+                    Column(
+                      children: [
+                        EducationalFeedbackCard(
+                          analysis: widget.data!.geminiAnalysis!,
+                          isPhishing: _isPhishing,
+                        ),
+                        const SizedBox(height: AppConstants.spacingXL),
+                      ],
+                    )
+                  else
+                    // Fallback to basic explanation
+                    Column(
+                      children: [
+                        ExplanationCard(
+                          isPhishing: _isPhishing,
+                          confidence: _confidence,
+                          suspiciousElements: const [
+                            'Urgency tactics',
+                            'Suspicious domain',
+                            'Request for credentials',
+                            'Impersonation attempt',
+                          ],
+                        ),
+                        const SizedBox(height: AppConstants.spacingXL),
+                      ],
+                    ),
+
+                  // Action buttons
+                  _buildActionButtons(theme),
+                ],
+              ),
             ),
           ),
         ),
@@ -691,7 +720,7 @@ class _ScanResultScreenState extends State<ScanResultScreen>
                       onPressed: () {
                         SoundService.playButtonSound();
                         Navigator.pop(context);
-                        // Stay on result screen with new scan
+                        _promptAndScanMessage();
                       },
                       icon: const Icon(Icons.message_outlined),
                       label: const Text('Scan Message'),
@@ -704,7 +733,7 @@ class _ScanResultScreenState extends State<ScanResultScreen>
                       onPressed: () {
                         SoundService.playButtonSound();
                         Navigator.pop(context);
-                        // Stay on result screen with new scan
+                        _promptAndScanUrl();
                       },
                       icon: const Icon(Icons.link_outlined),
                       label: const Text('Scan URL'),
@@ -718,6 +747,342 @@ class _ScanResultScreenState extends State<ScanResultScreen>
     );
   }
 
+  Future<void> _promptAndScanMessage({String? prefill}) async {
+    final theme = Theme.of(context);
+    final TextEditingController controller =
+        TextEditingController(text: prefill ?? '');
+    final String? text = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            String trimmed = controller.text.trim();
+            final List<String> words =
+                trimmed.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
+            final int wordCount = words.length;
+            final bool meetsRequirement = wordCount >= _minWordCount;
+
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+              ),
+              title: const Text('Enter message to scan'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextField(
+                    controller: controller,
+                    minLines: 5,
+                    maxLines: 10,
+                    onChanged: (_) => setState(() {}),
+                    decoration: InputDecoration(
+                      hintText: 'Paste email/SMS content here...',
+                      helperText:
+                          'Provide at least $_minWordCount words for better accuracy',
+                      errorText: trimmed.isEmpty
+                          ? null
+                          : (meetsRequirement
+                              ? null
+                              : 'Please add more details (min $_minWordCount words).'),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(
+                        meetsRequirement ? Icons.check_circle : Icons.error_outline,
+                        size: 16,
+                        color:
+                            meetsRequirement ? Colors.green : theme.colorScheme.error,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Words: $wordCount/$_minWordCount',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: meetsRequirement
+                              ? Colors.green
+                              : theme.colorScheme.error,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    final String value = controller.text.trim();
+                    final int wc = value
+                        .split(RegExp(r'\s+'))
+                        .where((w) => w.isNotEmpty)
+                        .length;
+                    if (wc < _minWordCount) {
+                      SoundService.playErrorSound();
+                      setState(() {});
+                      return;
+                    }
+                    Navigator.pop(context, value);
+                  },
+                  child: const Text('Scan'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+    if (text == null || text.isEmpty) return;
+
+    SoundService.playNotificationSound();
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) =>
+          const _AnalyzingDialog(message: 'Analyzing message...'),
+    );
+
+    try {
+      final Map<String, dynamic> result = await _hf.classifyText(text: text);
+      Navigator.of(context).pop();
+      SoundService.playSuccessSound();
+
+      final String rawLabel = (result['label'] as String).toUpperCase();
+      final double score = (result['score'] as num).toDouble();
+      final bool isPhishing =
+          rawLabel.contains('PHISH') || rawLabel == 'LABEL_1';
+
+      final ScanResultData data = ScanResultData(
+        isPhishing: isPhishing,
+        confidence: score,
+        classification: isPhishing ? 'Phishing' : 'Legitimate',
+        riskLevel:
+            ScanResultData.riskFromConfidence(score, isPhishing: isPhishing),
+        source: 'User input',
+        message: text,
+      );
+
+      final historyService = context.read<HistoryService>();
+      await historyService.addFromScanResult(data);
+      final String? savedId = historyService.latest?.id;
+
+      final Future<GeminiAnalysis?> geminiAnalysisFuture = _gemini
+          .analyzeContent(
+            content: text,
+            isPhishing: isPhishing,
+            confidence: score,
+            isUrl: false,
+          )
+          .then<GeminiAnalysis?>((analysis) {
+            if (savedId != null) {
+              historyService.updateGeminiById(savedId, analysis);
+            }
+            return analysis;
+          })
+          .catchError((_) => null as GeminiAnalysis?);
+
+      if (!mounted) return;
+      setState(() {
+        _isPhishing = isPhishing;
+        _confidence = score;
+        _classification = isPhishing ? 'Phishing' : 'Legitimate';
+        _riskLevel =
+            ScanResultData.riskFromConfidence(score, isPhishing: isPhishing);
+        _source = 'User input';
+        _message = text;
+        _hasGeminiAnalysis = false;
+        _geminiAnalysisFuture = geminiAnalysisFuture;
+      });
+      _scrollToTop();
+    } catch (e) {
+      Navigator.of(context).pop();
+      SoundService.playErrorSound();
+      if (!mounted) return;
+      final String errorMessage = HuggingFaceService.extractErrorMessage(e);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(errorMessage)));
+    }
+  }
+
+  Future<void> _promptAndScanUrl({String? prefill}) async {
+    final theme = Theme.of(context);
+    final TextEditingController controller =
+        TextEditingController(text: prefill ?? '');
+
+    String? url = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            final String input = controller.text.trim();
+            final bool looksLikeUrl = _isValidUrl(input);
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+              ),
+              title: const Text('Enter URL to scan'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextField(
+                    controller: controller,
+                    minLines: 1,
+                    maxLines: 3,
+                    onChanged: (_) => setState(() {}),
+                    decoration: const InputDecoration(
+                      hintText: 'https://example.com/login',
+                    ),
+                    keyboardType: TextInputType.url,
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(
+                        looksLikeUrl ? Icons.check_circle : Icons.error_outline,
+                        size: 16,
+                        color:
+                            looksLikeUrl ? Colors.green : theme.colorScheme.error,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        looksLikeUrl
+                            ? 'Valid URL'
+                            : 'Enter a valid URL (http/https)'.toString(),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: looksLikeUrl
+                              ? Colors.green
+                              : theme.colorScheme.error,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    final String value = controller.text.trim();
+                    if (!_isValidUrl(value)) {
+                      SoundService.playErrorSound();
+                      setState(() {});
+                      return;
+                    }
+                    Navigator.pop(context, value);
+                  },
+                  child: const Text('Scan'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    if (url == null || url.isEmpty) return;
+
+    SoundService.playNotificationSound();
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const _AnalyzingDialog(message: 'Analyzing URL...'),
+    );
+
+    try {
+      final Map<String, dynamic> result = await _hf.classifyUrl(url: url);
+      Navigator.of(context).pop();
+      SoundService.playSuccessSound();
+
+      final String rawLabel = (result['label'] as String).toUpperCase();
+      final double score = (result['score'] as num).toDouble();
+      final bool isPhishing =
+          rawLabel.contains('PHISH') || rawLabel == 'LABEL_1';
+
+      final ScanResultData data = ScanResultData(
+        isPhishing: isPhishing,
+        confidence: score,
+        classification: isPhishing ? 'Phishing' : 'Legitimate',
+        riskLevel:
+            ScanResultData.riskFromConfidence(score, isPhishing: isPhishing),
+        source: 'URL',
+        message: url,
+      );
+
+      final historyService = context.read<HistoryService>();
+      await historyService.addFromScanResult(data);
+      final String? savedId = historyService.latest?.id;
+
+      final Future<GeminiAnalysis?> geminiAnalysisFuture = _gemini
+          .analyzeContent(
+            content: url,
+            isPhishing: isPhishing,
+            confidence: score,
+            isUrl: true,
+          )
+          .then<GeminiAnalysis?>((analysis) {
+            if (savedId != null) {
+              historyService.updateGeminiById(savedId, analysis);
+            }
+            return analysis;
+          })
+          .catchError((_) => null as GeminiAnalysis?);
+
+      if (!mounted) return;
+      setState(() {
+        _isPhishing = isPhishing;
+        _confidence = score;
+        _classification = isPhishing ? 'Phishing' : 'Legitimate';
+        _riskLevel =
+            ScanResultData.riskFromConfidence(score, isPhishing: isPhishing);
+        _source = 'URL';
+        _message = url;
+        _hasGeminiAnalysis = false;
+        _geminiAnalysisFuture = geminiAnalysisFuture;
+      });
+      _scrollToTop();
+    } catch (e) {
+      Navigator.of(context).pop();
+      SoundService.playErrorSound();
+      if (!mounted) return;
+      final String errorMessage = HuggingFaceService.extractErrorMessage(e);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(errorMessage)));
+    }
+  }
+
+  bool _isValidUrl(String value) {
+    if (value.isEmpty) return false;
+    final Uri? uri = Uri.tryParse(value);
+    if (uri == null) return false;
+    if (!(uri.isScheme('http') || uri.isScheme('https'))) return false;
+    return uri.host.isNotEmpty;
+  }
+
+  void _scrollToTop() {
+    if (!_scrollController.hasClients) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_scrollController.hasClients) {
+          _scrollController.jumpTo(0);
+        }
+      });
+      return;
+    }
+    // Ensure it fully reaches the top even during ongoing layout/animations
+    _scrollController.jumpTo(0);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(0);
+      }
+    });
+  }
   Widget _buildQuizOption(
     String title,
     String duration,
@@ -794,6 +1159,67 @@ class _ScanResultScreenState extends State<ScanResultScreen>
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _AnalyzingDialog extends StatefulWidget {
+  const _AnalyzingDialog({required this.message});
+
+  final String message;
+
+  @override
+  State<_AnalyzingDialog> createState() => _AnalyzingDialogState();
+}
+
+class _AnalyzingDialogState extends State<_AnalyzingDialog>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppConstants.borderRadius * 1.5),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            RotationTransition(
+              turns: Tween<double>(begin: 0, end: 0.5).animate(
+                CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+              ),
+              child: Icon(
+                Icons.hourglass_top_rounded,
+                size: 56,
+                color: AppTheme.primaryColor,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(widget.message, style: theme.textTheme.titleMedium),
+            const SizedBox(height: 12),
+            LinearProgressIndicator(minHeight: 4, color: AppTheme.primaryColor),
+          ],
+        ),
       ),
     );
   }

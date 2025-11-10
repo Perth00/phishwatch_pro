@@ -23,6 +23,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   late Animation<Offset> _slideAnimation;
 
   int _currentPage = 0;
+  DateTime? _lastBackPressedAt; // For double-back to exit
 
   final List<FeatureData> _features = [
     FeatureData(
@@ -122,31 +123,46 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return Scaffold(
-      backgroundColor: colorScheme.surface,
-      body: SafeArea(
-        child: FadeTransition(
-          opacity: _fadeAnimation,
-          child: SlideTransition(
-            position: _slideAnimation,
-            child: Padding(
-              padding: const EdgeInsets.all(AppConstants.spacingL),
-              child: Column(
-                children: [
-                  // Header
-                  _buildHeader(theme),
+    return WillPopScope(
+      onWillPop: () async {
+        final DateTime now = DateTime.now();
+        if (_lastBackPressedAt == null ||
+            now.difference(_lastBackPressedAt!) > const Duration(seconds: 2)) {
+          _lastBackPressedAt = now;
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Press back again to exit')),
+          );
+          return false;
+        }
+        return true;
+      },
+      child: Scaffold(
+        backgroundColor: colorScheme.surface,
+        body: SafeArea(
+          child: FadeTransition(
+            opacity: _fadeAnimation,
+            child: SlideTransition(
+              position: _slideAnimation,
+              child: Padding(
+                padding: const EdgeInsets.all(AppConstants.spacingL),
+                child: Column(
+                  children: [
+                    // Header
+                    _buildHeader(theme),
 
-                  // Feature showcase
-                  Expanded(child: _buildFeatureShowcase()),
+                    // Feature showcase
+                    Expanded(child: _buildFeatureShowcase()),
 
-                  // Page indicator
-                  _buildPageIndicator(),
+                    // Page indicator
+                    _buildPageIndicator(),
 
-                  const SizedBox(height: AppConstants.spacingXL),
+                    const SizedBox(height: AppConstants.spacingXL),
 
-                  // Action buttons
-                  _buildActionButtons(),
-                ],
+                    // Action buttons
+                    _buildActionButtons(),
+                  ],
+                ),
               ),
             ),
           ),

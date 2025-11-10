@@ -403,13 +403,19 @@ class _ProfileScreenState extends State<ProfileScreen>
       }
     }
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
-      body: buildSafeBody(),
-      bottomNavigationBar: BottomNavBar(
-        currentIndex: _currentNavIndex,
-        onTap: _onNavTap,
-        onProfileTap: () => context.go('/profile'),
+    return WillPopScope(
+      onWillPop: () async {
+        context.go('/home');
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Profile')),
+        body: buildSafeBody(),
+        bottomNavigationBar: BottomNavBar(
+          currentIndex: _currentNavIndex,
+          onTap: _onNavTap,
+          onProfileTap: () => context.go('/profile'),
+        ),
       ),
     );
   }

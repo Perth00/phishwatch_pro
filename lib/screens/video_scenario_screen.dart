@@ -6,6 +6,7 @@ import '../constants/app_theme.dart';
 import 'package:provider/provider.dart';
 import '../services/progress_service.dart';
 import '../models/video_scenario.dart';
+import '../widgets/confirm_dialog.dart';
 
 class VideoScenarioScreen extends StatefulWidget {
   final VideoScenario scenario;
@@ -21,6 +22,7 @@ class _VideoScenarioScreenState extends State<VideoScenarioScreen> {
   int? _selected;
   bool _answered = false;
   bool _loadingVideo = true;
+  bool _isLeaving = false; // Prevent double dialog when app bar back is used
 
   bool _looksLikeYoutubeId(String s) =>
       RegExp(r'^[0-9A-Za-z_-]{11}$').hasMatch(s);
@@ -121,54 +123,42 @@ class _VideoScenarioScreenState extends State<VideoScenarioScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.scenario.title),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () async {
-            final bool? leave = await showDialog<bool>(
-              context: context,
-              barrierDismissible: true,
-              builder:
-                  (ctx) => AlertDialog(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    title: Row(
-                      children: [
-                        SizedBox(
-                          width: 40,
-                          height: 40,
-                          child: Lottie.asset(
-                            'assets/animations/log_out.json',
-                            repeat: false,
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        const Text('Leave scenario?'),
-                      ],
-                    ),
-                    content: const Text(
-                      'Your current answer will not be saved.',
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx, false),
-                        child: const Text('Stay'),
-                      ),
-                      ElevatedButton(
-                        onPressed: () => Navigator.pop(ctx, true),
-                        child: const Text('Leave'),
-                      ),
-                    ],
-                  ),
-            );
-            if (leave == true && mounted) Navigator.of(context).maybePop();
-          },
+    Future<bool> _confirmLeave() async {
+      final bool? ok = await showDialog<bool>(
+        context: context,
+        barrierDismissible: true,
+        builder:
+            (_) => ConfirmDialog(
+              title: 'Leave scenario?',
+              message: 'Your current answer will not be saved.',
+              confirmText: 'Leave',
+              cancelText: 'Stay',
+              onConfirm: () {},
+              animationAsset: 'assets/animations/log_out.json',
+            ),
+      );
+      return ok == true;
+    }
+
+    return WillPopScope(
+      onWillPop: () async {
+        if (_isLeaving) return true; // Already confirmed via app bar
+        return await _confirmLeave();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.scenario.title),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () async {
+              final ok = await _confirmLeave();
+              if (ok && mounted) {
+                setState(() => _isLeaving = true);
+                Navigator.of(context).maybePop();
+              }
+            },
+          ),
         ),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(AppConstants.spacingL),
         child: Column(
@@ -314,6 +304,7 @@ class _VideoScenarioScreenState extends State<VideoScenarioScreen> {
           ],
         ),
       ),
+    ),
     );
   }
 }

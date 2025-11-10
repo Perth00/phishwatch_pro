@@ -553,12 +553,17 @@ class _LearnScreenState extends State<LearnScreen>
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return Scaffold(
-      backgroundColor: colorScheme.surface,
-      extendBody: true,
-      body: SafeArea(
-        child: Column(
-          children: [
+    return WillPopScope(
+      onWillPop: () async {
+        context.go('/home');
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: colorScheme.surface,
+        extendBody: true,
+        body: SafeArea(
+          child: Column(
+            children: [
             // Header
             FadeTransition(
               opacity: _headerAnimation,
@@ -575,24 +580,25 @@ class _LearnScreenState extends State<LearnScreen>
                 ),
               ),
             ),
-          ],
+            ],
+          ),
         ),
-      ),
-      bottomNavigationBar: BottomNavBar(
-        currentIndex: _currentNavIndex,
-        onTap: _onNavTap,
-        onProfileTap: () => context.go('/profile'),
-      ),
-      floatingActionButton: ScaleTransition(
-        scale: _fabAnimation,
-        child: FloatingActionButton.extended(
-          onPressed: () {
-            SoundService.playButtonSound();
-            context.go('/progress');
-          },
-          icon: const Icon(Icons.analytics_outlined),
-          label: const Text('My Progress'),
-          backgroundColor: AppTheme.primaryColor,
+        bottomNavigationBar: BottomNavBar(
+          currentIndex: _currentNavIndex,
+          onTap: _onNavTap,
+          onProfileTap: () => context.go('/profile'),
+        ),
+        floatingActionButton: ScaleTransition(
+          scale: _fabAnimation,
+          child: FloatingActionButton.extended(
+            onPressed: () {
+              SoundService.playButtonSound();
+              context.go('/progress');
+            },
+            icon: const Icon(Icons.analytics_outlined),
+            label: const Text('My Progress'),
+            backgroundColor: AppTheme.primaryColor,
+          ),
         ),
       ),
     );

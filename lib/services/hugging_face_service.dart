@@ -156,6 +156,64 @@ class HuggingFaceService {
     return upper;
   }
 
+  /// Extract user-friendly error message from exceptions
+  static String extractErrorMessage(dynamic error) {
+    final String errorString = error.toString();
+
+    // Check for network/connection errors
+    if (errorString.contains('Connection refused') ||
+        errorString.contains('Network is unreachable') ||
+        errorString.contains('SocketException') ||
+        errorString.contains('Failed host lookup') ||
+        errorString.contains('Connection reset by peer') ||
+        errorString.contains('Broken pipe') ||
+        errorString.contains('Network error')) {
+      return 'Connection Error';
+    }
+
+    // Check for timeout errors
+    if (errorString.contains('timeout') ||
+        errorString.contains('TimeoutException') ||
+        errorString.contains('timed out')) {
+      return 'Connection Error';
+    }
+
+    // Check for API errors
+    if (errorString.contains('HuggingFace API error') ||
+        errorString.contains('Space API error')) {
+      // Extract status code if available
+      if (errorString.contains('404')) {
+        return 'Model Not Found';
+      }
+      if (errorString.contains('401') || errorString.contains('403')) {
+        return 'Authentication Error';
+      }
+      if (errorString.contains('429')) {
+        return 'Too Many Requests';
+      }
+      if (errorString.contains('500') ||
+          errorString.contains('502') ||
+          errorString.contains('503')) {
+        return 'Server Error';
+      }
+      return 'Connection Error';
+    }
+
+    // Check for SSL/Certificate errors
+    if (errorString.contains('certificate') ||
+        errorString.contains('SSL') ||
+        errorString.contains('handshake')) {
+      return 'Connection Error';
+    }
+
+    // Default to generic connection error for any network-related exception
+    if (errorString.contains('Exception') || errorString.contains('Error')) {
+      return 'Connection Error';
+    }
+
+    return 'Connection Error';
+  }
+
   /// Classify a URL using either a Space proxy endpoint or the Inference API
   /// for a URL-specific model. Returns a normalized `{ label, score }`.
   Future<Map<String, dynamic>> classifyUrl({

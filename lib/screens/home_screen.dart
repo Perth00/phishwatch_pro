@@ -31,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final HuggingFaceService _hf = HuggingFaceService();
   final GeminiService _gemini = GeminiService();
   static const int _minWordCount = 15; // Require at least 15 words for scanning
+  DateTime? _lastBackPressedAt; // For double-back to exit
 
   @override
   void initState() {
@@ -320,9 +321,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       Navigator.of(context).pop();
       SoundService.playErrorSound();
       if (!mounted) return;
+      final String errorMessage = HuggingFaceService.extractErrorMessage(e);
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Scan failed: $e')));
+      ).showSnackBar(SnackBar(content: Text(errorMessage)));
     }
   }
 
@@ -494,9 +496,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       Navigator.of(context).pop();
       SoundService.playErrorSound();
       if (!mounted) return;
+      final String errorMessage = HuggingFaceService.extractErrorMessage(e);
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Scan failed: $e')));
+      ).showSnackBar(SnackBar(content: Text(errorMessage)));
     }
   }
 
@@ -518,7 +521,21 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: () async {
+        final DateTime now = DateTime.now();
+        if (_lastBackPressedAt == null ||
+            now.difference(_lastBackPressedAt!) > const Duration(seconds: 2)) {
+          _lastBackPressedAt = now;
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Press back again to exit')),
+          );
+          return false; // don't exit yet
+        }
+        return true; // exit app
+      },
+      child: Scaffold(
       backgroundColor: colorScheme.surface,
       body: SafeArea(
         child: Column(
@@ -547,6 +564,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         onTap: _onNavTap,
         onProfileTap: () => context.go('/profile'),
       ),
+    ),
     );
   }
 
