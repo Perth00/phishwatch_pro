@@ -34,18 +34,76 @@ class AuthService extends ChangeNotifier {
     }
   }
 
+  /// Validates email and password before submission
+  String? validateCredentials(String email, String password) {
+    email = email.trim();
+    password = password.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      return 'Please enter both email and password';
+    }
+
+    if (!email.contains('@')) {
+      return 'Please enter a valid email address';
+    }
+
+    if (password.length < 6) {
+      return 'Password must be at least 6 characters';
+    }
+
+    return null; // No error
+  }
+
+  /// Extract user-friendly error message from Firebase exceptions
+  String _extractErrorMessage(dynamic error) {
+    if (error is fba.FirebaseAuthException) {
+      switch (error.code) {
+        case 'user-not-found':
+        case 'invalid-credential':
+          return 'Invalid email or password';
+        case 'wrong-password':
+          return 'Invalid email or password';
+        case 'invalid-email':
+          return 'Please enter a valid email address';
+        case 'user-disabled':
+          return 'This account has been disabled';
+        case 'too-many-requests':
+          return 'Too many login attempts. Please try again later';
+        case 'operation-not-allowed':
+          return 'Email/password authentication is not enabled';
+        case 'weak-password':
+          return 'Password is too weak. Use a stronger password';
+        case 'email-already-in-use':
+          return 'This email is already registered';
+        case 'network-request-failed':
+          return 'Network error. Please check your internet connection';
+        default:
+          return error.message ?? 'Authentication failed';
+      }
+    }
+    return error.toString();
+  }
+
   Future<fba.User?> registerWithEmail(String email, String password) async {
     await _ensureInitialized();
-    final credential = await fba.FirebaseAuth.instance
-        .createUserWithEmailAndPassword(email: email, password: password);
-    return credential.user;
+    try {
+      final credential = await fba.FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+      return credential.user;
+    } catch (e) {
+      throw Exception(_extractErrorMessage(e));
+    }
   }
 
   Future<fba.User?> signInWithEmail(String email, String password) async {
     await _ensureInitialized();
-    final credential = await fba.FirebaseAuth.instance
-        .signInWithEmailAndPassword(email: email, password: password);
-    return credential.user;
+    try {
+      final credential = await fba.FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
+      return credential.user;
+    } catch (e) {
+      throw Exception(_extractErrorMessage(e));
+    }
   }
 
   Future<void> sendEmailVerification() async {

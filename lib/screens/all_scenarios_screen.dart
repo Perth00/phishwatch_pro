@@ -102,17 +102,26 @@ class _AllScenariosScreenState extends State<AllScenariosScreen> {
       if (a.type != b.type) return a.type.compareTo(b.type);
       return 0;
     });
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('All Scenarios'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () async {
-            final popped = await Navigator.of(context).maybePop();
-            if (!popped && context.mounted) context.go('/learn');
-          },
+    return WillPopScope(
+      onWillPop: () async {
+        if (context.canPop()) {
+          context.pop();
+        } else {
+          context.go('/learn');
+        }
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('All Scenarios'),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () async {
+              final popped = await Navigator.of(context).maybePop();
+              if (!popped && context.mounted) context.go('/learn');
+            },
+          ),
         ),
-      ),
       body: Column(
         children: [
           _buildFiltersTop(),
@@ -310,6 +319,7 @@ class _AllScenariosScreenState extends State<AllScenariosScreen> {
           ),
         ],
       ),
+    ),
     );
   }
 

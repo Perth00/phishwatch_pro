@@ -3,9 +3,12 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../constants/app_theme.dart';
 import '../services/auth_service.dart';
+import '../services/connectivity_service.dart';
 import '../widgets/bouncy_button.dart';
 import '../widgets/confirm_dialog.dart';
 import '../widgets/loading_overlay.dart';
+import '../services/history_service.dart';
+import '../services/sound_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -20,46 +23,115 @@ class _LoginScreenState extends State<LoginScreen>
   final TextEditingController _password = TextEditingController();
   bool _busy = false;
   String? _error;
+  late ConnectivityService _connectivityService;
+
+  @override
+  void initState() {
+    super.initState();
+    _connectivityService = ConnectivityService();
+  }
 
   @override
   void dispose() {
     _email.dispose();
     _password.dispose();
+    _connectivityService.dispose();
     super.dispose();
   }
 
+  Future<void> _showValidationAlert(String message) async {
+    SoundService.playErrorSound();
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+        ),
+        title: const Text('Validation Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _login() async {
+    // Prevent multiple clicks
+    if (_busy) return;
+
+    // Check if credentials are empty
+    final authService = context.read<AuthService>();
+    final validationError =
+        authService.validateCredentials(_email.text, _password.text);
+
+    if (validationError != null) {
+      await _showValidationAlert(validationError);
+      return;
+    }
+
+    // Check internet connectivity
+    final isConnected = await _connectivityService.checkConnection();
+    if (!isConnected) {
+      if (mounted) {
+        await _showValidationAlert(
+          'No internet connection. Please check your network and try again.',
+        );
+      }
+      return;
+    }
+
     setState(() {
       _busy = true;
       _error = null;
     });
     LoadingOverlay.show(context, message: 'Signing in...');
     try {
-      await context.read<AuthService>().signInWithEmail(
+      await authService.signInWithEmail(
         _email.text.trim(),
         _password.text,
       );
-      final verified =
-          context.read<AuthService>().currentUser?.emailVerified ?? false;
+      final verified = authService.currentUser?.emailVerified ?? false;
       if (!verified) {
         setState(() {
           _error = 'Please verify your email. We can resend the link.';
+          _busy = false; // Allow retry if email not verified
         });
       } else {
+        // Sync history with cloud before entering home
+        try {
+          await context.read<HistoryService>().syncWithCloud();
+        } catch (_) {}
         if (mounted) context.go('/home');
       }
     } catch (e) {
-      setState(() => _error = e.toString());
+      SoundService.playErrorSound();
+      setState(() {
+        _error = e.toString();
+        _busy = false; // Allow retry on error
+      });
     } finally {
       LoadingOverlay.hide(context);
-      if (mounted) setState(() => _busy = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: () async {
+        // Navigate back to previous page if available, otherwise go to home
+        if (context.canPop()) {
+          context.pop();
+        } else {
+          context.go('/home');
+        }
+        return false;
+      },
+      child: Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
@@ -77,7 +149,11 @@ class _LoginScreenState extends State<LoginScreen>
                   ),
             );
             if (confirmed == true) {
-              context.canPop() ? context.pop() : context.go('/');
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go('/home');
+              }
             }
           },
         ),
@@ -135,7 +211,8 @@ class _LoginScreenState extends State<LoginScreen>
                           Text(_error!, style: TextStyle(color: theme.colorScheme.error)),
                           const SizedBox(height: 8),
                         ],
-                        if (_error != null) _ResendCooldownButton(),
+                        // Only show resend button if email is not verified
+                        if (_error != null && _error!.contains('verify your email')) _ResendCooldownButton(),
                         const Spacer(),
                         BouncyButton(
                           onPressed: _busy ? null : _login,
@@ -167,7 +244,7 @@ class _LoginScreenState extends State<LoginScreen>
           },
         ),
       ),
-    );
+    ));
   }
 }
 
@@ -190,11 +267,13 @@ class _ResendCooldownButtonState extends State<_ResendCooldownButton> {
                     await context.read<AuthService>().sendEmailVerification();
                     if (!mounted) return;
                     setState(() => _cooldown = 60);
+                    SoundService.playSuccessSound();
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Verification email sent')),
                     );
                   } catch (e) {
                     if (!mounted) return;
+                    SoundService.playErrorSound();
                     final String msg = e.toString();
                     final bool throttled = msg.contains('too-many-requests');
                     setState(() => _cooldown = throttled ? 300 : 30);

@@ -7,6 +7,7 @@ import '../models/learning_content.dart';
 import '../services/progress_service.dart';
 import '../services/auth_service.dart';
 import '../services/sound_service.dart';
+import '../widgets/confirm_dialog.dart';
 
 class ScenarioScreen extends StatefulWidget {
   final String scenarioId;
@@ -185,19 +186,51 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
     final bool isCorrectNow =
         _selected != null && _selected == scenario.isPhishing;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('${_category} • $_level'),
-        leading: BackButton(
-          onPressed: () {
-            if (context.canPop()) {
-              context.pop();
-            } else {
-              context.go('/learn');
-            }
-          },
+    Future<bool> _confirmLeave() async {
+      final bool? ok = await showDialog<bool>(
+        context: context,
+        barrierDismissible: true,
+        builder:
+            (_) => ConfirmDialog(
+              title: 'Leave scenario?',
+              message: 'Your current answer will not be saved.',
+              confirmText: 'Leave',
+              cancelText: 'Stay',
+              onConfirm: () {},
+              animationAsset: 'assets/animations/log_out.json',
+            ),
+      );
+      return ok == true;
+    }
+
+    return WillPopScope(
+      onWillPop: () async {
+        final ok = await _confirmLeave();
+        if (ok) {
+          // Navigate back explicitly instead of allowing default pop
+          if (context.canPop()) {
+            context.pop();
+          } else {
+            context.go('/learn');
+          }
+        }
+        return false; // Prevent default pop since we handle navigation
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('${_category} • $_level'),
+          leading: BackButton(
+            onPressed: () async {
+              final ok = await _confirmLeave();
+              if (!ok) return;
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go('/learn');
+              }
+            },
+          ),
         ),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(AppConstants.spacingL),
         child: AnimatedSwitcher(
@@ -313,6 +346,7 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
           ),
         ),
       ),
+    ),
     );
   }
 

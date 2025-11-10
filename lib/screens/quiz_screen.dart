@@ -6,6 +6,7 @@ import '../models/learning_content.dart';
 import '../services/progress_service.dart';
 import '../services/auth_service.dart';
 import '../services/sound_service.dart';
+import '../widgets/confirm_dialog.dart';
 
 class QuizScreen extends StatefulWidget {
   final String quizId;
@@ -178,20 +179,52 @@ class _QuizScreenState extends State<QuizScreen> {
       );
     }
     final q = _index < _questions.length ? _questions[_index] : null;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.overrideTitle ?? quiz.title),
-        leading: BackButton(
-          onPressed: () {
-            SoundService.playButtonSound();
-            if (context.canPop()) {
-              context.pop();
-            } else {
-              context.go('/learn');
-            }
-          },
+    Future<bool> _confirmLeave() async {
+      final bool? ok = await showDialog<bool>(
+        context: context,
+        barrierDismissible: true,
+        builder:
+            (_) => ConfirmDialog(
+              title: 'Leave quiz?',
+              message: 'Your current progress will be lost.',
+              confirmText: 'Leave',
+              cancelText: 'Stay',
+              onConfirm: () {},
+              animationAsset: 'assets/animations/log_out.json',
+            ),
+      );
+      return ok == true;
+    }
+
+    return WillPopScope(
+      onWillPop: () async {
+        final ok = await _confirmLeave();
+        if (ok) {
+          // Navigate back explicitly instead of allowing default pop
+          if (context.canPop()) {
+            context.pop();
+          } else {
+            context.go('/learn');
+          }
+        }
+        return false; // Prevent default pop since we handle navigation
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.overrideTitle ?? quiz.title),
+          leading: BackButton(
+            onPressed: () async {
+              SoundService.playButtonSound();
+              final ok = await _confirmLeave();
+              if (!ok) return;
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go('/learn');
+              }
+            },
+          ),
         ),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(AppConstants.spacingL),
         child:
@@ -312,6 +345,7 @@ class _QuizScreenState extends State<QuizScreen> {
                   ),
                 ),
       ),
+    ),
     );
   }
 

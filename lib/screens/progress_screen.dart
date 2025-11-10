@@ -18,24 +18,35 @@ class ProgressScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final auth = context.watch<AuthService>();
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Progress'),
-        leading: BackButton(
-          onPressed: () {
-            if (Navigator.of(context).canPop()) {
-              Navigator.of(context).pop();
-            } else {
-              // Fallback to learn screen to avoid dead-ends/black screens
-              context.go('/learn');
-            }
-          },
+    return WillPopScope(
+      onWillPop: () async {
+        // Navigate back explicitly instead of allowing default pop
+        if (context.canPop()) {
+          context.pop();
+        } else {
+          context.go('/learn');
+        }
+        return false; // Prevent default pop since we handle navigation
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('My Progress'),
+          leading: BackButton(
+            onPressed: () {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+              } else {
+                // Fallback to learn screen to avoid dead-ends/black screens
+                context.go('/learn');
+              }
+            },
+          ),
         ),
+        body:
+            auth.isAuthenticated
+                ? _buildAuthenticated(theme)
+                : _buildGuest(theme, context),
       ),
-      body:
-          auth.isAuthenticated
-              ? _buildAuthenticated(theme)
-              : _buildGuest(theme, context),
     );
   }
 

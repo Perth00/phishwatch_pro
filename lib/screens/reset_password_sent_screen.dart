@@ -61,7 +61,12 @@ class _ResetPasswordSentScreenState extends State<ResetPasswordSentScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: () async {
+        context.go('/home');
+        return false;
+      },
+      child: Scaffold(
       appBar: AppBar(title: const Text('Check your email')),
       body: Padding(
         padding: const EdgeInsets.all(AppConstants.spacingL),
@@ -113,6 +118,6 @@ class _ResetPasswordSentScreenState extends State<ResetPasswordSentScreen> {
           ],
         ),
       ),
-    );
+    ));
   }
 }

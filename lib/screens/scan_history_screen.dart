@@ -38,6 +38,9 @@ class _ScanHistoryScreenState extends State<ScanHistoryScreen>
 
   // Data now comes from HistoryService
   List<HistoryItem> _allHistoryItems = [];
+  
+  // Bottom navigation state
+  int _currentNavIndex = 1; // Scan tab
 
   List<HistoryItem> get _filteredHistoryItems {
     // Always work on a modifiable copy
@@ -157,6 +160,96 @@ class _ScanHistoryScreenState extends State<ScanHistoryScreen>
     });
   }
 
+  void _onNavTap(int index) {
+    SoundService.playButtonSound();
+    setState(() => _currentNavIndex = index);
+    switch (index) {
+      case 0:
+        context.go('/home');
+        break;
+      case 1:
+        _showScanDialog();
+        break;
+      case 2:
+        context.go('/learn');
+        break;
+      case 3:
+        context.go('/profile');
+        break;
+    }
+  }
+
+  void _showScanDialog() {
+    SoundService.playButtonSound();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _buildScanBottomSheet(),
+    );
+  }
+
+  Widget _buildScanBottomSheet() {
+    final theme = Theme.of(context);
+    return Container(
+      margin: const EdgeInsets.all(AppConstants.spacingM),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(AppConstants.borderRadius * 2),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppConstants.spacingL),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.outline.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: AppConstants.spacingL),
+            Text(
+              'Choose Scan Type',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: AppConstants.spacingXL),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  SoundService.playButtonSound();
+                  Navigator.pop(context);
+                  context.go('/scan-result');
+                },
+                icon: const Icon(Icons.message_outlined),
+                label: const Text('Scan Message'),
+              ),
+            ),
+            const SizedBox(height: AppConstants.spacingM),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  SoundService.playButtonSound();
+                  Navigator.pop(context);
+                  context.go('/scan-result');
+                },
+                icon: const Icon(Icons.link_outlined),
+                label: const Text('Scan URL'),
+              ),
+            ),
+            const SizedBox(height: AppConstants.spacingL),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -164,7 +257,12 @@ class _ScanHistoryScreenState extends State<ScanHistoryScreen>
     final colorScheme = theme.colorScheme;
     final filteredItems = _filteredHistoryItems;
 
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: () async {
+        context.go('/home');
+        return false;
+      },
+      child: Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
         title: const Text('Scan History'),
@@ -212,12 +310,11 @@ class _ScanHistoryScreenState extends State<ScanHistoryScreen>
         ],
       ),
       bottomNavigationBar: BottomNavBar(
-        currentIndex: 1,
-        onTap: (index) {
-          if (index == 0) context.go('/home');
-        },
+        currentIndex: _currentNavIndex,
+        onTap: _onNavTap,
+        onProfileTap: () => context.go('/profile'),
       ),
-    );
+    ));
   }
 
   Widget _buildEmptyState(ThemeData theme) {
