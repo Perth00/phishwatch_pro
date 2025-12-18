@@ -37,6 +37,7 @@ class _QuizScreenState extends State<QuizScreen> {
   final List<bool> _isCorrect = <bool>[];
   int _resetsUsed = 0;
   DateTime? _startTime;
+  Future<void>? _recordAttemptFuture;
 
   Future<void> _confirmAndResetQuiz() async {
     if (_resetsUsed >= 2) {
@@ -97,6 +98,7 @@ class _QuizScreenState extends State<QuizScreen> {
         _selected = null;
         _finished = false;
         _locked = false;
+        _recordAttemptFuture = null;
       });
     }
   }
@@ -304,6 +306,7 @@ class _QuizScreenState extends State<QuizScreen> {
                                         SoundService.playButtonSound();
                                         if (_index + 1 == _questions.length) {
                                           setState(() => _finished = true);
+                                          _recordAttemptFuture = _recordAttempt();
                                           context
                                               .read<ProgressService>()
                                               .recordQuizResult(
@@ -352,7 +355,138 @@ class _QuizScreenState extends State<QuizScreen> {
   Widget _buildResult(ThemeData theme, Quiz quiz) {
     final percent = (100.0 * _correct / (_questions.length)).toStringAsFixed(0);
     final passed = 100.0 * _correct / _questions.length >= quiz.passPercent;
-    // Persist detailed attempt for history and progress
+    return FutureBuilder<void>(
+      future: _recordAttemptFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        return Padding(
+          padding: const EdgeInsets.all(AppConstants.spacingL),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(AppConstants.spacingL),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      AppTheme.primaryColor.withOpacity(0.1),
+                      AppTheme.successColor.withOpacity(0.08),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                  border: Border.all(color: AppTheme.primaryColor.withOpacity(0.3)),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      passed ? Icons.emoji_events : Icons.trending_down,
+                      color: passed ? AppTheme.successColor : AppTheme.errorColor,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Score: $percent%',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color:
+                                  passed
+                                      ? AppTheme.successColor
+                                      : AppTheme.errorColor,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            passed
+                                ? 'Great job! Level progressing.'
+                                : 'Keep practicing.',
+                            style: theme.textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text('Results breakdown', style: theme.textTheme.titleMedium),
+              const SizedBox(height: 8),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _questions.length,
+                  itemBuilder: (context, i) {
+                    final q = _questions[i];
+                    final ua = _userAnswers[i];
+                    final ok = _isCorrect[i];
+                    final String userAns =
+                        ua == null
+                            ? 'No answer'
+                            : (ua >= 0 && ua < q.options.length
+                                ? q.options[ua]
+                                : 'No answer');
+                    final String rightAns = q.options[q.correctIndex];
+                    return Card(
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(
+                          color:
+                              ok
+                                  ? AppTheme.successColor.withOpacity(0.4)
+                                  : AppTheme.errorColor.withOpacity(0.4),
+                        ),
+                      ),
+                      child: ListTile(
+                        leading: Icon(
+                          ok ? Icons.check_circle : Icons.cancel,
+                          color: ok ? AppTheme.successColor : AppTheme.errorColor,
+                        ),
+                        title: Text(q.prompt),
+                        subtitle: Text(
+                          'Your answer: ' + userAns + ' • Correct: ' + rightAns,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      SoundService.playButtonSound();
+                      context.go('/learn');
+                    },
+                    child: const Text('Back to Learn'),
+                  ),
+                  const SizedBox(width: 8),
+                  OutlinedButton(
+                    onPressed: () {
+                      SoundService.playButtonSound();
+                      context.push('/progress');
+                    },
+                    child: const Text('View Progress'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+        },
+    );
+  }
+
+  Future<void> _recordAttempt() async {
+    final quiz = LearningRepository.getQuiz(widget.quizId)!;
     final answers = <Map<String, dynamic>>[];
     for (int i = 0; i < _questions.length; i++) {
       final q = _questions[i];
@@ -367,7 +501,10 @@ class _QuizScreenState extends State<QuizScreen> {
     }
     final int durationSec =
         DateTime.now().difference(_startTime ?? DateTime.now()).inSeconds;
-    context.read<ProgressService>().recordQuizAttemptDetailed(
+
+    // Record both detailed attempt and summary result
+    final progressService = context.read<ProgressService>();
+    await progressService.recordQuizAttemptDetailed(
       quizId: widget.quizId,
       category: widget.overrideCategory ?? quiz.category,
       difficulty: widget.overrideLevel ?? quiz.difficulty,
@@ -376,124 +513,13 @@ class _QuizScreenState extends State<QuizScreen> {
       answers: answers,
       durationSec: durationSec,
     );
-    return Padding(
-      padding: const EdgeInsets.all(AppConstants.spacingL),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(AppConstants.spacingL),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppTheme.primaryColor.withOpacity(0.1),
-                  AppTheme.successColor.withOpacity(0.08),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-              border: Border.all(color: AppTheme.primaryColor.withOpacity(0.3)),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  passed ? Icons.emoji_events : Icons.trending_down,
-                  color: passed ? AppTheme.successColor : AppTheme.errorColor,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Score: $percent%',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          color:
-                              passed
-                                  ? AppTheme.successColor
-                                  : AppTheme.errorColor,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        passed
-                            ? 'Great job! Level progressing.'
-                            : 'Keep practicing.',
-                        style: theme.textTheme.bodySmall,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text('Results breakdown', style: theme.textTheme.titleMedium),
-          const SizedBox(height: 8),
-          Expanded(
-            child: ListView.builder(
-              itemCount: _questions.length,
-              itemBuilder: (context, i) {
-                final q = _questions[i];
-                final ua = _userAnswers[i];
-                final ok = _isCorrect[i];
-                final String userAns =
-                    ua == null
-                        ? 'No answer'
-                        : (ua >= 0 && ua < q.options.length
-                            ? q.options[ua]
-                            : 'No answer');
-                final String rightAns = q.options[q.correctIndex];
-                return Card(
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(
-                      color:
-                          ok
-                              ? AppTheme.successColor.withOpacity(0.4)
-                              : AppTheme.errorColor.withOpacity(0.4),
-                    ),
-                  ),
-                  child: ListTile(
-                    leading: Icon(
-                      ok ? Icons.check_circle : Icons.cancel,
-                      color: ok ? AppTheme.successColor : AppTheme.errorColor,
-                    ),
-                    title: Text(q.prompt),
-                    subtitle: Text(
-                      'Your answer: ' + userAns + ' • Correct: ' + rightAns,
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  SoundService.playButtonSound();
-                  context.go('/learn');
-                },
-                child: const Text('Back to Learn'),
-              ),
-              const SizedBox(width: 8),
-              OutlinedButton(
-                onPressed: () {
-                  SoundService.playButtonSound();
-                  context.push('/progress');
-                },
-                child: const Text('View Progress'),
-              ),
-            ],
-          ),
-        ],
-      ),
+    await progressService.recordQuizResult(
+      quizId: widget.quizId,
+      correct: _correct,
+      total: _questions.length,
+      category: widget.overrideCategory ?? quiz.category,
+      difficulty: widget.overrideLevel ?? quiz.difficulty,
+      durationSec: durationSec,
     );
   }
 
