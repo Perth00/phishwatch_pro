@@ -184,11 +184,17 @@ class ProgressService extends ChangeNotifier {
     final uid = _uid;
     if (uid == null) return;
     final userRef = _db.collection('users').doc(uid);
-    final resultsRef = userRef.collection('quizzes').doc(quizId);
+    // Use .add() to create a new document for each result, ensuring a unique
+    // ID and preventing overwrites. This allows the accuracy chart to show
+    // a history of recent attempts rather than just the last one.
+    final resultsRef = userRef.collection('quizzes');
     final accuracy = total == 0 ? 0.0 : (correct / total) * 100.0;
     await _db.runTransaction((tx) async {
       final passed = total == 0 ? false : (correct / total) * 100.0 >= 70.0;
-      tx.set(resultsRef, {
+      // Since we are now adding a new document, we use the collection reference
+      // and data payload directly within the transaction.
+      resultsRef.add({
+        'quizId': quizId, // Keep track of which quiz this was
         'correct': correct,
         'total': total,
         'accuracy': accuracy,
@@ -197,7 +203,7 @@ class ProgressService extends ChangeNotifier {
         if (durationSec != null) 'durationSec': durationSec,
         if (category != null) 'category': category,
         if (difficulty != null) 'difficulty': difficulty,
-      }, SetOptions(merge: true));
+      });
       tx.update(userRef, {'stats.quizzesCompleted': FieldValue.increment(1)});
     });
     notifyListeners();

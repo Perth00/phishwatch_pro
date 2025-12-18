@@ -77,14 +77,17 @@ class _AllScenariosScreenState extends State<AllScenariosScreen> {
           level: level,
           base: base,
         ));
-        entries.add((
-          type: 'Video scenario',
-          category: cat,
-          level: level,
-          base: base,
-        ));
       }
     }
+
+    // Add a single, dedicated video scenario entry.
+    // This should not be replicated per-category in the loop.
+    entries.add((
+      type: 'Video scenario',
+      category: 'Basics',
+      level: 'Beginner',
+      base: _pickBase('Basics'),
+    ));
     const List<String> catOrder = [
       'Basics',
       'Email Security',
